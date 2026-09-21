@@ -720,7 +720,14 @@
     // o bloco "em aberto" e o que esta carregado agora; abaixo dele, as semanas guardadas
     var blocos = [{ id:"", nid:nsAberto(), nome:"", lojas: agregar(sang, ext), atual:true }];
     estado.semanas.forEach(function(sem){
-      blocos.push({ id:sem.id, nid:sem.id, nome:sem.nome, lojas:sem.lojas, atual:false });
+      // semana com lancamentos proprios reagrega na hora; as antigas, sem
+      // lancamentos guardados, seguem com o consolidado congelado
+      var lojas = sem.sangria
+        ? agregar(sem.sangria.filter(function(r){ return r.marcado; }),
+                  (sem.extrato || []).filter(function(r){ return r.marcado; }))
+        : sem.lojas;
+      blocos.push({ id:sem.id, nid:sem.id, nome:sem.nome, lojas:lojas,
+                    sem:sem, atual:false });
     });
 
     // cada semana e uma aba: mostra uma de cada vez, nunca empilhadas
@@ -748,8 +755,14 @@
         aS += abaAtiva.lojas[k].s; aB += abaAtiva.lojas[k].b; nq++;
       });
       var aD = aS - aB;
-      $("tS").textContent = brl(aS); $("nS").textContent = nq + " loja" + (nq>1?"s":"") + " \u00b7 semana fechada";
-      $("tB").textContent = brl(aB); $("nB").textContent = "semana fechada";
+      var qS = (abaAtiva.sem && abaAtiva.sem.sangria) ? abaAtiva.sem.sangria : null;
+      var qB = (abaAtiva.sem && abaAtiva.sem.extrato) ? abaAtiva.sem.extrato : null;
+      $("tS").textContent = brl(aS);
+      $("nS").textContent = (qS ? qS.filter(function(r){ return r.marcado; }).length +
+                                  " de " + qS.length + " lançamentos \u00b7 " : "") + "semana fechada";
+      $("tB").textContent = brl(aB);
+      $("nB").textContent = (qB ? qB.filter(function(r){ return r.marcado; }).length +
+                                  " de " + qB.length + " créditos \u00b7 " : "") + "semana fechada";
       $("tD").textContent = brl(aD);
       $("tD").style.color = Math.abs(aD) < 0.005 ? "var(--ok)" : (aD > 0 ? "var(--brand)" : "var(--warn)");
       $("nD").textContent = Math.abs(aD) < 0.005 ? "fechou exato"
@@ -852,14 +865,31 @@
 
     ajustarObs();
 
-    renderDetalhe("tabA", estado.sangria, "cA", function(r){
+    // as listas de lancamento mostram a aba aberta, nao o arquivo carregado
+    var sangViz = estado.sangria, extViz = estado.extrato, semLancamentos = false;
+    if(abaAtiva && !abaAtiva.atual){
+      if(abaAtiva.sem && abaAtiva.sem.sangria){
+        sangViz = abaAtiva.sem.sangria; extViz = abaAtiva.sem.extrato || [];
+      }else{
+        // semana fechada antes de o painel guardar os lancamentos: mostrar os
+        // do arquivo de agora seria mentira
+        sangViz = []; extViz = []; semLancamentos = true;
+      }
+    }
+    renderDetalhe("tabA", sangViz, "cA", function(r){
       return '<td>'+esc(r.data)+'</td><td>'+esc(r.loja)+'</td><td class="muted">'+esc(r.caixa)+'</td>'+
              '<td class="num">'+brl(r.valor)+'</td><td class="desc">'+esc(r.motivo)+'</td>';
     });
-    renderDetalhe("tabB", estado.extrato, "cB", function(r){
+    renderDetalhe("tabB", extViz, "cB", function(r){
       return '<td>'+esc(r.data)+'</td><td>'+esc(r.loja)+'</td>'+
              '<td class="num">'+brl(r.valor)+'</td><td class="desc">'+esc(r.desc)+'</td>';
     });
+    if(semLancamentos){
+      var recado = "fechada antes de o painel guardar os lançamentos \u00b7 só o consolidado";
+      $("cA").textContent = recado;
+      $("cB").textContent = recado;
+      $("vazioB").hidden = true;
+    }
   }
 
   function renderDetalhe(tabId, linhas, contaId, cols){
@@ -918,7 +948,10 @@
       }
     });
     salvar();
-    estado.semanas.push({ id:id, nome:periodoCarregado(), lojas:agregar(sang, ext) });
+    // a semana leva os lancamentos dela: sem isso as duas abas mostravam
+    // sempre o ultimo arquivo subido
+    estado.semanas.push({ id:id, nome:periodoCarregado(), lojas:agregar(sang, ext),
+                          sangria:estado.sangria.slice(), extrato:estado.extrato.slice() });
     estado.aba = id; escolhaTexto = id;          // a semana nova ja abre na aba dela
     salvarDados(); render();
     var novo = document.querySelector("#tabDepara .rotulo-semana");

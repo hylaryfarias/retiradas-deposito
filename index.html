@@ -82,10 +82,10 @@
 
   .tbox-info{border-bottom:1px solid var(--line);background:var(--sunk)}
   .tbox-info table{background:transparent}
-  .tag{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.04em;
+  .selo-fonte{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.04em;
     text-transform:uppercase;color:var(--ink-3);background:var(--surface);
     border:1px solid var(--line-2);border-radius:4px;padding:1px 6px;white-space:nowrap}
-  .tag.t-supr{color:var(--warn);background:var(--warn-soft);border-color:transparent}
+  .selo-fonte.supr{color:var(--warn);background:var(--warn-soft);border-color:var(--warn-soft)}
   .busca{flex:1 1 320px;min-width:200px;font:inherit;font-size:12.5px;padding:7px 10px;
     border:1px solid var(--line-2);border-radius:7px;background:var(--surface);color:var(--ink)}
   .busca::placeholder{color:var(--ink-3)}
@@ -1083,7 +1083,7 @@
     });
     renderDetalhe("tabA", juntos, "cA", function(r){
       var supr = r.origem === "suprimento";
-      var fonte = '<span class="tag' + (supr ? " t-supr" : "") + '">' +
+      var fonte = '<span class="selo-fonte' + (supr ? " supr" : "") + '">' +
                   (supr ? "suprimento" : "sangria") + '</span>';
       return '<td>'+esc(r.data)+'</td><td>'+esc(r.loja)+'</td><td class="muted">'+esc(r.caixa)+'</td>'+
              '<td class="num">'+brl(r.valor)+'</td><td class="desc">'+esc(r.motivo)+'</td>'+

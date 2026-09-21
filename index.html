@@ -69,6 +69,11 @@
   .drop h3{font-weight:600;font-size:14.5px;letter-spacing:-.01em;margin:0}
   .drop p{margin:0;color:var(--ink-3);font-size:12.5px}
   .drop .file{font-size:11.5px;font-weight:500;color:var(--ok);word-break:break-all}
+  .acoes-fonte{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .limpar{font:inherit;font-size:12.5px;font-weight:600;color:var(--ink-2);background:none;
+    border:0;padding:4px 2px;cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+  .limpar:hover{color:var(--brand)}
+  body.leitura .limpar{display:none!important}
   .pick{align-self:flex-start;font:inherit;font-size:12.5px;font-weight:600;background:var(--brand);color:#fff;
     border:0;border-radius:7px;padding:8px 14px;cursor:pointer}
   .pick:hover{background:var(--brand-dark)}
@@ -261,7 +266,10 @@
       <h3>Relatório de sangrias e suprimentos</h3>
       <p id="pA">Cloudfy · colunas Filial, Caixa, Data, Valor, Motivo/Descrição</p>
       <div class="file" id="fA" hidden></div>
-      <button class="pick" type="button" id="bA">Escolher arquivo</button>
+      <span class="acoes-fonte">
+        <button class="pick" type="button" id="bA">Escolher arquivo</button>
+        <button class="limpar" type="button" id="limparA" hidden>Limpar</button>
+      </span>
       <input type="file" id="iA" accept=".xlsx,.xls,.csv">
     </div>
     <div class="drop" id="dropB">
@@ -269,7 +277,10 @@
       <h3>Extrato bancário</h3>
       <p id="pB">Colunas Data, Descrição, Tipo, Valor, Loja</p>
       <div class="file" id="fB" hidden></div>
-      <button class="pick" type="button" id="bB">Escolher arquivo</button>
+      <span class="acoes-fonte">
+        <button class="pick" type="button" id="bB">Escolher arquivo</button>
+        <button class="limpar" type="button" id="limparB" hidden>Limpar</button>
+      </span>
       <input type="file" id="iB" accept=".xlsx,.xls,.csv">
     </div>
   </div>
@@ -535,8 +546,10 @@
         out.push({ id:"a"+i, data:data(l[cD]), loja:String(l[cF]), caixa:cC>=0?String(l[cC]||""):"",
                    valor:numero(l[cV]), motivo:motivo, marcado:ehDepositoSangria(motivo) });
       }
-      estado.sangria = out; estado.amostra = false; estado.nomeA = file.name;
-      rotulos();
+      var a = alvo();
+      a.sangria = out; a.nomeA = file.name;
+      delete a.lojas;                  // a semana passa a valer pelos lancamentos
+      if(a === estado) estado.amostra = false;
       descartarSeOutroPeriodo("A");
       salvarDados(); render();
     });
@@ -571,8 +584,9 @@
         out.push({ id:"b"+i, data:data(l[cD]), loja:cL>=0?String(l[cL]||""):"", valor:Math.abs(v),
                    desc:desc, marcado:ehDepositoExtrato(desc) });
       }
-      estado.extrato = out; estado.nomeB = file.name;
-      rotulos();
+      var a = alvo();
+      a.extrato = out; a.nomeB = file.name;
+      delete a.lojas;
       descartarSeOutroPeriodo("B");
       salvarDados(); render();
     });
@@ -586,6 +600,27 @@
   // ficava numa chave solta e aparecia de novo no proximo arquivo subido --
   // foi o que embaralhou o painel dela em 21/09.
   function nsAberto(){ return "aberto:" + periodoCarregado(); }
+
+  // O arquivo que sobe vai para a ABA ABERTA: cada semana guarda o relatorio
+  // dela e subir um nao mexe nos outros.
+  function alvo(){
+    if(estado.aba){
+      for(var i = 0; i < estado.semanas.length; i++)
+        if(estado.semanas[i].id === estado.aba) return estado.semanas[i];
+    }
+    return estado;
+  }
+  function ehAberta(){ return alvo() === estado; }
+
+  function marcados(linhas){
+    return (linhas || []).filter(function(r){ return r.marcado; });
+  }
+  // semana com lancamentos proprios reagrega na hora; as fechadas antes de o
+  // painel guardar arquivo seguem com o consolidado congelado
+  function lojasDaSemana(sem){
+    return sem.sangria ? agregar(marcados(sem.sangria), marcados(sem.extrato))
+                       : (sem.lojas || {});
+  }
 
   function emDias(d){
     var p = String(d||"").split("/");
@@ -752,13 +787,7 @@
     // o bloco "em aberto" e o que esta carregado agora; abaixo dele, as semanas guardadas
     var blocos = [{ id:"", nid:nsAberto(), nome:"", lojas: agregar(sang, ext), atual:true }];
     estado.semanas.forEach(function(sem){
-      // semana com lancamentos proprios reagrega na hora; as antigas, sem
-      // lancamentos guardados, seguem com o consolidado congelado
-      var lojas = sem.sangria
-        ? agregar(sem.sangria.filter(function(r){ return r.marcado; }),
-                  (sem.extrato || []).filter(function(r){ return r.marcado; }))
-        : (sem.lojas || {});
-      blocos.push({ id:sem.id, nid:sem.id, nome:sem.nome, lojas:lojas,
+      blocos.push({ id:sem.id, nid:sem.id, nome:sem.nome, lojas:lojasDaSemana(sem),
                     sem:sem, atual:false });
     });
 
@@ -774,7 +803,9 @@
       bt.textContent = bl.atual ? (estado.sangria.length ? periodoCarregado() : "Em aberto")
                                 : (bl.nome || "semana");
       bt.addEventListener("click", function(){
-        estado.aba = bl.id; escolhaTexto = bl.id; salvarDados(); render();
+        estado.aba = bl.id; escolhaTexto = bl.id;
+        $("pA").textContent = TEXTO_PA; $("pB").textContent = TEXTO_PB;
+        salvarDados(); render();
       });
       lista.appendChild(bt);
     });
@@ -821,7 +852,6 @@
         }else{
           trs.innerHTML = '<td colspan="6"><span class="semana-cab">'+
             '<input class="rotulo-semana" type="text" value="'+esc(bloco.nome)+'" aria-label="Nome da semana">'+
-            '<button class="adotar" type="button" title="Guardar nesta semana os lançamentos que estão carregados agora">Usar os lançamentos carregados</button>'+
             '<button class="remover" type="button" title="Remover esta semana">Remover</button></span></td>';
           var inp = trs.querySelector("input");
           inp.addEventListener("input", function(){
@@ -835,20 +865,6 @@
                 abas[j].textContent = inp.value || "semana";
             atualizarTexto();
             salvarDados();
-          });
-          // serve para a semana fechada antes de o painel guardar lancamento,
-          // e para trocar o arquivo de uma semana sem perder as observacoes
-          trs.querySelector(".adotar").addEventListener("click", function(){
-            if(!estado.sangria.length){
-              alert("Suba o relatório de sangrias dessa semana primeiro.");
-              return;
-            }
-            var tem = !!bloco.sem.sangria;
-            if(tem && !confirm("Esta semana já tem lançamentos guardados. Trocar pelos que estão carregados agora?")) return;
-            bloco.sem.sangria = estado.sangria.slice();
-            bloco.sem.extrato = estado.extrato.slice();
-            delete bloco.sem.lojas;
-            salvarDados(); render();
           });
           trs.querySelector(".remover").addEventListener("click", function(){
             estado.semanas = estado.semanas.filter(function(s){ return s.id !== bloco.id; });
@@ -931,6 +947,7 @@
       return '<td>'+esc(r.data)+'</td><td>'+esc(r.loja)+'</td>'+
              '<td class="num">'+brl(r.valor)+'</td><td class="desc">'+esc(r.desc)+'</td>';
     });
+    rotulos();
     if(semLancamentos){
       var recado = "fechada antes de o painel guardar os lançamentos \u00b7 só o consolidado";
       $("cA").textContent = recado;
@@ -978,6 +995,22 @@
   });
 
   // fecha o que esta carregado numa semana nova, que fica guardada
+  function limparFonte(qual){
+    var a = alvo(), nome = qual === "A" ? a.nomeA : a.nomeB;
+    if(nome && !confirm("Tirar " + nome + " desta aba?")) return;
+    if(qual === "A"){
+      a.sangria = []; a.nomeA = "";
+      if(a === estado) estado.amostra = false;
+    }else{
+      a.extrato = []; a.nomeB = "";
+    }
+    delete a.lojas;
+    $("pA").textContent = TEXTO_PA; $("pB").textContent = TEXTO_PB;
+    salvarDados(); render();
+  }
+  $("limparA").addEventListener("click", function(){ limparFonte("A"); });
+  $("limparB").addEventListener("click", function(){ limparFonte("B"); });
+
   $("btnSemana").addEventListener("click", function(){
     var sang = estado.sangria.filter(function(r){ return r.marcado; });
     var ext  = estado.extrato.filter(function(r){ return r.marcado; });
@@ -997,8 +1030,12 @@
     salvar();
     // a semana leva os lancamentos dela: sem isso as duas abas mostravam
     // sempre o ultimo arquivo subido
-    estado.semanas.push({ id:id, nome:periodoCarregado(), lojas:agregar(sang, ext),
-                          sangria:estado.sangria.slice(), extrato:estado.extrato.slice() });
+    estado.semanas.push({ id:id, nome:periodoCarregado(),
+                          sangria:estado.sangria.slice(), extrato:estado.extrato.slice(),
+                          nomeA:estado.nomeA, nomeB:estado.nomeB });
+    // a aba aberta fica limpa: os arquivos agora pertencem a semana fechada
+    estado.sangria = []; estado.extrato = [];
+    estado.nomeA = ""; estado.nomeB = ""; estado.amostra = false;
     estado.aba = id; escolhaTexto = id;          // a semana nova ja abre na aba dela
     salvarDados(); render();
     var novo = document.querySelector("#tabDepara .rotulo-semana");
@@ -1057,19 +1094,37 @@
     pintar("","Lendo o painel do time…");
   }
 
+  var TEXTO_PA = "Cloudfy · colunas Filial, Caixa, Data, Valor, Motivo/Descrição";
+  var TEXTO_PB = "Colunas Data, Descrição, Tipo, Valor, Loja";
+
+  // os cartoes mostram os arquivos DA ABA ABERTA
   function rotulos(){
-    if(estado.nomeA){
-      var pA = rotuloIntervalo(intervalo(estado.sangria));
-      $("fA").textContent = "✓ " + estado.nomeA + " · " + estado.sangria.length +
+    var a = alvo(), doTab = estado.aba ? " · nesta semana" : "";
+    if(a.nomeA){
+      var pA = rotuloIntervalo(intervalo(a.sangria));
+      $("fA").textContent = "✓ " + a.nomeA + " · " + (a.sangria || []).length +
                             " lançamentos" + (pA ? " · " + pA : "");
       $("fA").hidden = false; $("pA").hidden = true; $("dropA").classList.add("filled");
+      $("limparA").hidden = false;
+    }else{
+      $("fA").hidden = true; $("pA").hidden = false; $("dropA").classList.remove("filled");
+      $("limparA").hidden = true;
+      if($("pA").textContent.indexOf("suba") < 0)
+        $("pA").textContent = (a === estado && estado.amostra && estado.sangria.length)
+          ? "Exemplo carregado: sangrias de 07 a 14/09/2026. Suba um arquivo para substituir."
+          : TEXTO_PA + doTab;
     }
-    if(estado.nomeB){
-      var pB = rotuloIntervalo(intervalo(estado.extrato));
-      $("fB").textContent = "✓ " + estado.nomeB + " · " + estado.extrato.length +
+    if(a.nomeB){
+      var pB = rotuloIntervalo(intervalo(a.extrato));
+      $("fB").textContent = "✓ " + a.nomeB + " · " + (a.extrato || []).length +
                             " créditos" + (pB ? " · " + pB : "");
       $("fB").hidden = false; $("pB").hidden = true; $("dropB").classList.add("filled");
-      $("vazioB").hidden = true;
+      $("limparB").hidden = false;
+    }else{
+      $("fB").hidden = true; $("pB").hidden = false; $("dropB").classList.remove("filled");
+      $("limparB").hidden = true;
+      if($("pB").textContent.indexOf("suba") < 0)
+        $("pB").textContent = TEXTO_PB + doTab;
     }
   }
 
@@ -1077,18 +1132,19 @@
   // pode misturar com o que ja esta carregado -- foi o que fez o credito da
   // MAPOLI, do extrato de hoje, aparecer na semana passada.
   function descartarSeOutroPeriodo(qual){
-    var ivA = intervalo(estado.sangria), ivB = intervalo(estado.extrato);
-    if(combinam(ivA, ivB)) return;
+    var a = alvo();
+    var ivA = intervalo(a.sangria), ivB = intervalo(a.extrato);
+    if(combinam(ivA, ivB)){ rotulos(); return; }
     if(qual === "A"){
-      estado.extrato = []; estado.nomeB = "";
-      $("fB").hidden = true; $("pB").hidden = false; $("dropB").classList.remove("filled");
-      $("pB").textContent = "O extrato carregado era de " + rotuloIntervalo(ivB) +
+      a.extrato = []; a.nomeB = "";
+      rotulos();
+      $("pB").textContent = "O extrato que estava aqui era de " + rotuloIntervalo(ivB) +
                             " — suba o de " + rotuloIntervalo(ivA) + ".";
-      $("vazioB").hidden = false;
     }else{
-      estado.sangria = []; estado.nomeA = ""; estado.amostra = false;
-      $("fA").hidden = true; $("pA").hidden = false; $("dropA").classList.remove("filled");
-      $("pA").textContent = "A sangria carregada era de " + rotuloIntervalo(ivA) +
+      a.sangria = []; a.nomeA = "";
+      if(a === estado) estado.amostra = false;
+      rotulos();
+      $("pA").textContent = "A sangria que estava aqui era de " + rotuloIntervalo(ivA) +
                             " — suba a de " + rotuloIntervalo(ivB) + ".";
     }
   }
@@ -1248,7 +1304,8 @@
       bs.push({ id:"", nid:nsAberto(), nome:periodoCarregado(), lojas:abertas,
                 temB:estado.extrato.length > 0 });
     estado.semanas.forEach(function(sem){
-      bs.push({ id:sem.id, nid:sem.id, nome:sem.nome, lojas:sem.lojas, temB:true });
+      bs.push({ id:sem.id, nid:sem.id, nome:sem.nome, lojas:lojasDaSemana(sem),
+                temB: sem.extrato ? sem.extrato.length > 0 : true });
     });
     return bs;
   }

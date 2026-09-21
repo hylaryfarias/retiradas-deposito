@@ -707,6 +707,34 @@
     return (sem.sangria || []).filter(function(r){ return dentroDaFaixa(r, faixa); });
   }
 
+  // O export de suprimentos as vezes vem com as sangrias dentro, e o mesmo
+  // lancamento aparecia duas vezes -- e contava duas vezes no quadro. Junta as
+  // duas fontes ignorando o que ja veio da sangria.
+  function assinatura(r){
+    return norm([r.data, r.loja, r.caixa, r.valor, r.motivo].join("|"));
+  }
+  function juntar(sangria, suprimentos){
+    var vistos = {}, out = [], repetidos = 0;
+    (sangria || []).forEach(function(r){
+      r.origem = r.origem || "sangria";
+      vistos[assinatura(r)] = r;
+      out.push(r);
+    });
+    (suprimentos || []).forEach(function(r){
+      r.origem = "suprimento";
+      var gemeo = vistos[assinatura(r)];
+      if(gemeo){                       // repetido: fica o da sangria
+        if(r.marcado) gemeo.marcado = true;
+        repetidos++;
+        return;
+      }
+      vistos[assinatura(r)] = r;
+      out.push(r);
+    });
+    out.repetidos = repetidos;
+    return out;
+  }
+
   function marcados(linhas){
     return (linhas || []).filter(function(r){ return r.marcado; });
   }
@@ -719,7 +747,7 @@
   }
   function lojasDaSemana(sem){
     if(!sem.sangria && !sem.suprimentos) return sem.lojas || {};
-    return agregar(marcados(sangriaDaSemana(sem)).concat(marcados(suprimentosDaSemana(sem))),
+    return agregar(marcados(juntar(sangriaDaSemana(sem), suprimentosDaSemana(sem))),
                    marcados(sem.extrato));
   }
 
@@ -861,7 +889,7 @@
   }
 
   function render(){
-    var sang = marcados(estado.sangria).concat(marcados(estado.suprimentos));
+    var sang = marcados(juntar(estado.sangria, estado.suprimentos));
     var ext  = estado.extrato.filter(function(r){ return r.marcado; });
     var totS = sang.reduce(function(a,r){ return a+r.valor; }, 0);
     var totB = ext.reduce(function(a,r){ return a+r.valor; }, 0);
@@ -1043,7 +1071,9 @@
       }
     }
     // sangria e suprimento na mesma lista, para pesquisar de uma vez so
-    var juntos = sangViz.concat(suprViz).sort(function(a,b){
+    var juntos = juntar(sangViz, suprViz);
+    var repetidos = juntos.repetidos;
+    juntos = juntos.slice().sort(function(a,b){
       var ta = emDias(a.data), tb2 = emDias(b.data);
       if(ta === tb2) return 0;
       if(ta === null) return 1;
@@ -1056,7 +1086,9 @@
              '<td class="num">'+brl(r.valor)+'</td><td class="desc">'+tag+esc(r.motivo)+'</td>';
     }, $("buscaA").value);
     if(suprViz.length)
-      $("cA").textContent += " · " + sangViz.length + " sangria + " + suprViz.length + " suprimento";
+      $("cA").textContent += " · " + sangViz.length + " sangria + " +
+                             (suprViz.length - repetidos) + " suprimento" +
+                             (repetidos ? " · " + repetidos + " repetidos, ignorados" : "");
     $("limparBuscaA").hidden = !$("buscaA").value;
     renderDetalhe("tabB", extViz, "cB", function(r){
       return '<td>'+esc(r.data)+'</td><td>'+esc(r.loja)+'</td>'+
@@ -1157,7 +1189,7 @@
   $("limparB").addEventListener("click", function(){ limparFonte("B"); });
 
   $("btnSemana").addEventListener("click", function(){
-    var sang = marcados(estado.sangria).concat(marcados(estado.suprimentos));
+    var sang = marcados(juntar(estado.sangria, estado.suprimentos));
     var ext  = estado.extrato.filter(function(r){ return r.marcado; });
     if(!sang.length && !ext.length){
       alert("Não há nada marcado para virar semana. Suba o relatório do Cloudfy e o extrato primeiro.");
@@ -1438,7 +1470,7 @@
   var escolhaTexto = "";
 
   function blocosDeTexto(){
-    var sang = marcados(estado.sangria).concat(marcados(estado.suprimentos));
+    var sang = marcados(juntar(estado.sangria, estado.suprimentos));
     var ext  = estado.extrato.filter(function(r){ return r.marcado; });
     var bs = [];
     var abertas = agregar(sang, ext);

@@ -578,6 +578,32 @@
   // cada semana guarda a sua flag e a sua observacao; o bloco em aberto usa a chave da loja
   function chaveNota(k, semanaId){ return semanaId ? semanaId+"::"+k : k; }
 
+  // O bloco em aberto tambem precisa de um namespace proprio, amarrado ao
+  // periodo do arquivo carregado. Sem isso, a observacao escrita numa semana
+  // ficava numa chave solta e aparecia de novo no proximo arquivo subido --
+  // foi o que embaralhou o painel dela em 21/09.
+  function nsAberto(){ return "aberto:" + periodoCarregado(); }
+
+  // Conserto do que ja estava gravado em chave solta: essas observacoes foram
+  // escritas antes de a semana ser fechada, entao pertencem a ultima semana
+  // fechada. Roda sozinho sempre que sobrar chave solta -- depois do conserto
+  // nao existe mais nenhuma, entao nao repete.
+  function migrarNotasSoltas(){
+    var soltas = Object.keys(estado.notas).filter(function(ck){
+      return ck.indexOf("::") < 0;
+    });
+    if(!soltas.length) return;
+    var destino = estado.semanas.length
+      ? estado.semanas[estado.semanas.length - 1].id
+      : nsAberto();
+    soltas.forEach(function(ck){
+      var nova = destino + "::" + ck;
+      if(!estado.notas[nova]) estado.notas[nova] = estado.notas[ck];
+      delete estado.notas[ck];
+    });
+    salvar();
+  }
+
   function chaveExtrato(loja){
     var k = chaveLoja(loja);
     return estado.vinculos[k] || k;
@@ -691,8 +717,10 @@
       : "Cloudfy menos extrato";
 
     // o bloco "em aberto" e o que esta carregado agora; abaixo dele, as semanas guardadas
-    var blocos = [{ id:"", nome:"", lojas: agregar(sang, ext), atual:true }];
-    estado.semanas.forEach(function(sem){ blocos.push({ id:sem.id, nome:sem.nome, lojas:sem.lojas, atual:false }); });
+    var blocos = [{ id:"", nid:nsAberto(), nome:"", lojas: agregar(sang, ext), atual:true }];
+    estado.semanas.forEach(function(sem){
+      blocos.push({ id:sem.id, nid:sem.id, nome:sem.nome, lojas:sem.lojas, atual:false });
+    });
 
     // cada semana e uma aba: mostra uma de cada vez, nunca empilhadas
     if(estado.aba && !blocos.some(function(x){ return x.id === estado.aba; })) estado.aba = "";
@@ -772,7 +800,7 @@
       var ss = 0, sb = 0;
       lojas.forEach(function(l){
         ss += l.s; sb += l.b;
-        tb.appendChild(linhaLoja(l, bloco.atual ? temB : true, bloco.id));
+        tb.appendChild(linhaLoja(l, bloco.atual ? temB : true, bloco.nid));
       });
       gS += ss; gB += sb;
 
@@ -880,6 +908,15 @@
       return;
     }
     var id = "s" + Date.now();
+    // as observacoes escritas na semana aberta vao junto para a semana fechada
+    var de = nsAberto() + "::";
+    Object.keys(estado.notas).forEach(function(ck){
+      if(ck.indexOf(de) === 0){
+        estado.notas[id + "::" + ck.slice(de.length)] = estado.notas[ck];
+        delete estado.notas[ck];
+      }
+    });
+    salvar();
     estado.semanas.push({ id:id, nome:periodoCarregado(), lojas:agregar(sang, ext) });
     estado.aba = id; escolhaTexto = id;          // a semana nova ja abre na aba dela
     salvarDados(); render();
@@ -967,6 +1004,7 @@
     estado.notas = p.notas || {};
     if(d.kw) $("kw").value = d.kw;
     sync.carimbo = p.ts || 0;
+    migrarNotasSoltas();          // o painel publicado pode vir com as antigas
     rotulos(); salvarDados(); salvar(); render();
     sync.aplicando = false;
     return true;
@@ -1101,9 +1139,10 @@
     var bs = [];
     var abertas = agregar(sang, ext);
     if(Object.keys(abertas).length)
-      bs.push({ id:"", nome:periodoCarregado(), lojas:abertas, temB:estado.extrato.length > 0 });
+      bs.push({ id:"", nid:nsAberto(), nome:periodoCarregado(), lojas:abertas,
+                temB:estado.extrato.length > 0 });
     estado.semanas.forEach(function(sem){
-      bs.push({ id:sem.id, nome:sem.nome, lojas:sem.lojas, temB:true });
+      bs.push({ id:sem.id, nid:sem.id, nome:sem.nome, lojas:sem.lojas, temB:true });
     });
     return bs;
   }
@@ -1117,7 +1156,7 @@
 
     var bateram = [], pend = [], obs = [];
     lojas.forEach(function(l){
-      var n = nota(chaveNota(l.k, b.id));
+      var n = nota(chaveNota(l.k, b.nid));
       var auto = apurar(l, b.temB);
       var flag = n.flag || auto;
       var item = { l:l, flag:flag, manual: !!n.flag && n.flag !== auto, obs:(n.obs||"").trim() };
@@ -1202,6 +1241,7 @@
   });
 
   if(!restaurarDados()) carregarAmostra();
+  migrarNotasSoltas();
   render();
   iniciarSync();
 })();

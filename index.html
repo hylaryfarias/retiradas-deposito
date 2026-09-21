@@ -79,6 +79,9 @@
   .pick:hover{background:var(--brand-dark)}
   input[type=file]{display:none}
 
+  .drops.um{grid-template-columns:1fr}
+  .tbox-info{border-bottom:1px solid var(--line);background:var(--sunk)}
+  .tbox-info table{background:transparent}
   .busca{flex:1 1 320px;min-width:200px;font:inherit;font-size:12.5px;padding:7px 10px;
     border:1px solid var(--line-2);border-radius:7px;background:var(--surface);color:var(--ink)}
   .busca::placeholder{color:var(--ink-3)}
@@ -290,6 +293,20 @@
     </div>
   </div>
 
+  <div class="drops um">
+    <div class="drop" id="dropC">
+      <span class="eyebrow">Fonte 3 · consulta</span>
+      <h3>Suprimentos</h3>
+      <p id="pC">O mesmo relatório do PDV, filtrado em suprimentos. Entra só para consulta: nada dele conta no quadro, a não ser o que você marcar.</p>
+      <div class="file" id="fC" hidden></div>
+      <span class="acoes-fonte">
+        <button class="pick" type="button" id="bC">Escolher arquivo</button>
+        <button class="limpar" type="button" id="limparC" hidden>Limpar</button>
+      </span>
+      <input type="file" id="inC" accept=".xlsx,.xls,.csv">
+    </div>
+  </div>
+
   <div class="totais">
     <div class="tot"><div class="k">Cloudfy</div><div class="v" id="tS">—</div><div class="n" id="nS">aguardando arquivo</div></div>
     <div class="tot"><div class="k">Extrato</div><div class="v" id="tB">—</div><div class="n" id="nB">aguardando arquivo</div></div>
@@ -317,6 +334,27 @@
       </table></div>
       <div class="empty" id="vazioDepara" hidden>Suba os dois arquivos para ver o de:para.</div>
     </div>
+  </section>
+
+  <section id="secSupr" hidden>
+    <details id="detC">
+      <summary><span>Suprimentos <span class="hint">(consulta)</span></span><span class="c" id="cC"></span></summary>
+      <div class="toolbar">
+        <label>Nada aqui conta no quadro. Marque só o lançamento que, apesar de estar escrito como suprimento, foi para depósito — ele passa a contar como depósito daquela loja.</label>
+      </div>
+      <div class="tbox-info"><div class="scroll"><table id="tabInfoC">
+        <thead><tr><th>Loja</th><th class="num">Lançamentos</th><th class="num">Valor</th></tr></thead>
+        <tbody></tbody><tfoot></tfoot>
+      </table></div></div>
+      <div class="toolbar">
+        <input type="search" class="busca" id="buscaC" autocomplete="off"
+               placeholder="Filtrar: loja, data, valor ou palavra da descrição">
+      </div>
+      <div class="scroll"><table id="tabC">
+        <thead><tr><th style="width:34px"></th><th>Data</th><th>Loja</th><th>Caixa</th><th class="num">Valor</th><th>Descrição</th></tr></thead>
+        <tbody></tbody>
+      </table></div>
+    </details>
   </section>
 
   <section id="secTexto">
@@ -431,8 +469,8 @@
     return RE_DEP.test(m) && !RE_SUP.test(m);
   }
 
-  var estado = { sangria:[], extrato:[], vinculos:{}, notas:{}, semanas:[],
-               amostra:true, nomeA:"", nomeB:"", aba:"" };
+  var estado = { sangria:[], extrato:[], suprimentos:[], vinculos:{}, notas:{},
+               semanas:[], amostra:true, nomeA:"", nomeB:"", nomeC:"", aba:"" };
   try{ var a = localStorage.getItem(LS_VINC); if(a) estado.vinculos = JSON.parse(a)||{}; }catch(e){}
   try{ var b = localStorage.getItem(LS_NOTAS); if(b){
     var n = JSON.parse(b)||{}; estado.notas = n.notas || n;
@@ -447,8 +485,9 @@
   function salvarDados(){
     try{
       localStorage.setItem(LS_DADOS, JSON.stringify({
-        sangria:estado.sangria, extrato:estado.extrato, amostra:estado.amostra,
-        nomeA:estado.nomeA, nomeB:estado.nomeB, semanas:estado.semanas, aba:estado.aba,
+        sangria:estado.sangria, extrato:estado.extrato, suprimentos:estado.suprimentos,
+        amostra:estado.amostra, nomeA:estado.nomeA, nomeB:estado.nomeB,
+        nomeC:estado.nomeC, semanas:estado.semanas, aba:estado.aba,
         kw: $("kw").value
       }));
     }catch(e){ /* sem espaco ou armazenamento bloqueado: segue sem gravar */ }
@@ -461,7 +500,9 @@
       var d = JSON.parse(bruto);
       if(!d || !d.sangria) return false;
       estado.sangria = d.sangria; estado.extrato = d.extrato || [];
+      estado.suprimentos = d.suprimentos || [];
       estado.amostra = !!d.amostra; estado.nomeA = d.nomeA||""; estado.nomeB = d.nomeB||"";
+      estado.nomeC = d.nomeC || "";
       estado.semanas = d.semanas || [];
       estado.aba = d.aba || "";
       if(d.kw) $("kw").value = d.kw;
@@ -573,6 +614,32 @@
     return false;
   }
 
+  // Fonte 3: mesmo layout do relatorio de sangria, so que filtrado em
+  // suprimento. Entra desmarcado -- e consulta. Marcar uma linha e o jeito de
+  // corrigir o furo da descricao (a BIGGS 13 de 13/09 era deposito escrito
+  // como suprimento).
+  function carregarSuprimentos(file){
+    lerArquivo(file, function(linhas){
+      var ic = acharCabecalho(linhas, ["FILIAL"]);
+      if(ic < 0){ alert("Não achei a coluna Filial. Esse arquivo é o relatório de sangrias e suprimentos?"); return; }
+      var cab = linhas[ic];
+      var cF = acharCol(cab,["FILIAL"]), cC = acharCol(cab,["CAIXA"]), cD = acharCol(cab,["DATA"]),
+          cV = acharCol(cab,["VALOR"]), cM = acharCol(cab,["MOTIVO","DESCRICAO"]);
+      var out = [];
+      for(var i=ic+1;i<linhas.length;i++){
+        var l = linhas[i]||[];
+        if(l[cF]==null || String(l[cF]).trim()==="") continue;
+        out.push({ id:"c"+i, data:data(l[cD]), loja:String(l[cF]),
+                   caixa:cC>=0?String(l[cC]||""):"", valor:numero(l[cV]),
+                   motivo:cM>=0 ? String(l[cM]==null?"":l[cM]) : "", marcado:false });
+      }
+      var a = alvo();
+      a.suprimentos = out; a.nomeC = file.name;
+      delete a.lojas;
+      salvarDados(); render();
+    });
+  }
+
   function carregarExtrato(file){
     lerArquivo(file, function(linhas){
       var ic = acharCabecalho(linhas, ["DATA"]);
@@ -664,9 +731,15 @@
   }
   // semana com lancamentos proprios reagrega na hora; as fechadas antes de o
   // painel guardar arquivo seguem com o consolidado congelado
+  // suprimento marcado na mao conta como deposito daquela loja
+  function suprimentosDaSemana(sem){
+    var faixa = faixaDoNome(sem.nome, sem.suprimentos);
+    return (sem.suprimentos || []).filter(function(r){ return dentroDaFaixa(r, faixa); });
+  }
   function lojasDaSemana(sem){
-    return sem.sangria ? agregar(marcados(sangriaDaSemana(sem)), marcados(sem.extrato))
-                       : (sem.lojas || {});
+    if(!sem.sangria && !sem.suprimentos) return sem.lojas || {};
+    return agregar(marcados(sangriaDaSemana(sem)).concat(marcados(suprimentosDaSemana(sem))),
+                   marcados(sem.extrato));
   }
 
   function emDias(d){
@@ -807,7 +880,7 @@
   }
 
   function render(){
-    var sang = estado.sangria.filter(function(r){ return r.marcado; });
+    var sang = marcados(estado.sangria).concat(marcados(estado.suprimentos));
     var ext  = estado.extrato.filter(function(r){ return r.marcado; });
     var totS = sang.reduce(function(a,r){ return a+r.valor; }, 0);
     var totB = ext.reduce(function(a,r){ return a+r.valor; }, 0);
@@ -994,6 +1067,12 @@
       return '<td>'+esc(r.data)+'</td><td>'+esc(r.loja)+'</td>'+
              '<td class="num">'+brl(r.valor)+'</td><td class="desc">'+esc(r.desc)+'</td>';
     });
+    var suprViz = estado.suprimentos;
+    if(abaAtiva && !abaAtiva.atual && abaAtiva.sem)
+      suprViz = suprimentosDaSemana(abaAtiva.sem);
+    $("secSupr").hidden = !suprViz.length;
+    renderSuprimentos(suprViz, $("buscaC").value);
+
     if(foraDaFaixa)
       $("cA").textContent += " · " + foraDaFaixa + " fora do período da aba";
     rotulos();
@@ -1037,6 +1116,61 @@
     document.getElementById(contaId).textContent = conta;
   }
 
+  // Fonte 3 na tela: consolidado por loja em cima, lista com caixinha embaixo.
+  // Marcar uma linha e o que faz aquele suprimento contar como deposito.
+  function renderSuprimentos(linhas, busca){
+    var porLoja = {}, marc = 0, total = 0;
+    linhas.forEach(function(r){
+      var k = chaveLoja(r.loja) || r.loja;
+      if(!porLoja[k]) porLoja[k] = { nome:r.loja, n:0, v:0 };
+      porLoja[k].n++; porLoja[k].v += r.valor;
+      if(r.loja) porLoja[k].nome = r.loja;
+      if(r.marcado) marc++;
+      total += r.valor;
+    });
+    var lojas = Object.keys(porLoja).map(function(k){ return porLoja[k]; })
+      .sort(function(x,y){ return y.v - x.v; });
+    var tb = $("tabInfoC").tBodies[0], tf = $("tabInfoC").tFoot;
+    tb.innerHTML = ""; tf.innerHTML = "";
+    var tn = 0;
+    lojas.forEach(function(l){
+      tn += l.n;
+      var tr = document.createElement("tr");
+      tr.innerHTML = '<td class="loja">'+esc(l.nome)+'</td><td class="num">'+l.n+'</td>'+
+                     '<td class="num">'+brl(l.v)+'</td>';
+      tb.appendChild(tr);
+    });
+    if(lojas.length){
+      var trf = document.createElement("tr");
+      trf.innerHTML = '<td>Total &middot; '+lojas.length+' loja'+(lojas.length>1?"s":"")+'</td>'+
+                      '<td class="num">'+tn+'</td><td class="num">'+brl(total)+'</td>';
+      tf.appendChild(trf);
+    }
+
+    var termos = norm(busca || "").split(/\s+/).filter(Boolean);
+    var tbl = $("tabC").tBodies[0];
+    tbl.innerHTML = "";
+    var vistos = 0;
+    linhas.forEach(function(r){
+      if(!combinaBusca(r, termos)) return;
+      vistos++;
+      var tr = document.createElement("tr");
+      tr.innerHTML = '<td><input type="checkbox"'+(r.marcado?" checked":"")+'></td>'+
+                     '<td>'+esc(r.data)+'</td><td>'+esc(r.loja)+'</td>'+
+                     '<td class="muted">'+esc(r.caixa)+'</td>'+
+                     '<td class="num">'+brl(r.valor)+'</td>'+
+                     '<td class="desc">'+esc(r.motivo)+'</td>';
+      tr.querySelector("input").addEventListener("change", function(ev){
+        r.marcado = ev.target.checked; salvarDados(); render();
+      });
+      tbl.appendChild(tr);
+    });
+    var conta = linhas.length + " lançamentos · " + brl(total);
+    if(marc) conta += " · " + marc + " contando como depósito";
+    if(termos.length) conta += " · " + vistos + " no filtro";
+    $("cC").textContent = conta;
+  }
+
   function ligarDrop(dropId, inputId, botaoId, handler){
     var drop = $(dropId), input = $(inputId);
     $(botaoId).addEventListener("click", function(){ input.click(); });
@@ -1053,6 +1187,12 @@
   }
   ligarDrop("dropA","iA","bA", carregarSangria);
   ligarDrop("dropB","iB","bB", carregarExtrato);
+  ligarDrop("dropC","inC","bC", carregarSuprimentos);
+  $("limparC").addEventListener("click", function(){ limparFonte("C"); });
+  $("buscaC").addEventListener("input", function(){
+    clearTimeout(window._tBuscaC);
+    window._tBuscaC = setTimeout(render, 120);
+  });
 
   $("kw").addEventListener("input", function(){
     estado.extrato.forEach(function(r){ r.marcado = ehDepositoExtrato(r.desc); });
@@ -1061,11 +1201,14 @@
 
   // fecha o que esta carregado numa semana nova, que fica guardada
   function limparFonte(qual){
-    var a = alvo(), nome = qual === "A" ? a.nomeA : a.nomeB;
+    var a = alvo();
+    var nome = qual === "A" ? a.nomeA : (qual === "C" ? a.nomeC : a.nomeB);
     if(nome && !confirm("Tirar " + nome + " desta aba?")) return;
     if(qual === "A"){
       a.sangria = []; a.nomeA = "";
       if(a === estado) estado.amostra = false;
+    }else if(qual === "C"){
+      a.suprimentos = []; a.nomeC = "";
     }else{
       a.extrato = []; a.nomeB = "";
     }
@@ -1084,7 +1227,7 @@
   $("limparB").addEventListener("click", function(){ limparFonte("B"); });
 
   $("btnSemana").addEventListener("click", function(){
-    var sang = estado.sangria.filter(function(r){ return r.marcado; });
+    var sang = marcados(estado.sangria).concat(marcados(estado.suprimentos));
     var ext  = estado.extrato.filter(function(r){ return r.marcado; });
     if(!sang.length && !ext.length){
       alert("Não há nada marcado para virar semana. Suba o relatório do Cloudfy e o extrato primeiro.");
@@ -1104,10 +1247,11 @@
     // sempre o ultimo arquivo subido
     estado.semanas.push({ id:id, nome:periodoCarregado(),
                           sangria:estado.sangria.slice(), extrato:estado.extrato.slice(),
-                          nomeA:estado.nomeA, nomeB:estado.nomeB });
+                          suprimentos:estado.suprimentos.slice(),
+                          nomeA:estado.nomeA, nomeB:estado.nomeB, nomeC:estado.nomeC });
     // a aba aberta fica limpa: os arquivos agora pertencem a semana fechada
-    estado.sangria = []; estado.extrato = [];
-    estado.nomeA = ""; estado.nomeB = ""; estado.amostra = false;
+    estado.sangria = []; estado.extrato = []; estado.suprimentos = [];
+    estado.nomeA = ""; estado.nomeB = ""; estado.nomeC = ""; estado.amostra = false;
     estado.aba = id; escolhaTexto = id;          // a semana nova ja abre na aba dela
     salvarDados(); render();
     var novo = document.querySelector("#tabDepara .rotulo-semana");
@@ -1186,6 +1330,16 @@
           ? "Exemplo carregado: sangrias de 07 a 14/09/2026. Suba um arquivo para substituir."
           : TEXTO_PA + doTab;
     }
+    if(a.nomeC){
+      var pC = rotuloIntervalo(intervalo(a.suprimentos));
+      $("fC").textContent = "\u2713 " + a.nomeC + " · " + (a.suprimentos || []).length +
+                            " suprimentos" + (pC ? " · " + pC : "");
+      $("fC").hidden = false; $("pC").hidden = true; $("dropC").classList.add("filled");
+      $("limparC").hidden = false;
+    }else{
+      $("fC").hidden = true; $("pC").hidden = false; $("dropC").classList.remove("filled");
+      $("limparC").hidden = true;
+    }
     if(a.nomeB){
       var pB = rotuloIntervalo(intervalo(a.extrato));
       $("fB").textContent = "✓ " + a.nomeB + " · " + (a.extrato || []).length +
@@ -1205,8 +1359,10 @@
   // MAPOLI, do extrato de hoje, aparecer na semana passada.
   function pacote(){
     return { v:1, ts:Date.now(),
-      dados:{ sangria:estado.sangria, extrato:estado.extrato, amostra:estado.amostra,
-              nomeA:estado.nomeA, nomeB:estado.nomeB, semanas:estado.semanas, kw:$("kw").value },
+      dados:{ sangria:estado.sangria, extrato:estado.extrato,
+              suprimentos:estado.suprimentos, amostra:estado.amostra,
+              nomeA:estado.nomeA, nomeB:estado.nomeB, nomeC:estado.nomeC,
+              semanas:estado.semanas, kw:$("kw").value },
       vinculos:estado.vinculos, notas:estado.notas };
   }
   function aplicar(p){
@@ -1214,6 +1370,7 @@
     sync.aplicando = true;
     var d = p.dados;
     estado.sangria = d.sangria || [];  estado.extrato = d.extrato || [];
+    estado.suprimentos = d.suprimentos || [];  estado.nomeC = d.nomeC || "";
     estado.amostra = !!d.amostra;      estado.semanas = d.semanas || [];
     estado.nomeA = d.nomeA || "";      estado.nomeB = d.nomeB || "";
     estado.vinculos = p.vinculos || {};
@@ -1351,7 +1508,7 @@
   var escolhaTexto = "";
 
   function blocosDeTexto(){
-    var sang = estado.sangria.filter(function(r){ return r.marcado; });
+    var sang = marcados(estado.sangria).concat(marcados(estado.suprimentos));
     var ext  = estado.extrato.filter(function(r){ return r.marcado; });
     var bs = [];
     var abertas = agregar(sang, ext);

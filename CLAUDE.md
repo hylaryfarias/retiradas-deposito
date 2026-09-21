@@ -586,6 +586,22 @@ esses casos quando o valor cai no extrato.** Consequências para mim:
 - **não tentar adivinhar** por valor alto ou por padrão de caixa;
 - quando ela apontar um furo, **incluir aquele lançamento** e seguir.
 
+## O painel
+
+O de:para virou painel, em **https://retiradas-deposito.vercel.app** (código em
+`hylaryfarias/retiradas-deposito`, arquivo `index.html`).
+
+- **Cada semana é uma aba**, com os próprios arquivos, observações e situação.
+  Nada é compartilhado entre abas; o upload vai para a aba que estiver aberta.
+- **O nome da aba define o período**: `07/09 a 13/09` corta da sangria o que
+  for de fora. O extrato **não** é filtrado por data, porque o depósito cai
+  depois — às vezes na semana seguinte.
+- **Fonte 3 · Suprimentos** entra **só para consulta**: aparece o consolidado
+  por loja e a lista, e **nada dali conta no quadro**. Marcar uma linha é o
+  jeito de corrigir o furo da descrição — aquele lançamento passa a contar
+  como depósito da loja. É o caso da BIGGS 13 de 13/09.
+- Um escreve, o time lê: quem tem o token publica; quem abre o link só olha.
+
 ## Conciliação
 
 Pergunta sobre **por que** o dinheiro entra assim (taxas, prazos, EDI, vales,

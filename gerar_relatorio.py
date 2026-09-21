@@ -464,19 +464,26 @@ def ler_pos_meia_noite_args(entradas, agrupado):
 def ler_cupons(caminho):
     """Le o Relatriodecuponsdevendas_*.xlsx: cupom a cupom, com hora e forma.
 
-    Devolve (madrugada, total_por_forma, total_geral), tudo ja agrupado pelas
-    regras de GRUPOS. 'madrugada' e o que foi vendido da meia-noite ate a
-    abertura das lojas -- ja e o dia seguinte no calendario, e liquida com ele.
+    Devolve (dias, madrugada, total_geral):
 
-    Confere com o PDF: o total daqui tem de bater com a venda bruta.
+    dias      -> {dd/mm/aaaa: {forma CRUA: valor}}, no mesmo formato que
+                 ler_pdf() entrega, para passar pelo mesmo agrupar()
+    madrugada -> {forma JA AGRUPADA: valor} do que foi vendido da meia-noite
+                 ate HORA_ABERTURA: ja e o dia seguinte no calendario e
+                 liquida com ele
+    total     -> soma de tudo, para conferir com o PDF quando os dois vierem
     """
     try:
         import openpyxl
     except ImportError:
-        raise SystemExit('ERRO: --cupons precisa do openpyxl (pip install openpyxl).')
+        raise SystemExit('ERRO: ler cupons precisa do openpyxl (pip install openpyxl).')
 
     wb = openpyxl.load_workbook(caminho, read_only=True, data_only=True)
     ws = wb[wb.sheetnames[0]]
+    try:                      # alguns exports vem sem a dimensao declarada
+        ws.reset_dimensions()
+    except AttributeError:
+        pass
     linhas = ws.iter_rows(values_only=True)
     cab = [str(c or '').strip().lower() for c in next(linhas)]
 
@@ -487,27 +494,58 @@ def ler_cupons(caminho):
         raise SystemExit(f'ERRO: coluna {nomes[0]!r} nao achada em {caminho}. '
                          f'Cabecalho: {", ".join(cab)}')
 
-    cH, cF, cV = coluna('hora'), coluna('desc. pagam', 'forma'), coluna('vl. pagamento', 'valor')
+    cD, cH = coluna('data'), coluna('hora')
+    cF, cV = coluna('desc. pagam', 'forma'), coluna('vl. pagamento', 'valor')
 
-    madrugada, total, dias = OrderedDict(), OrderedDict(), OrderedDict()
-    cD = coluna('data')
+    dias, madrugadas, total = OrderedDict(), OrderedDict(), 0.0
     for linha in linhas:
         if not linha or linha[cV] is None:
             continue
-        forma = str(linha[cF] or '').strip().upper()
-        for destino, membros in GRUPOS.items():   # agrupa igual ao PDF
-            if forma in membros:
-                forma = destino
-                break
         valor = float(linha[cV] or 0)
-        total[forma] = total.get(forma, 0.0) + valor
+        forma = str(linha[cF] or '').strip().upper()
+        bruto = linha[cD]
+        dia = (bruto.strftime('%d/%m/%Y') if hasattr(bruto, 'strftime')
+               else str(bruto).strip())
+        formas = dias.setdefault(dia, OrderedDict())
+        formas[forma] = formas.get(forma, 0.0) + valor
+        total += valor
+
         hora = str(linha[cH] or '00:00:00')[:2]
         if hora.isdigit() and int(hora) < HORA_ABERTURA:
-            madrugada[forma] = madrugada.get(forma, 0.0) + valor
-        dia = linha[cD]
-        dias[dia.strftime('%d/%m/%Y') if hasattr(dia, 'strftime')
-             else str(dia).strip()] = True
-    return madrugada, total, sum(total.values()), list(dias)
+            agrupada = forma
+            for destino, membros in GRUPOS.items():
+                if forma in membros:
+                    agrupada = destino
+                    break
+            doDia = madrugadas.setdefault(dia, OrderedDict())
+            doDia[agrupada] = doDia.get(agrupada, 0.0) + valor
+
+    def chave(d):
+        try:
+            return datetime.datetime.strptime(d, '%d/%m/%Y')
+        except ValueError:
+            return datetime.datetime.min
+    dias = OrderedDict(sorted(dias.items(), key=lambda i: chave(i[0])))
+    # num bloco de varios dias, so a madrugada do ultimo dia fica para o dia
+    # seguinte: as do meio do periodo liquidam dentro do proprio bloco
+    ultimo = list(dias)[-1] if dias else None
+    return dias, madrugadas.get(ultimo, OrderedDict()), total
+
+
+def ler_fonte(caminho):
+    """Le o dia a dia do PDF ou do xlsx de cupons, o que vier."""
+    if caminho.lower().endswith(('.xlsx', '.xls')):
+        dias, madrugada, _total = ler_cupons(caminho)
+        return dias, None, madrugada
+    dias, cnpj = ler_pdf(caminho)
+    return dias, cnpj, None
+
+
+def proximo_util(data):
+    """Sabado e domingo nao tem credito: joga para a segunda."""
+    while data.weekday() >= 5:
+        data += datetime.timedelta(days=1)
+    return data
 
 
 def ler_arrasto(caminho):
@@ -691,7 +729,9 @@ def montar_texto(dias_usados, total, entrada, dia_previsto):
 def main():
     parser = argparse.ArgumentParser(description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument('pdf', help='PDF de vendas por forma de pagamento')
+    parser.add_argument('pdf', metavar='ARQUIVO',
+                        help='PDF de vendas por forma de pagamento ou o xlsx '
+                             'de cupons (do xlsx sai tambem o corte da madrugada)')
     parser.add_argument('--dia', help='usar so este dia (dd/mm/aaaa); padrao: todos somados')
     parser.add_argument('--saida', default='.', help='pasta de saida (padrao: atual)')
     parser.add_argument('--mes-anterior', dest='mes_anterior',
@@ -735,9 +775,9 @@ def main():
                         help='ignora o que ficou gravado de ontem')
     args = parser.parse_args()
 
-    dias, cnpj = ler_pdf(args.pdf)
+    dias, cnpj, madrugada_fonte = ler_fonte(args.pdf)
     if not dias:
-        raise SystemExit('ERRO: nenhum dia encontrado no PDF. O layout mudou?')
+        raise SystemExit(f'ERRO: nenhum dia encontrado em {args.pdf}. O layout mudou?')
 
     if args.dia:
         if args.dia not in dias:
@@ -765,16 +805,11 @@ def main():
     if args.mes_anterior:
         # o mes anterior pode vir como PDF ou como o xlsx de cupons -- os dois
         # trazem a mesma coisa, e dela so sai o voucher D+30
-        if args.mes_anterior.lower().endswith(('.xlsx', '.xls')):
-            _mad, agrupado_anterior, _geral, dias_ant_usados = ler_cupons(args.mes_anterior)
-            if not dias_ant_usados:
-                raise SystemExit('ERRO: nenhum dia no xlsx do mes anterior.')
-        else:
-            dias_ant, _ = ler_pdf(args.mes_anterior)
-            if not dias_ant:
-                raise SystemExit('ERRO: nenhum dia no PDF do mes anterior.')
-            agrupado_anterior, _ = agrupar(dias_ant, 'PDF do mes anterior')
-            dias_ant_usados = list(dias_ant)
+        dias_ant, _cnpj_ant, _mad_ant = ler_fonte(args.mes_anterior)
+        if not dias_ant:
+            raise SystemExit(f'ERRO: nenhum dia em {args.mes_anterior}.')
+        agrupado_anterior, _ = agrupar(dias_ant, 'fonte do mes anterior')
+        dias_ant_usados = list(dias_ant)
         if len(dias_ant_usados) != len(dias_usados):
             print(f'AVISO: o periodo atual tem {len(dias_usados)} dia(s) e o do mes '
                   f'anterior {len(dias_ant_usados)}. O voucher D+30 fica desproporcional.',
@@ -838,15 +873,18 @@ def main():
     registros = ler_arrasto(args.arrasto)
     gravados = []
     if args.cupons:
-        madrugada, total_cupons, geral, _dias = ler_cupons(args.cupons)
+        _dias_c, madrugada_fonte, geral = ler_cupons(args.cupons)
         if abs(geral - total) > 0.01:
             print(f'AVISO: o relatorio de cupons soma R$ {brl(geral)} e o PDF '
                   f'R$ {brl(total)} (diferenca de R$ {brl(geral - total)}). '
-                  f'Sao do mesmo dia?', file=sys.stderr)
+                  f'Sao do mesmo periodo?', file=sys.stderr)
         else:
             print(f'Cupons conferem com o PDF: R$ {brl(geral)}')
+
+    # a madrugada sai do xlsx, seja ele a fonte principal ou o --cupons
+    if madrugada_fonte and not args.pos_meia_noite:
         for forma in CARTAO_E_PIX:
-            valor = madrugada.get(forma, 0.0)
+            valor = madrugada_fonte.get(forma, 0.0)
             if valor:
                 args.pos_meia_noite.append(f'{forma}={valor:.2f}')
 
@@ -854,7 +892,8 @@ def main():
         porforma = ler_pos_meia_noite_args(args.pos_meia_noite, agrupado)
         for forma, valor in porforma.items():
             agrupado_previsao[forma] = agrupado_previsao.get(forma, 0.0) - valor
-        entra_em = (data_prevista + datetime.timedelta(days=1)).strftime('%d/%m/%Y')
+        entra_em = proximo_util(data_prevista
+                                + datetime.timedelta(days=1)).strftime('%d/%m/%Y')
         gravados = gravar_arrasto(args.arrasto, registros, dias_usados[-1],
                                   porforma, entra_em, args.corte)
         registros = ler_arrasto(args.arrasto)
@@ -898,7 +937,7 @@ def main():
             arquivo.write(f'{forma};{brl(valor)};{brl(valor / total * 100)};{comp}\n')
         arquivo.write(f'TOTAL GERAL;{brl(total)};100,00;\n')
 
-    print(f'Dias no PDF: {", ".join(dias_usados)}')
+    print(f'Dias no arquivo: {", ".join(dias_usados)}')
     for dia, formas in dias.items():
         print(f'  {dia}: R$ {brl(sum(formas.values()))}')
     print(f'\n{len(linhas)} linhas apos o agrupamento | VENDA BRUTA R$ {brl(total)}')

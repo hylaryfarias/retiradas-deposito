@@ -60,26 +60,26 @@
   .eyebrow{font-size:11px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3)}
   :focus-visible{outline:2px solid var(--brand);outline-offset:2px}
 
-  .drops{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:22px}
-  @media (max-width:720px){.drops{grid-template-columns:1fr}}
-  .drop{background:var(--surface);border:1.5px dashed var(--line-2);border-radius:12px;padding:18px;
-    display:flex;flex-direction:column;gap:9px;transition:border-color .15s,background .15s}
+  .drops{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px}
+  @media (max-width:980px){.drops{grid-template-columns:1fr 1fr}}
+  @media (max-width:640px){.drops{grid-template-columns:1fr}}
+  .drop{background:var(--surface);border:1.5px dashed var(--line-2);border-radius:11px;padding:12px 13px;
+    display:flex;flex-direction:column;gap:6px;transition:border-color .15s,background .15s}
   .drop.over{border-color:var(--brand);background:var(--brand-soft)}
   .drop.filled{border-style:solid;border-color:var(--line);box-shadow:var(--shadow)}
-  .drop h3{font-weight:600;font-size:14.5px;letter-spacing:-.01em;margin:0}
-  .drop p{margin:0;color:var(--ink-3);font-size:12.5px}
-  .drop .file{font-size:11.5px;font-weight:500;color:var(--ok);word-break:break-all}
+  .drop h3{font-weight:600;font-size:13.5px;letter-spacing:-.01em;margin:0}
+  .drop p{margin:0;color:var(--ink-3);font-size:11.5px;line-height:1.45}
+  .drop .file{font-size:11px;font-weight:500;color:var(--ok);word-break:break-all}
   .acoes-fonte{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
   .limpar{font:inherit;font-size:12.5px;font-weight:600;color:var(--ink-2);background:none;
     border:0;padding:4px 2px;cursor:pointer;text-decoration:underline;text-underline-offset:2px}
   .limpar:hover{color:var(--brand)}
   body.leitura .limpar{display:none!important}
-  .pick{align-self:flex-start;font:inherit;font-size:12.5px;font-weight:600;background:var(--brand);color:#fff;
-    border:0;border-radius:7px;padding:8px 14px;cursor:pointer}
+  .pick{align-self:flex-start;font:inherit;font-size:12px;font-weight:600;background:var(--brand);color:#fff;
+    border:0;border-radius:7px;padding:6px 12px;cursor:pointer}
   .pick:hover{background:var(--brand-dark)}
   input[type=file]{display:none}
 
-  .drops.um{grid-template-columns:1fr}
   .tbox-info{border-bottom:1px solid var(--line);background:var(--sunk)}
   .tbox-info table{background:transparent}
   .busca{flex:1 1 320px;min-width:200px;font:inherit;font-size:12.5px;padding:7px 10px;
@@ -272,7 +272,7 @@
     <div class="drop" id="dropA">
       <span class="eyebrow">Fonte 1</span>
       <h3>Relatório de sangrias e suprimentos</h3>
-      <p id="pA">Cloudfy · colunas Filial, Caixa, Data, Valor, Motivo/Descrição</p>
+      <p id="pA">Cloudfy · sangrias</p>
       <div class="file" id="fA" hidden></div>
       <span class="acoes-fonte">
         <button class="pick" type="button" id="bA">Escolher arquivo</button>
@@ -283,7 +283,7 @@
     <div class="drop" id="dropB">
       <span class="eyebrow">Fonte 2</span>
       <h3>Extrato bancário</h3>
-      <p id="pB">Colunas Data, Descrição, Tipo, Valor, Loja</p>
+      <p id="pB">Banco · créditos</p>
       <div class="file" id="fB" hidden></div>
       <span class="acoes-fonte">
         <button class="pick" type="button" id="bB">Escolher arquivo</button>
@@ -291,13 +291,10 @@
       </span>
       <input type="file" id="iB" accept=".xlsx,.xls,.csv">
     </div>
-  </div>
-
-  <div class="drops um">
     <div class="drop" id="dropC">
       <span class="eyebrow">Fonte 3 · consulta</span>
       <h3>Suprimentos</h3>
-      <p id="pC">O mesmo relatório do PDV, filtrado em suprimentos. Entra só para consulta: nada dele conta no quadro, a não ser o que você marcar.</p>
+      <p id="pC">Cloudfy · só consulta</p>
       <div class="file" id="fC" hidden></div>
       <span class="acoes-fonte">
         <button class="pick" type="button" id="bC">Escolher arquivo</button>
@@ -1310,8 +1307,8 @@
     pintar("","Lendo o painel do time…");
   }
 
-  var TEXTO_PA = "Cloudfy · colunas Filial, Caixa, Data, Valor, Motivo/Descrição";
-  var TEXTO_PB = "Colunas Data, Descrição, Tipo, Valor, Loja";
+  var TEXTO_PA = "Cloudfy · sangrias";
+  var TEXTO_PB = "Banco · créditos";
 
   // os cartoes mostram os arquivos DA ABA ABERTA
   function rotulos(){

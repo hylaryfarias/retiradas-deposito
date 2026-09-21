@@ -733,9 +733,7 @@ def montar_texto(dias_usados, total, entrada, dia_previsto):
         partes += ['', f'🛵 *IFOOD — SEMANA {janela[0]:%d/%m} A {janela[1]:%d/%m}*', '']
         if entrada.get('ifood_faturado'):
             partes.append(f'· Faturamento: R$ {brl(entrada["ifood_faturado"])}')
-        comAntec = ', já com a antecipação' if entrada.get('antecipacao_aplicada') else ''
-        partes += [f'· Previsão de recebimento{comAntec}: '
-                   f'*R$ {brl(entrada["ifood_previa"])}*',
+        partes += [f'· Previsão de recebimento: *R$ {brl(entrada["ifood_previa"])}*',
                    f'· Entra na quarta, {entrada["data_repasse"]:%d/%m}.']
 
     return '\n'.join(partes) + '\n'

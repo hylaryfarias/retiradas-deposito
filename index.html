@@ -91,6 +91,10 @@
     padding:6px 14px;cursor:pointer;white-space:nowrap}
   .aba:hover{border-color:var(--brand);color:var(--brand)}
   .aba.ativa{background:var(--brand);border-color:var(--brand);color:#fff}
+  .adotar{font:inherit;font-size:11px;font-weight:600;color:var(--ink-2);background:var(--surface);
+    border:1px solid var(--line-2);border-radius:6px;padding:3px 9px;cursor:pointer}
+  .adotar:hover{border-color:var(--brand);color:var(--brand)}
+  body.leitura .adotar{display:none!important}
   .btn-semana{font:inherit;font-size:11.5px;font-weight:600;letter-spacing:.02em;color:var(--brand);
     background:transparent;border:1.5px solid var(--brand);border-radius:999px;padding:4px 12px;
     cursor:pointer;line-height:1.4}
@@ -725,7 +729,7 @@
       var lojas = sem.sangria
         ? agregar(sem.sangria.filter(function(r){ return r.marcado; }),
                   (sem.extrato || []).filter(function(r){ return r.marcado; }))
-        : sem.lojas;
+        : (sem.lojas || {});
       blocos.push({ id:sem.id, nid:sem.id, nome:sem.nome, lojas:lojas,
                     sem:sem, atual:false });
     });
@@ -789,6 +793,7 @@
         }else{
           trs.innerHTML = '<td colspan="6"><span class="semana-cab">'+
             '<input class="rotulo-semana" type="text" value="'+esc(bloco.nome)+'" aria-label="Nome da semana">'+
+            '<button class="adotar" type="button" title="Guardar nesta semana os lançamentos que estão carregados agora">Usar os lançamentos carregados</button>'+
             '<button class="remover" type="button" title="Remover esta semana">Remover</button></span></td>';
           var inp = trs.querySelector("input");
           inp.addEventListener("input", function(){
@@ -802,6 +807,20 @@
                 abas[j].textContent = inp.value || "semana";
             atualizarTexto();
             salvarDados();
+          });
+          // serve para a semana fechada antes de o painel guardar lancamento,
+          // e para trocar o arquivo de uma semana sem perder as observacoes
+          trs.querySelector(".adotar").addEventListener("click", function(){
+            if(!estado.sangria.length){
+              alert("Suba o relatório de sangrias dessa semana primeiro.");
+              return;
+            }
+            var tem = !!bloco.sem.sangria;
+            if(tem && !confirm("Esta semana já tem lançamentos guardados. Trocar pelos que estão carregados agora?")) return;
+            bloco.sem.sangria = estado.sangria.slice();
+            bloco.sem.extrato = estado.extrato.slice();
+            delete bloco.sem.lojas;
+            salvarDados(); render();
           });
           trs.querySelector(".remover").addEventListener("click", function(){
             estado.semanas = estado.semanas.filter(function(s){ return s.id !== bloco.id; });

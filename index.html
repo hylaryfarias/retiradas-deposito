@@ -83,8 +83,9 @@
   .tbox-info{border-bottom:1px solid var(--line);background:var(--sunk)}
   .tbox-info table{background:transparent}
   .tag{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.04em;
-    text-transform:uppercase;color:var(--warn);background:var(--warn-soft);
-    border-radius:4px;padding:1px 5px;margin-right:5px;vertical-align:1px}
+    text-transform:uppercase;color:var(--ink-3);background:var(--surface);
+    border:1px solid var(--line-2);border-radius:4px;padding:1px 6px;white-space:nowrap}
+  .tag.t-supr{color:var(--warn);background:var(--warn-soft);border-color:transparent}
   .busca{flex:1 1 320px;min-width:200px;font:inherit;font-size:12.5px;padding:7px 10px;
     border:1px solid var(--line-2);border-radius:7px;background:var(--surface);color:var(--ink)}
   .busca::placeholder{color:var(--ink-3)}
@@ -370,7 +371,7 @@
         <button class="lnk-busca" type="button" id="limparBuscaA" hidden>limpar filtro</button>
       </div>
       <div class="scroll"><table id="tabA">
-        <thead><tr><th style="width:34px"></th><th>Data</th><th>Loja</th><th>Caixa</th><th class="num">Valor</th><th>Descrição</th></tr></thead>
+        <thead><tr><th style="width:34px"></th><th>Data</th><th>Loja</th><th>Caixa</th><th class="num">Valor</th><th>Descrição</th><th>Fonte</th></tr></thead>
         <tbody></tbody>
       </table></div>
     </details>
@@ -1081,9 +1082,12 @@
       return tb2 - ta;
     });
     renderDetalhe("tabA", juntos, "cA", function(r){
-      var tag = r.origem === "suprimento" ? '<span class="tag">suprimento</span> ' : '';
+      var supr = r.origem === "suprimento";
+      var fonte = '<span class="tag' + (supr ? " t-supr" : "") + '">' +
+                  (supr ? "suprimento" : "sangria") + '</span>';
       return '<td>'+esc(r.data)+'</td><td>'+esc(r.loja)+'</td><td class="muted">'+esc(r.caixa)+'</td>'+
-             '<td class="num">'+brl(r.valor)+'</td><td class="desc">'+tag+esc(r.motivo)+'</td>';
+             '<td class="num">'+brl(r.valor)+'</td><td class="desc">'+esc(r.motivo)+'</td>'+
+             '<td>'+fonte+'</td>';
     }, $("buscaA").value);
     if(suprViz.length)
       $("cA").textContent += " · " + sangViz.length + " sangria + " +

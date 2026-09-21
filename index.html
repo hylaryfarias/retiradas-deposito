@@ -82,6 +82,9 @@
 
   .tbox-info{border-bottom:1px solid var(--line);background:var(--sunk)}
   .tbox-info table{background:transparent}
+  .tag{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.04em;
+    text-transform:uppercase;color:var(--warn);background:var(--warn-soft);
+    border-radius:4px;padding:1px 5px;margin-right:5px;vertical-align:1px}
   .busca{flex:1 1 320px;min-width:200px;font:inherit;font-size:12.5px;padding:7px 10px;
     border:1px solid var(--line-2);border-radius:7px;background:var(--surface);color:var(--ink)}
   .busca::placeholder{color:var(--ink-3)}
@@ -333,27 +336,6 @@
     </div>
   </section>
 
-  <section id="secSupr" hidden>
-    <details id="detC">
-      <summary><span>Suprimentos <span class="hint">(consulta)</span></span><span class="c" id="cC"></span></summary>
-      <div class="toolbar">
-        <label>Nada aqui conta no quadro. Marque só o lançamento que, apesar de estar escrito como suprimento, foi para depósito — ele passa a contar como depósito daquela loja.</label>
-      </div>
-      <div class="tbox-info"><div class="scroll"><table id="tabInfoC">
-        <thead><tr><th>Loja</th><th class="num">Lançamentos</th><th class="num">Valor</th></tr></thead>
-        <tbody></tbody><tfoot></tfoot>
-      </table></div></div>
-      <div class="toolbar">
-        <input type="search" class="busca" id="buscaC" autocomplete="off"
-               placeholder="Filtrar: loja, data, valor ou palavra da descrição">
-      </div>
-      <div class="scroll"><table id="tabC">
-        <thead><tr><th style="width:34px"></th><th>Data</th><th>Loja</th><th>Caixa</th><th class="num">Valor</th><th>Descrição</th></tr></thead>
-        <tbody></tbody>
-      </table></div>
-    </details>
-  </section>
-
   <section id="secTexto">
     <div class="shead">
       <div class="esq">
@@ -378,9 +360,9 @@
 
   <section>
     <details id="detA">
-      <summary><span>Lançamentos de sangria</span><span class="c" id="cA"></span></summary>
+      <summary><span>Lançamentos de sangria e suprimentos</span><span class="c" id="cA"></span></summary>
       <div class="toolbar">
-        <label>Marcado = conta como depósito. Desmarque o que não for, marque o que a descrição deixou passar.</label>
+        <label>Marcado = conta como depósito. Desmarque o que não for e marque o que a descrição deixou passar — inclusive um suprimento que na verdade foi depositado.</label>
       </div>
       <div class="toolbar">
         <input type="search" class="busca" id="buscaA" autocomplete="off"
@@ -388,7 +370,7 @@
         <button class="lnk-busca" type="button" id="limparBuscaA" hidden>limpar filtro</button>
       </div>
       <div class="scroll"><table id="tabA">
-        <thead><tr><th style="width:34px"></th><th>Data</th><th>Loja</th><th>Caixa</th><th class="num">Valor</th><th>Motivo</th></tr></thead>
+        <thead><tr><th style="width:34px"></th><th>Data</th><th>Loja</th><th>Caixa</th><th class="num">Valor</th><th>Descrição</th></tr></thead>
         <tbody></tbody>
       </table></div>
     </details>
@@ -592,7 +574,8 @@
         if(l[cF]==null || String(l[cF]).trim()==="") continue;
         var motivo = cM>=0 ? String(l[cM]==null?"":l[cM]) : "";
         out.push({ id:"a"+i, data:data(l[cD]), loja:String(l[cF]), caixa:cC>=0?String(l[cC]||""):"",
-                   valor:numero(l[cV]), motivo:motivo, marcado:ehDepositoSangria(motivo) });
+                   valor:numero(l[cV]), motivo:motivo, origem:"sangria",
+                   marcado:ehDepositoSangria(motivo) });
       }
       var a = alvo();
       a.sangria = out; a.nomeA = file.name;
@@ -628,7 +611,8 @@
         if(l[cF]==null || String(l[cF]).trim()==="") continue;
         out.push({ id:"c"+i, data:data(l[cD]), loja:String(l[cF]),
                    caixa:cC>=0?String(l[cC]||""):"", valor:numero(l[cV]),
-                   motivo:cM>=0 ? String(l[cM]==null?"":l[cM]) : "", marcado:false });
+                   motivo:cM>=0 ? String(l[cM]==null?"":l[cM]) : "",
+                   origem:"suprimento", marcado:false });
       }
       var a = alvo();
       a.suprimentos = out; a.nomeC = file.name;
@@ -1043,33 +1027,41 @@
     ajustarObs();
 
     // as listas de lancamento mostram a aba aberta, nao o arquivo carregado
-    var sangViz = estado.sangria, extViz = estado.extrato, semLancamentos = false, foraDaFaixa = 0;
+    var sangViz = estado.sangria, suprViz = estado.suprimentos,
+        extViz = estado.extrato, semLancamentos = false, foraDaFaixa = 0;
     if(abaAtiva && !abaAtiva.atual){
-      if(abaAtiva.sem && abaAtiva.sem.sangria){
+      if(abaAtiva.sem && (abaAtiva.sem.sangria || abaAtiva.sem.suprimentos)){
         sangViz = sangriaDaSemana(abaAtiva.sem);
-        foraDaFaixa = abaAtiva.sem.sangria.length - sangViz.length;
+        suprViz = suprimentosDaSemana(abaAtiva.sem);
+        foraDaFaixa = (abaAtiva.sem.sangria || []).length - sangViz.length +
+                      (abaAtiva.sem.suprimentos || []).length - suprViz.length;
         extViz = abaAtiva.sem.extrato || [];
       }else{
         // semana fechada antes de o painel guardar os lancamentos: mostrar os
         // do arquivo de agora seria mentira
-        sangViz = []; extViz = []; semLancamentos = true;
+        sangViz = []; suprViz = []; extViz = []; semLancamentos = true;
       }
     }
-    renderDetalhe("tabA", sangViz, "cA", function(r){
+    // sangria e suprimento na mesma lista, para pesquisar de uma vez so
+    var juntos = sangViz.concat(suprViz).sort(function(a,b){
+      var ta = emDias(a.data), tb2 = emDias(b.data);
+      if(ta === tb2) return 0;
+      if(ta === null) return 1;
+      if(tb2 === null) return -1;
+      return tb2 - ta;
+    });
+    renderDetalhe("tabA", juntos, "cA", function(r){
+      var tag = r.origem === "suprimento" ? '<span class="tag">suprimento</span> ' : '';
       return '<td>'+esc(r.data)+'</td><td>'+esc(r.loja)+'</td><td class="muted">'+esc(r.caixa)+'</td>'+
-             '<td class="num">'+brl(r.valor)+'</td><td class="desc">'+esc(r.motivo)+'</td>';
+             '<td class="num">'+brl(r.valor)+'</td><td class="desc">'+tag+esc(r.motivo)+'</td>';
     }, $("buscaA").value);
+    if(suprViz.length)
+      $("cA").textContent += " · " + sangViz.length + " sangria + " + suprViz.length + " suprimento";
     $("limparBuscaA").hidden = !$("buscaA").value;
     renderDetalhe("tabB", extViz, "cB", function(r){
       return '<td>'+esc(r.data)+'</td><td>'+esc(r.loja)+'</td>'+
              '<td class="num">'+brl(r.valor)+'</td><td class="desc">'+esc(r.desc)+'</td>';
     });
-    var suprViz = estado.suprimentos;
-    if(abaAtiva && !abaAtiva.atual && abaAtiva.sem)
-      suprViz = suprimentosDaSemana(abaAtiva.sem);
-    $("secSupr").hidden = !suprViz.length;
-    renderSuprimentos(suprViz, $("buscaC").value);
-
     if(foraDaFaixa)
       $("cA").textContent += " · " + foraDaFaixa + " fora do período da aba";
     rotulos();
@@ -1113,61 +1105,6 @@
     document.getElementById(contaId).textContent = conta;
   }
 
-  // Fonte 3 na tela: consolidado por loja em cima, lista com caixinha embaixo.
-  // Marcar uma linha e o que faz aquele suprimento contar como deposito.
-  function renderSuprimentos(linhas, busca){
-    var porLoja = {}, marc = 0, total = 0;
-    linhas.forEach(function(r){
-      var k = chaveLoja(r.loja) || r.loja;
-      if(!porLoja[k]) porLoja[k] = { nome:r.loja, n:0, v:0 };
-      porLoja[k].n++; porLoja[k].v += r.valor;
-      if(r.loja) porLoja[k].nome = r.loja;
-      if(r.marcado) marc++;
-      total += r.valor;
-    });
-    var lojas = Object.keys(porLoja).map(function(k){ return porLoja[k]; })
-      .sort(function(x,y){ return y.v - x.v; });
-    var tb = $("tabInfoC").tBodies[0], tf = $("tabInfoC").tFoot;
-    tb.innerHTML = ""; tf.innerHTML = "";
-    var tn = 0;
-    lojas.forEach(function(l){
-      tn += l.n;
-      var tr = document.createElement("tr");
-      tr.innerHTML = '<td class="loja">'+esc(l.nome)+'</td><td class="num">'+l.n+'</td>'+
-                     '<td class="num">'+brl(l.v)+'</td>';
-      tb.appendChild(tr);
-    });
-    if(lojas.length){
-      var trf = document.createElement("tr");
-      trf.innerHTML = '<td>Total &middot; '+lojas.length+' loja'+(lojas.length>1?"s":"")+'</td>'+
-                      '<td class="num">'+tn+'</td><td class="num">'+brl(total)+'</td>';
-      tf.appendChild(trf);
-    }
-
-    var termos = norm(busca || "").split(/\s+/).filter(Boolean);
-    var tbl = $("tabC").tBodies[0];
-    tbl.innerHTML = "";
-    var vistos = 0;
-    linhas.forEach(function(r){
-      if(!combinaBusca(r, termos)) return;
-      vistos++;
-      var tr = document.createElement("tr");
-      tr.innerHTML = '<td><input type="checkbox"'+(r.marcado?" checked":"")+'></td>'+
-                     '<td>'+esc(r.data)+'</td><td>'+esc(r.loja)+'</td>'+
-                     '<td class="muted">'+esc(r.caixa)+'</td>'+
-                     '<td class="num">'+brl(r.valor)+'</td>'+
-                     '<td class="desc">'+esc(r.motivo)+'</td>';
-      tr.querySelector("input").addEventListener("change", function(ev){
-        r.marcado = ev.target.checked; salvarDados(); render();
-      });
-      tbl.appendChild(tr);
-    });
-    var conta = linhas.length + " lançamentos · " + brl(total);
-    if(marc) conta += " · " + marc + " contando como depósito";
-    if(termos.length) conta += " · " + vistos + " no filtro";
-    $("cC").textContent = conta;
-  }
-
   function ligarDrop(dropId, inputId, botaoId, handler){
     var drop = $(dropId), input = $(inputId);
     $(botaoId).addEventListener("click", function(){ input.click(); });
@@ -1186,10 +1123,6 @@
   ligarDrop("dropB","iB","bB", carregarExtrato);
   ligarDrop("dropC","inC","bC", carregarSuprimentos);
   $("limparC").addEventListener("click", function(){ limparFonte("C"); });
-  $("buscaC").addEventListener("input", function(){
-    clearTimeout(window._tBuscaC);
-    window._tBuscaC = setTimeout(render, 120);
-  });
 
   $("kw").addEventListener("input", function(){
     estado.extrato.forEach(function(r){ r.marcado = ehDepositoExtrato(r.desc); });

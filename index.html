@@ -550,7 +550,6 @@
       a.sangria = out; a.nomeA = file.name;
       delete a.lojas;                  // a semana passa a valer pelos lancamentos
       if(a === estado) estado.amostra = false;
-      descartarSeOutroPeriodo("A");
       salvarDados(); render();
     });
   }
@@ -587,7 +586,6 @@
       var a = alvo();
       a.extrato = out; a.nomeB = file.name;
       delete a.lojas;
-      descartarSeOutroPeriodo("B");
       salvarDados(); render();
     });
   }
@@ -644,11 +642,6 @@
       return String(d.getDate()).padStart(2,"0")+"/"+String(d.getMonth()+1).padStart(2,"0");
     };
     return f(iv.ini) === f(iv.fim) ? f(iv.ini) : f(iv.ini)+" a "+f(iv.fim);
-  }
-  // sangria e extrato da mesma semana se encostam; de semanas diferentes, nao
-  function combinam(a, b){
-    if(!a || !b) return true;
-    return a.ini <= b.fim && b.ini <= a.fim;
   }
 
   // Conserto do que ja estava gravado em chave solta: essas observacoes foram
@@ -1131,23 +1124,6 @@
   // Cada semana tem o seu par de arquivos. Subir um de periodo diferente nao
   // pode misturar com o que ja esta carregado -- foi o que fez o credito da
   // MAPOLI, do extrato de hoje, aparecer na semana passada.
-  function descartarSeOutroPeriodo(qual){
-    var a = alvo();
-    var ivA = intervalo(a.sangria), ivB = intervalo(a.extrato);
-    if(combinam(ivA, ivB)){ rotulos(); return; }
-    if(qual === "A"){
-      a.extrato = []; a.nomeB = "";
-      rotulos();
-      $("pB").textContent = "O extrato que estava aqui era de " + rotuloIntervalo(ivB) +
-                            " — suba o de " + rotuloIntervalo(ivA) + ".";
-    }else{
-      a.sangria = []; a.nomeA = "";
-      if(a === estado) estado.amostra = false;
-      rotulos();
-      $("pA").textContent = "A sangria que estava aqui era de " + rotuloIntervalo(ivA) +
-                            " — suba a de " + rotuloIntervalo(ivB) + ".";
-    }
-  }
   function pacote(){
     return { v:1, ts:Date.now(),
       dados:{ sangria:estado.sangria, extrato:estado.extrato, amostra:estado.amostra,

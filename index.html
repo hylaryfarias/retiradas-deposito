@@ -79,6 +79,11 @@
   .pick:hover{background:var(--brand-dark)}
   input[type=file]{display:none}
 
+  .busca{flex:1 1 320px;min-width:200px;font:inherit;font-size:12.5px;padding:7px 10px;
+    border:1px solid var(--line-2);border-radius:7px;background:var(--surface);color:var(--ink)}
+  .busca::placeholder{color:var(--ink-3)}
+  .lnk-busca{font:inherit;font-size:12px;font-weight:600;color:var(--brand);background:none;
+    border:0;cursor:pointer;text-decoration:underline;text-underline-offset:2px}
   .totais{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);
     border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:26px}
   @media (max-width:560px){.totais{grid-template-columns:1fr}}
@@ -341,6 +346,11 @@
       <summary><span>Lançamentos de sangria</span><span class="c" id="cA"></span></summary>
       <div class="toolbar">
         <label>Marcado = conta como depósito. Desmarque o que não for, marque o que a descrição deixou passar.</label>
+      </div>
+      <div class="toolbar">
+        <input type="search" class="busca" id="buscaA" autocomplete="off"
+               placeholder="Filtrar: loja, data, valor ou palavra da descrição — separe por espaço para somar filtros">
+        <button class="lnk-busca" type="button" id="limparBuscaA" hidden>limpar filtro</button>
       </div>
       <div class="scroll"><table id="tabA">
         <thead><tr><th style="width:34px"></th><th>Data</th><th>Loja</th><th>Caixa</th><th class="num">Valor</th><th>Motivo</th></tr></thead>
@@ -978,7 +988,8 @@
     renderDetalhe("tabA", sangViz, "cA", function(r){
       return '<td>'+esc(r.data)+'</td><td>'+esc(r.loja)+'</td><td class="muted">'+esc(r.caixa)+'</td>'+
              '<td class="num">'+brl(r.valor)+'</td><td class="desc">'+esc(r.motivo)+'</td>';
-    });
+    }, $("buscaA").value);
+    $("limparBuscaA").hidden = !$("buscaA").value;
     renderDetalhe("tabB", extViz, "cB", function(r){
       return '<td>'+esc(r.data)+'</td><td>'+esc(r.loja)+'</td>'+
              '<td class="num">'+brl(r.valor)+'</td><td class="desc">'+esc(r.desc)+'</td>';
@@ -994,12 +1005,26 @@
     }
   }
 
-  function renderDetalhe(tabId, linhas, contaId, cols){
+  // texto onde a busca procura: data, loja, caixa, valor e descricao
+  function textoDaLinha(r){
+    return norm([r.data, r.loja, r.caixa, brl(r.valor), r.valor, r.motivo, r.desc]
+                .filter(function(x){ return x != null; }).join(" "));
+  }
+  function combinaBusca(r, termos){
+    if(!termos.length) return true;
+    var t = textoDaLinha(r);
+    return termos.every(function(q){ return t.indexOf(q) >= 0; });
+  }
+
+  function renderDetalhe(tabId, linhas, contaId, cols, busca){
     var tb = document.getElementById(tabId).tBodies[0];
     tb.innerHTML = "";
-    var marc = 0;
+    var termos = norm(busca || "").split(/\s+/).filter(Boolean);
+    var marc = 0, vistos = 0;
     linhas.forEach(function(r){
       if(r.marcado) marc++;
+      if(!combinaBusca(r, termos)) return;
+      vistos++;
       var tr = document.createElement("tr");
       tr.innerHTML = '<td><input type="checkbox" id="'+tabId+'-'+r.id+'"'+(r.marcado?" checked":"")+'></td>' + cols(r);
       tr.querySelector("input").addEventListener("change", function(ev){
@@ -1007,7 +1032,9 @@
       });
       tb.appendChild(tr);
     });
-    document.getElementById(contaId).textContent = linhas.length ? marc + " marcados de " + linhas.length : "";
+    var conta = linhas.length ? marc + " marcados de " + linhas.length : "";
+    if(termos.length && linhas.length) conta += " · " + vistos + " no filtro";
+    document.getElementById(contaId).textContent = conta;
   }
 
   function ligarDrop(dropId, inputId, botaoId, handler){
@@ -1046,6 +1073,13 @@
     $("pA").textContent = TEXTO_PA; $("pB").textContent = TEXTO_PB;
     salvarDados(); render();
   }
+  $("buscaA").addEventListener("input", function(){
+    clearTimeout(window._tBusca);
+    window._tBusca = setTimeout(render, 120);
+  });
+  $("limparBuscaA").addEventListener("click", function(){
+    $("buscaA").value = ""; render(); $("buscaA").focus();
+  });
   $("limparA").addEventListener("click", function(){ limparFonte("A"); });
   $("limparB").addEventListener("click", function(){ limparFonte("B"); });
 

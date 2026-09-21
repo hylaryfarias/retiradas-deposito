@@ -536,8 +536,8 @@
                    valor:numero(l[cV]), motivo:motivo, marcado:ehDepositoSangria(motivo) });
       }
       estado.sangria = out; estado.amostra = false; estado.nomeA = file.name;
-      $("fA").textContent = "\u2713 " + file.name + " · " + out.length + " lançamentos";
-      $("fA").hidden = false; $("pA").hidden = true; $("dropA").classList.add("filled");
+      rotulos();
+      descartarSeOutroPeriodo("A");
       salvarDados(); render();
     });
   }
@@ -572,9 +572,8 @@
                    desc:desc, marcado:ehDepositoExtrato(desc) });
       }
       estado.extrato = out; estado.nomeB = file.name;
-      $("fB").textContent = "\u2713 " + file.name + " · " + out.length + " créditos";
-      $("fB").hidden = false; $("pB").hidden = true; $("dropB").classList.add("filled");
-      $("vazioB").hidden = true;
+      rotulos();
+      descartarSeOutroPeriodo("B");
       salvarDados(); render();
     });
   }
@@ -587,6 +586,35 @@
   // ficava numa chave solta e aparecia de novo no proximo arquivo subido --
   // foi o que embaralhou o painel dela em 21/09.
   function nsAberto(){ return "aberto:" + periodoCarregado(); }
+
+  function emDias(d){
+    var p = String(d||"").split("/");
+    return p.length === 3 ? new Date(+p[2], +p[1]-1, +p[0]).getTime() : null;
+  }
+  // intervalo coberto por um conjunto de linhas
+  function intervalo(linhas){
+    var min = null, max = null;
+    (linhas||[]).forEach(function(r){
+      var t = emDias(r.data);
+      if(t === null) return;
+      if(min === null || t < min) min = t;
+      if(max === null || t > max) max = t;
+    });
+    return min === null ? null : {ini:min, fim:max};
+  }
+  function rotuloIntervalo(iv){
+    if(!iv) return "";
+    var f = function(t){
+      var d = new Date(t);
+      return String(d.getDate()).padStart(2,"0")+"/"+String(d.getMonth()+1).padStart(2,"0");
+    };
+    return f(iv.ini) === f(iv.fim) ? f(iv.ini) : f(iv.ini)+" a "+f(iv.fim);
+  }
+  // sangria e extrato da mesma semana se encostam; de semanas diferentes, nao
+  function combinam(a, b){
+    if(!a || !b) return true;
+    return a.ini <= b.fim && b.ini <= a.fim;
+  }
 
   // Conserto do que ja estava gravado em chave solta: essas observacoes foram
   // escritas antes de a semana ser fechada, entao pertencem a ultima semana
@@ -1031,13 +1059,37 @@
 
   function rotulos(){
     if(estado.nomeA){
-      $("fA").textContent = "✓ " + estado.nomeA + " · " + estado.sangria.length + " lançamentos";
+      var pA = rotuloIntervalo(intervalo(estado.sangria));
+      $("fA").textContent = "✓ " + estado.nomeA + " · " + estado.sangria.length +
+                            " lançamentos" + (pA ? " · " + pA : "");
       $("fA").hidden = false; $("pA").hidden = true; $("dropA").classList.add("filled");
     }
     if(estado.nomeB){
-      $("fB").textContent = "✓ " + estado.nomeB + " · " + estado.extrato.length + " créditos";
+      var pB = rotuloIntervalo(intervalo(estado.extrato));
+      $("fB").textContent = "✓ " + estado.nomeB + " · " + estado.extrato.length +
+                            " créditos" + (pB ? " · " + pB : "");
       $("fB").hidden = false; $("pB").hidden = true; $("dropB").classList.add("filled");
       $("vazioB").hidden = true;
+    }
+  }
+
+  // Cada semana tem o seu par de arquivos. Subir um de periodo diferente nao
+  // pode misturar com o que ja esta carregado -- foi o que fez o credito da
+  // MAPOLI, do extrato de hoje, aparecer na semana passada.
+  function descartarSeOutroPeriodo(qual){
+    var ivA = intervalo(estado.sangria), ivB = intervalo(estado.extrato);
+    if(combinam(ivA, ivB)) return;
+    if(qual === "A"){
+      estado.extrato = []; estado.nomeB = "";
+      $("fB").hidden = true; $("pB").hidden = false; $("dropB").classList.remove("filled");
+      $("pB").textContent = "O extrato carregado era de " + rotuloIntervalo(ivB) +
+                            " — suba o de " + rotuloIntervalo(ivA) + ".";
+      $("vazioB").hidden = false;
+    }else{
+      estado.sangria = []; estado.nomeA = ""; estado.amostra = false;
+      $("fA").hidden = true; $("pA").hidden = false; $("dropA").classList.remove("filled");
+      $("pA").textContent = "A sangria carregada era de " + rotuloIntervalo(ivA) +
+                            " — suba a de " + rotuloIntervalo(ivB) + ".";
     }
   }
   function pacote(){

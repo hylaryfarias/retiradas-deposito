@@ -592,7 +592,7 @@
     var soltas = Object.keys(estado.notas).filter(function(ck){
       return ck.indexOf("::") < 0;
     });
-    if(!soltas.length) return;
+    if(!soltas.length) return false;
     var destino = estado.semanas.length
       ? estado.semanas[estado.semanas.length - 1].id
       : nsAberto();
@@ -602,6 +602,7 @@
       delete estado.notas[ck];
     });
     salvar();
+    return true;
   }
 
   function chaveExtrato(loja){
@@ -1004,9 +1005,10 @@
     estado.notas = p.notas || {};
     if(d.kw) $("kw").value = d.kw;
     sync.carimbo = p.ts || 0;
-    migrarNotasSoltas();          // o painel publicado pode vir com as antigas
+    var consertou = migrarNotasSoltas();   // o publicado pode vir com as antigas
     rotulos(); salvarDados(); salvar(); render();
     sync.aplicando = false;
+    if(consertou) agendar();      // o conserto tambem tem de ir para o time
     return true;
   }
 

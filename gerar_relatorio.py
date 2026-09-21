@@ -548,6 +548,19 @@ def proximo_util(data):
     return data
 
 
+def entrada_do_boleto(vencimento):
+    """Quando o dinheiro do boleto cai, a partir da data de vencimento.
+
+    Vencimento no fim de semana so e pago no proximo dia util -- ela confirmou
+    em 21/09, com os titulos que venceram no domingo 20/09: pagam na segunda e
+    cai na terca. Dai vale a compensacao de D+1, que tambem pula o fim de
+    semana.
+    """
+    venc = datetime.datetime.strptime(vencimento, '%d/%m/%Y').date()
+    pago = proximo_util(venc)
+    return proximo_util(pago + datetime.timedelta(days=A_PRAZO_COMPENSACAO))
+
+
 def ler_arrasto(caminho):
     """Le o arquivo de vendas depois do corte que ficaram para o dia seguinte."""
     if not os.path.exists(caminho):
@@ -601,10 +614,10 @@ def calcular_entrada(agrupado, agrupado_anterior, titulos, dia_previsto,
     a_prazo  -> boletos que venceram no dia anterior (compensam em D+1)
     b2b      -> iKI Produtos Alimenticios; None enquanto nao houver base
     """
-    # boleto compensa em D+1: o que entra hoje venceu ontem
-    venc_alvo = (datetime.datetime.strptime(dia_previsto, '%d/%m/%Y').date()
-                 - datetime.timedelta(days=A_PRAZO_COMPENSACAO)).strftime('%d/%m/%Y')
-    vencendo = [t for t in titulos if t['vencimento'] == venc_alvo]
+    # boleto compensa em D+1 do pagamento, e vencimento em fim de semana so e
+    # pago na segunda
+    alvo = datetime.datetime.strptime(dia_previsto, '%d/%m/%Y').date()
+    vencendo = [t for t in titulos if entrada_do_boleto(t['vencimento']) == alvo]
 
     # detalhe por forma, para poder auditar bruto -> taxa -> liquido
     detalhe = []
@@ -644,7 +657,7 @@ def calcular_entrada(agrupado, agrupado_anterior, titulos, dia_previsto,
         'a_prazo': sum(t['valor'] for t in vencendo) if vencendo else None,
         'b2b': b2b,
         'titulos_a_prazo': vencendo,
-        'vencimento_a_prazo': venc_alvo,
+        'vencimento_a_prazo': ', '.join(sorted({t['vencimento'] for t in vencendo})),
     }
     if override:
         entrada.update({k: v for k, v in override.items() if k in PARCELAS})
@@ -1004,16 +1017,14 @@ def main():
         print(f'    {janela[0]:%d/%m} a {janela[1]:%d/%m}'
               + (f', faltam {len(ifood_faltando)} dia(s)' if ifood_faltando else ''))
 
-    venc_alvo = entrada.get('vencimento_a_prazo', dia_previsto)
+    venc_alvo = entrada.get('vencimento_a_prazo', '')
     if entrada['a_prazo'] is None:
-        print(f'  vendas a prazo               nenhum boleto venceu em {venc_alvo} '
-              f'(entraria hoje, D+1)')
+        print(f'  vendas a prazo               nenhum boleto compensa em {dia_previsto}')
         proximos = sorted({t['vencimento'] for t in titulos},
                           key=lambda d: datetime.datetime.strptime(d, '%d/%m/%Y'))
         if proximos:
-            entradas = ', '.join(
-                f'{d} (entra {(datetime.datetime.strptime(d, "%d/%m/%Y").date() + datetime.timedelta(days=A_PRAZO_COMPENSACAO)):%d/%m})'
-                for d in proximos)
+            entradas = ', '.join(f'{d} (entra {entrada_do_boleto(d):%d/%m})'
+                                 for d in proximos)
             print(f'    vencimentos na tabela: {entradas}')
     else:
         print(f'  {"vendas a prazo (boleto D+1)":<28} R$ {brl(entrada["a_prazo"]):>13} '

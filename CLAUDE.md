@@ -450,10 +450,14 @@ Quando ela mandar títulos novos, acrescentar linhas no arquivo e commitar.
   data passada fica de fora** até ela dar uma data nova — a parcela só entra no
   dia exato do vencimento, então uma data velha nunca mais apareceria.
 
-**É boleto, então compensa em D+1**: o título entra na previsão do **dia
-seguinte ao vencimento**, não no dia do vencimento. Quem manda nisso é
-`A_PRAZO_COMPENSACAO` no topo de `gerar_relatorio.py` — se um dia a
-compensação mudar, é trocar o número lá.
+**É boleto, então compensa em D+1 do pagamento** — e **vencimento em fim de
+semana só é pago no próximo dia útil**. Ela confirmou isso em 21/09, com os
+títulos que venceram no domingo 20/09: os clientes pagam na segunda e o
+dinheiro cai na terça, então a parcela foi para 22/09 e não para 21/09.
+
+A conta é `próximo dia útil do vencimento + A_PRAZO_COMPENSACAO`, pulando o
+fim de semana de novo no fim — está em `entrada_do_boleto()`, e o intervalo
+vive em `A_PRAZO_COMPENSACAO`, no topo de `gerar_relatorio.py`.
 
 Cuidado para **não contar em dobro**: a venda a prazo já entrou na venda bruta
 no dia da venda; o que entra aqui é o **caixa** na compensação. São coisas

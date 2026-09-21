@@ -610,13 +610,52 @@
   }
   function ehAberta(){ return alvo() === estado; }
 
+  // O nome da semana manda: "07/09 a 13/09" corta o que for de fora. Serve
+  // para quando o relatorio vem com dias a mais do que a semana cobre.
+  function faixaDoNome(nome, linhas){
+    var t = String(nome || "");
+    var d = "(\\d{1,2})/(\\d{1,2})(?:/(\\d{2,4}))?";
+    var m = t.match(new RegExp(d + "\\s*(?:a|à|até|-|–)\\s*" + d, "i"));
+    if(!m){
+      var u = t.match(new RegExp("^\\s*" + d + "\\s*$"));
+      if(!u) return null;
+      m = [null, u[1], u[2], u[3], u[1], u[2], u[3]];
+    }
+    // sem ano no nome, usa o do proprio arquivo
+    var ano = null;
+    (linhas || []).some(function(r){
+      var p = String(r.data || "").split("/");
+      if(p.length === 3){ ano = +p[2]; return true; }
+      return false;
+    });
+    ano = ano || new Date().getFullYear();
+    function faz(dia, mes, a){
+      a = a ? (+a < 100 ? 2000 + +a : +a) : ano;
+      return new Date(a, +mes - 1, +dia).getTime();
+    }
+    var ini = faz(m[1], m[2], m[3]), fim = faz(m[4], m[5], m[6]);
+    if(fim < ini) return null;
+    return { ini:ini, fim:fim };
+  }
+  function dentroDaFaixa(r, faixa){
+    if(!faixa) return true;
+    var t = emDias(r.data);
+    return t === null || (t >= faixa.ini && t <= faixa.fim);
+  }
+  // a sangria obedece a faixa da semana; o extrato NAO, porque o deposito
+  // cai depois -- foi o que a regra de periodo errava antes
+  function sangriaDaSemana(sem){
+    var faixa = faixaDoNome(sem.nome, sem.sangria);
+    return (sem.sangria || []).filter(function(r){ return dentroDaFaixa(r, faixa); });
+  }
+
   function marcados(linhas){
     return (linhas || []).filter(function(r){ return r.marcado; });
   }
   // semana com lancamentos proprios reagrega na hora; as fechadas antes de o
   // painel guardar arquivo seguem com o consolidado congelado
   function lojasDaSemana(sem){
-    return sem.sangria ? agregar(marcados(sem.sangria), marcados(sem.extrato))
+    return sem.sangria ? agregar(marcados(sangriaDaSemana(sem)), marcados(sem.extrato))
                        : (sem.lojas || {});
   }
 
@@ -858,6 +897,8 @@
                 abas[j].textContent = inp.value || "semana";
             atualizarTexto();
             salvarDados();
+            clearTimeout(window._tRenome);
+            window._tRenome = setTimeout(render, 600);   // a faixa mudou
           });
           trs.querySelector(".remover").addEventListener("click", function(){
             estado.semanas = estado.semanas.filter(function(s){ return s.id !== bloco.id; });
@@ -922,10 +963,12 @@
     ajustarObs();
 
     // as listas de lancamento mostram a aba aberta, nao o arquivo carregado
-    var sangViz = estado.sangria, extViz = estado.extrato, semLancamentos = false;
+    var sangViz = estado.sangria, extViz = estado.extrato, semLancamentos = false, foraDaFaixa = 0;
     if(abaAtiva && !abaAtiva.atual){
       if(abaAtiva.sem && abaAtiva.sem.sangria){
-        sangViz = abaAtiva.sem.sangria; extViz = abaAtiva.sem.extrato || [];
+        sangViz = sangriaDaSemana(abaAtiva.sem);
+        foraDaFaixa = abaAtiva.sem.sangria.length - sangViz.length;
+        extViz = abaAtiva.sem.extrato || [];
       }else{
         // semana fechada antes de o painel guardar os lancamentos: mostrar os
         // do arquivo de agora seria mentira
@@ -940,6 +983,8 @@
       return '<td>'+esc(r.data)+'</td><td>'+esc(r.loja)+'</td>'+
              '<td class="num">'+brl(r.valor)+'</td><td class="desc">'+esc(r.desc)+'</td>';
     });
+    if(foraDaFaixa)
+      $("cA").textContent += " · " + foraDaFaixa + " fora do período da aba";
     rotulos();
     if(semLancamentos){
       var recado = "fechada antes de o painel guardar os lançamentos \u00b7 só o consolidado";

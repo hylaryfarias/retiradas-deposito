@@ -733,7 +733,9 @@ def montar_texto(dias_usados, total, entrada, dia_previsto):
         partes += ['', f'🛵 *IFOOD — SEMANA {janela[0]:%d/%m} A {janela[1]:%d/%m}*', '']
         if entrada.get('ifood_faturado'):
             partes.append(f'· Faturamento: R$ {brl(entrada["ifood_faturado"])}')
-        partes += [f'· Previsão de recebimento: *R$ {brl(entrada["ifood_previa"])}*',
+        comAntec = ', já com a antecipação' if entrada.get('antecipacao_aplicada') else ''
+        partes += [f'· Previsão de recebimento{comAntec}: '
+                   f'*R$ {brl(entrada["ifood_previa"])}*',
                    f'· Entra na quarta, {entrada["data_repasse"]:%d/%m}.']
 
     return '\n'.join(partes) + '\n'
@@ -930,6 +932,7 @@ def main():
                                ifood_entra=not eh_segunda, arrasto=arrasto)
     entrada['origem_arrasto'] = origem_arrasto
     entrada['janela_ifood'] = janela
+    entrada['antecipacao_aplicada'] = bool(antecipado)
     # na segunda o repasse cai na quarta seguinte
     entrada['data_repasse'] = (data_prevista + datetime.timedelta(days=2)
                                if eh_segunda else None)

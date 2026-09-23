@@ -69,12 +69,51 @@ Mudança de agrupamento se faz lá, não na mão na resposta.
 
 | Parcela | De onde sai |
 |---|---|
-| **Cartão + Pix** | `TEF - CREDITO` + `TEF - DEBITO` + `PIX MAQUININHA` do período atual, **já agrupados** (ou seja, com CARTAO CREDITO e CARTAO DEBITO dentro), **líquidos de taxa**. |
+| **Cartão (D+1)** | `TEF - CREDITO` + `TEF - DEBITO` do período atual, **já agrupados** (ou seja, com CARTAO CREDITO e CARTAO DEBITO dentro), **líquidos de taxa**. |
+| **Pix (D+0)** | o Pix do **próprio dia previsto**, não o do relatório: a madrugada já vendida (número real) mais a **estimativa** do resto do dia, pela mediana do mesmo dia da semana em `historico_pix.csv`. |
 | **Voucher D+30** | soma de `VOUCHER` + `TEF - VOUCHER` + `TEF - TICKET` do PDF de `--mes-anterior`. Voucher liquida em 30 dias, então o previsto de hoje é a venda de voucher de um mês atrás. |
 | **Repasse do iFood** | **valor informado na mão** em `--ifood-valor`, já líquido, por entidade (Grupo Ragga, Dell Iris). Cai na quarta, referente à semana segunda a domingo anterior. |
 | **Vendas a prazo** | `vendas_a_prazo.csv`, os títulos cujo `VENCIMENTO` é o **dia anterior** à data prevista: é boleto, compensa em **D+1** (vence 20/09 → entra na previsão de 21/09). Fora disso a parcela não entra. |
 | **B2B iKI** | ainda **sem base**. Entra só quando vier `--b2b`. |
 | **Depois da meia-noite** | o que foi vendido depois do corte **sai** da previsão de amanhã e fica gravado em `pos_meia_noite.csv` para entrar sozinho na do dia seguinte. Valor informado em `--pos-meia-noite`. |
+
+### O Pix cai no mesmo dia (D+0)
+
+**O Pix não é D+1.** Ela confirmou em 23/09: o Pix da maquininha liquida no
+mesmo dia da venda, e por isso a previsão estava saindo alta. Em 22/09 o texto
+previu R$ 18.029,16 de Pix (o Pix vendido em 21/09) e caíram R$ 10.300,08 —
+porque o Pix de 21/09 já tinha caído em 21/09.
+
+Consequência: a previsão de hoje precisa do Pix de **hoje**, que de manhã ainda
+não foi vendido. Ela sai de duas partes:
+
+| Parte | De onde |
+|---|---|
+| **madrugada** | o que foi vendido depois da meia-noite no relatório de ontem — já é hoje no calendário, é número **real** |
+| **resto do dia** | **estimativa**: mediana do mesmo dia da semana nas últimas `PIX_AMOSTRAS` (4) semanas, em `historico_pix.csv` |
+
+O script **grava o histórico sozinho** a cada rodada (`DATA;DIURNO;MADRUGADA;TOTAL`,
+com `DIURNO` = o Pix do dia fora a madrugada). Sem mesmo-dia-da-semana
+suficiente ele cai para a mediana dos últimos 7 dias e **avisa no console**.
+
+O mesmo dia da semana repete muito bem — medido entre agosto e setembro:
+quarta 15.099,81 × 15.275,55 (1,2%), quinta 19.932,16 × 19.996,37 (0,3%),
+segunda 16.137,65 × 16.898,14 (4,7%), sexta 24.210,28 × 22.923,79 (5,3%). O
+sábado foi o pior (29.845,30 × 23.485,08, 21%).
+
+Flags: `--pix-hoje VALOR` força a estimativa, `--sem-pix` tira a parcela,
+`--historico outro.csv` aponta para outro arquivo.
+
+> **A madrugada do Pix não é arrasto de D+1.** No `pos_meia_noite.csv` a linha
+> de `PIX MAQUININHA` entra no **dia seguinte à origem, no calendário** (Pix
+> cai em fim de semana também), enquanto crédito e débito continuam indo para
+> o próximo dia útil + 1.
+
+> **Fica em aberto: o dia do Pix parece fechar por volta das 23h.** Em 22/09
+> caíram R$ 10.300,08 contra R$ 8.655,58 de Pix vendidos no dia de calendário.
+> A diferença bate com o Pix de 21/09 vendido depois das 23h (o melhor ajuste
+> deu 22h58, erro de R$ 138). **É uma amostra só** — conferir conforme ela for
+> passando o recebido de cada dia, e só então mexer.
 
 `PAGAMENTO ONLINE` **é o iFood** e fica fora da parcela diária de cartão + Pix
 porque tem repasse próprio, semanal. Isso confere com o modelo dela: no print

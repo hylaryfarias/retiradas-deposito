@@ -42,6 +42,15 @@ GRUPOS = OrderedDict([
 # Cartao + Pix: o que liquida rapido e entra na previsao do proximo dia.
 # PAGAMENTO ONLINE fica fora daqui porque tem repasse proprio -- ver IFOOD.
 CARTAO_E_PIX = ['TEF - CREDITO', 'TEF - DEBITO', 'PIX MAQUININHA']
+# O Pix cai no MESMO DIA da venda (D+0) -- o cartao e que e D+1. Entao o Pix
+# que entra na previsao de hoje e o de HOJE, que ainda nao foi vendido quando
+# o relatorio sai de manha: a parte da madrugada e conhecida (foi vendida
+# depois da meia-noite e ja e hoje no calendario) e o resto do dia sai
+# estimado do historico, pela mediana do mesmo dia da semana.
+FORMAS_CARTAO = ['TEF - CREDITO', 'TEF - DEBITO']
+FORMA_PIX = 'PIX MAQUININHA'
+HISTORICO_PADRAO = 'historico_pix.csv'
+PIX_AMOSTRAS = 4          # quantos mesmos-dias-da-semana entram na mediana
 
 # como cada forma aparece no texto do WhatsApp: ela pediu o previsto aberto,
 # uma linha por forma, em vez de um valor unico de cartao + pix
@@ -408,7 +417,8 @@ def renderizar_png(html, destino):
     return True
 
 
-PARCELAS = ('vendas', 'pos_meia_noite', 'voucher', 'ifood', 'a_prazo', 'b2b')
+PARCELAS = ('vendas', 'pos_meia_noite', 'pix', 'voucher', 'ifood',
+            'a_prazo', 'b2b')
 
 
 def normaliza_forma(texto):
@@ -464,7 +474,7 @@ def ler_pos_meia_noite_args(entradas, agrupado):
 def ler_cupons(caminho):
     """Le o Relatriodecuponsdevendas_*.xlsx: cupom a cupom, com hora e forma.
 
-    Devolve (dias, madrugada, total_geral):
+    Devolve (dias, madrugada, total_geral, madrugadas):
 
     dias      -> {dd/mm/aaaa: {forma CRUA: valor}}, no mesmo formato que
                  ler_pdf() entrega, para passar pelo mesmo agrupar()
@@ -472,6 +482,7 @@ def ler_cupons(caminho):
                  ate HORA_ABERTURA: ja e o dia seguinte no calendario e
                  liquida com ele
     total     -> soma de tudo, para conferir com o PDF quando os dois vierem
+    madrugadas-> a madrugada de CADA dia, para o historico
     """
     try:
         import openpyxl
@@ -529,16 +540,16 @@ def ler_cupons(caminho):
     # num bloco de varios dias, so a madrugada do ultimo dia fica para o dia
     # seguinte: as do meio do periodo liquidam dentro do proprio bloco
     ultimo = list(dias)[-1] if dias else None
-    return dias, madrugadas.get(ultimo, OrderedDict()), total
+    return dias, madrugadas.get(ultimo, OrderedDict()), total, madrugadas
 
 
 def ler_fonte(caminho):
     """Le o dia a dia do PDF ou do xlsx de cupons, o que vier."""
     if caminho.lower().endswith(('.xlsx', '.xls')):
-        dias, madrugada, _total = ler_cupons(caminho)
-        return dias, None, madrugada
+        dias, madrugada, _total, madrugadas = ler_cupons(caminho)
+        return dias, None, madrugada, madrugadas
     dias, cnpj = ler_pdf(caminho)
-    return dias, cnpj, None
+    return dias, cnpj, None, {}
 
 
 def proximo_util(data):
@@ -559,6 +570,77 @@ def entrada_do_boleto(vencimento):
     venc = datetime.datetime.strptime(vencimento, '%d/%m/%Y').date()
     pago = proximo_util(venc)
     return proximo_util(pago + datetime.timedelta(days=A_PRAZO_COMPENSACAO))
+
+
+def ler_historico(caminho):
+    """Le o historico de Pix por dia: {dd/mm/aaaa: (diurno, madrugada)}."""
+    if not os.path.exists(caminho):
+        return OrderedDict()
+    historico = OrderedDict()
+    with open(caminho, encoding='utf-8') as arquivo:
+        for linha in arquivo:
+            linha = linha.strip()
+            if not linha or linha.upper().startswith('DATA'):
+                continue
+            partes = linha.split(';')
+            if len(partes) < 3:
+                continue
+            historico[partes[0].strip()] = (to_float(partes[1]), to_float(partes[2]))
+    return OrderedDict(sorted(historico.items(),
+                              key=lambda i: datetime.datetime.strptime(i[0], '%d/%m/%Y')))
+
+
+def gravar_historico(caminho, historico, novos):
+    """Acrescenta (ou corrige) os dias desta rodada e regrava o arquivo."""
+    historico = OrderedDict(historico)
+    historico.update(novos)
+    ordenado = sorted(historico.items(),
+                      key=lambda i: datetime.datetime.strptime(i[0], '%d/%m/%Y'))
+    with open(caminho, 'w', encoding='utf-8') as arquivo:
+        arquivo.write('DATA;DIURNO;MADRUGADA;TOTAL\n')
+        for dia, (diurno, madrugada) in ordenado:
+            arquivo.write(f'{dia};{brl(diurno)};{brl(madrugada)};'
+                          f'{brl(diurno + madrugada)}\n')
+    return OrderedDict(ordenado)
+
+
+def mediana(valores):
+    ordem = sorted(valores)
+    meio = len(ordem) // 2
+    if not ordem:
+        return 0.0
+    return ordem[meio] if len(ordem) % 2 else (ordem[meio - 1] + ordem[meio]) / 2
+
+
+def estimar_pix(historico, alvo):
+    """Quanto de Pix a operacao deve vender no dia ALVO (fora a madrugada).
+
+    Pix liquida no mesmo dia, entao a previsao de hoje precisa do Pix de hoje
+    -- que ainda nao aconteceu. A mediana do MESMO DIA DA SEMANA e o melhor
+    palpite: segunda nao parece com sabado, e a mediana aguenta um dia fora da
+    curva sem puxar o numero (22/09 vendeu metade do Pix de uma terca normal).
+
+    Devolve (valor, quantas amostras, criterio) ou (None, 0, '') sem historico.
+    """
+    if not historico:
+        return None, 0, ''
+    dias = [(datetime.datetime.strptime(d, '%d/%m/%Y').date(), v[0])
+            for d, v in historico.items()]
+    dias = [(d, v) for d, v in dias if d < alvo]
+    if not dias:
+        return None, 0, ''
+    dias.sort(key=lambda i: i[0])
+
+    SEMANAS = [nome for nome in ('segunda', 'terca', 'quarta', 'quinta',
+                                 'sexta', 'sabado', 'domingo')]
+    mesmo_dia = [v for d, v in dias if d.weekday() == alvo.weekday()][-PIX_AMOSTRAS:]
+    if len(mesmo_dia) >= 2:
+        return (mediana(mesmo_dia), len(mesmo_dia),
+                f'mediana de {len(mesmo_dia)} {SEMANAS[alvo.weekday()]}s')
+    ultimos = [v for _d, v in dias][-7:]
+    return (mediana(ultimos), len(ultimos),
+            f'mediana dos ultimos {len(ultimos)} dias (sem {SEMANAS[alvo.weekday()]} '
+            f'suficiente no historico)')
 
 
 def ler_arrasto(caminho):
@@ -582,11 +664,15 @@ def ler_arrasto(caminho):
     return registros
 
 
-def gravar_arrasto(caminho, registros, origem, porforma, entrada_em, corte):
+def gravar_arrasto(caminho, registros, origem, porforma, datas, corte):
     """Regrava o arquivo trocando as linhas desta origem -- rodar duas vezes
-    o mesmo dia nao pode dobrar o valor."""
+    o mesmo dia nao pode dobrar o valor.
+
+    'datas' diz em que dia cada forma entra: o cartao e D+1, o Pix e D+0 e
+    por isso cai ja no proprio dia previsto.
+    """
     mantidos = [r for r in registros if r['origem'] != origem]
-    novos = [{'entrada': entrada_em, 'forma': forma, 'valor': valor,
+    novos = [{'entrada': datas[forma], 'forma': forma, 'valor': valor,
               'origem': origem, 'corte': corte}
              for forma, valor in porforma.items() if valor]
     todos = mantidos + novos
@@ -602,10 +688,13 @@ def gravar_arrasto(caminho, registros, origem, porforma, entrada_em, corte):
 
 def calcular_entrada(agrupado, agrupado_anterior, titulos, dia_previsto,
                      ifood=None, b2b=None, override=None, liquido=True,
-                     ifood_manual=None, ifood_entra=True, arrasto=None):
+                     ifood_manual=None, ifood_entra=True, arrasto=None,
+                     pix=None):
     """Monta as parcelas da entrada prevista.
 
-    vendas   -> credito + debito + pix do periodo atual (venda bruta)
+    vendas   -> credito + debito do periodo atual (cartao, D+1)
+    pix      -> Pix do PROPRIO dia previsto (D+0): a madrugada ja vendida mais
+                a estimativa do resto do dia
     voucher  -> voucher do mesmo periodo do mes anterior (D+30)
     ifood    -> repasse do iFood, so quando a data prevista e QUARTA
 
@@ -621,7 +710,7 @@ def calcular_entrada(agrupado, agrupado_anterior, titulos, dia_previsto,
 
     # detalhe por forma, para poder auditar bruto -> taxa -> liquido
     detalhe = []
-    for forma in CARTAO_E_PIX:
+    for forma in FORMAS_CARTAO:
         bruto = agrupado.get(forma, 0.0)
         taxa = TAXAS.get(forma, 0.0) if liquido else 0.0
         detalhe.append((forma, bruto, taxa, bruto * (1 - taxa)))
@@ -640,8 +729,18 @@ def calcular_entrada(agrupado, agrupado_anterior, titulos, dia_previsto,
         taxa = TAXAS.get(forma, 0.0) if liquido else 0.0
         detalhe_arrasto.append((forma, bruto, taxa, bruto * (1 - taxa)))
 
+    pix = pix or {}
+    taxa_pix = TAXAS.get(FORMA_PIX, 0.0) if liquido else 0.0
+    pix_bruto = (pix.get('madrugada') or 0.0) + (pix.get('estimativa') or 0.0)
+
     entrada = {
         'vendas': sum(item[3] for item in detalhe),
+        'pix': (pix_bruto * (1 - taxa_pix)) if pix else None,
+        'pix_madrugada': pix.get('madrugada'),
+        'pix_estimativa': pix.get('estimativa'),
+        'pix_criterio': pix.get('criterio', ''),
+        'pix_amostras': pix.get('amostras', 0),
+        'taxa_pix': taxa_pix,
         'detalhe_vendas': detalhe,
         'pos_meia_noite': (sum(item[3] for item in detalhe_arrasto)
                            if detalhe_arrasto else None),
@@ -698,11 +797,15 @@ def montar_texto(dias_usados, total, entrada, dia_previsto):
         por_forma[forma] = por_forma.get(forma, 0.0) + liq
     for forma, _bruto, _taxa, liq in entrada.get('detalhe_arrasto') or []:
         por_forma[forma] = por_forma.get(forma, 0.0) + liq
+    # o Pix e do proprio dia previsto, nao do dia do relatorio
+    if entrada.get('pix'):
+        por_forma[FORMA_PIX] = por_forma.get(FORMA_PIX, 0.0) + entrada['pix']
     for forma, liq in por_forma.items():
         if not liq:
             continue
         rotulo = ROTULO_TEXTO.get(forma, forma.title())
-        partes.append(f'· R$ {brl(liq)} de {rotulo} {referencia};')
+        quando = 'do próprio dia' if forma == FORMA_PIX else referencia
+        partes.append(f'· R$ {brl(liq)} de {rotulo} {quando};')
 
     if entrada['voucher'] is not None:
         partes.append(f'· R$ {brl(entrada["voucher"])} de recebimento de períodos '
@@ -782,13 +885,21 @@ def main():
                              'da meia-noite sai dele, sem informar valor na mao')
     parser.add_argument('--corte', default=HORA_CORTE, metavar='HH:MM',
                         help=f'horario do corte (padrao: {HORA_CORTE})')
+    parser.add_argument('--historico', default=HISTORICO_PADRAO, metavar='CSV',
+                        help=f'historico de Pix por dia, de onde sai a estimativa do '
+                             f'Pix de hoje (padrao: {HISTORICO_PADRAO})')
+    parser.add_argument('--pix-hoje', dest='pix_hoje', metavar='VALOR',
+                        help='forca a estimativa do Pix do dia previsto, no lugar da '
+                             'mediana do historico')
+    parser.add_argument('--sem-pix', dest='sem_pix', action='store_true',
+                        help='nao estima o Pix do dia (a previsao sai sem essa parcela)')
     parser.add_argument('--arrasto', default=POS_MEIA_NOITE_PADRAO, metavar='CSV',
                         help=f'arquivo do arrasto (padrao: {POS_MEIA_NOITE_PADRAO})')
     parser.add_argument('--sem-arrasto', dest='sem_arrasto', action='store_true',
                         help='ignora o que ficou gravado de ontem')
     args = parser.parse_args()
 
-    dias, cnpj, madrugada_fonte = ler_fonte(args.pdf)
+    dias, cnpj, madrugada_fonte, madrugadas_fonte = ler_fonte(args.pdf)
     if not dias:
         raise SystemExit(f'ERRO: nenhum dia encontrado em {args.pdf}. O layout mudou?')
 
@@ -818,7 +929,7 @@ def main():
     if args.mes_anterior:
         # o mes anterior pode vir como PDF ou como o xlsx de cupons -- os dois
         # trazem a mesma coisa, e dela so sai o voucher D+30
-        dias_ant, _cnpj_ant, _mad_ant = ler_fonte(args.mes_anterior)
+        dias_ant, _cnpj_ant, _mad_ant, _mads = ler_fonte(args.mes_anterior)
         if not dias_ant:
             raise SystemExit(f'ERRO: nenhum dia em {args.mes_anterior}.')
         agrupado_anterior, _ = agrupar(dias_ant, 'fonte do mes anterior')
@@ -886,7 +997,7 @@ def main():
     registros = ler_arrasto(args.arrasto)
     gravados = []
     if args.cupons:
-        _dias_c, madrugada_fonte, geral = ler_cupons(args.cupons)
+        _dias_c, madrugada_fonte, geral, madrugadas_fonte = ler_cupons(args.cupons)
         if abs(geral - total) > 0.01:
             print(f'AVISO: o relatorio de cupons soma R$ {brl(geral)} e o PDF '
                   f'R$ {brl(total)} (diferenca de R$ {brl(geral - total)}). '
@@ -905,29 +1016,67 @@ def main():
         porforma = ler_pos_meia_noite_args(args.pos_meia_noite, agrupado)
         for forma, valor in porforma.items():
             agrupado_previsao[forma] = agrupado_previsao.get(forma, 0.0) - valor
+        # cartao liquida em D+1 e nao cai em fim de semana; o Pix cai no
+        # mesmo dia, entao a madrugada ja e dinheiro do dia previsto
         entra_em = proximo_util(data_prevista
                                 + datetime.timedelta(days=1)).strftime('%d/%m/%Y')
+        datas = {forma: (dia_previsto if forma == FORMA_PIX else entra_em)
+                 for forma in porforma}
         gravados = gravar_arrasto(args.arrasto, registros, dias_usados[-1],
-                                  porforma, entra_em, args.corte)
+                                  porforma, datas, args.corte)
         registros = ler_arrasto(args.arrasto)
     else:
         print('AVISO: nada em --pos-meia-noite. A previsao esta com TUDO o que o '
               'relatorio traz, inclusive a venda feita depois da meia-noite, e nada '
               'foi guardado para a previsao do dia seguinte.', file=sys.stderr)
 
-    arrasto, origem_arrasto = [], ''
+    arrasto, origem_arrasto, pix_madrugada = [], '', 0.0
     if not args.sem_arrasto:
         dearrastar = [r for r in registros if r['entrada'] == dia_previsto]
         porforma_hoje = OrderedDict()
         for r in dearrastar:
+            if r['forma'] == FORMA_PIX:      # Pix e D+0: entra na parcela do Pix
+                pix_madrugada += r['valor']
+                continue
             porforma_hoje[r['forma']] = porforma_hoje.get(r['forma'], 0.0) + r['valor']
             origem_arrasto = r['origem']
         arrasto = [(forma, valor) for forma, valor in porforma_hoje.items()]
+
+    # --- historico do Pix ----------------------------------------------------
+    # o Pix cai no mesmo dia, entao a previsao de hoje precisa do Pix de hoje:
+    # a madrugada ja esta vendida e o resto sai da mediana do historico
+    novos_hist = OrderedDict()
+    for dia, formas in dias.items():
+        total_pix = formas.get(FORMA_PIX, 0.0)
+        madrugada_dia = (madrugadas_fonte or {}).get(dia, {})
+        mad_pix = madrugada_dia.get(FORMA_PIX, 0.0) if madrugada_dia else 0.0
+        if total_pix:
+            novos_hist[dia] = (total_pix - mad_pix, mad_pix)
+    historico = ler_historico(args.historico)
+    if novos_hist:
+        historico = gravar_historico(args.historico, historico, novos_hist)
+
+    pix = None
+    if not args.sem_pix:
+        if args.pix_hoje:
+            valor = (to_float(args.pix_hoje) if ',' in args.pix_hoje
+                     else float(args.pix_hoje))
+            estimativa, amostras, criterio = valor, 0, 'informado em --pix-hoje'
+        else:
+            estimativa, amostras, criterio = estimar_pix(historico, data_prevista)
+        if estimativa is None:
+            print('AVISO: sem historico de Pix para estimar o dia previsto. A '
+                  'previsao saiu SEM a parcela de Pix -- use --pix-hoje.',
+                  file=sys.stderr)
+        else:
+            pix = {'madrugada': pix_madrugada, 'estimativa': estimativa,
+                   'amostras': amostras, 'criterio': criterio}
     eh_segunda = data_prevista.weekday() == SEGUNDA
     entrada = calcular_entrada(agrupado_previsao, agrupado_anterior, titulos,
                                dia_previsto, ifood, args.b2b, override,
                                liquido=not args.bruto, ifood_manual=ifood_manual,
-                               ifood_entra=not eh_segunda, arrasto=arrasto)
+                               ifood_entra=not eh_segunda, arrasto=arrasto,
+                               pix=pix)
     entrada['origem_arrasto'] = origem_arrasto
     entrada['janela_ifood'] = janela
     entrada['antecipacao_aplicada'] = bool(antecipado)
@@ -961,7 +1110,7 @@ def main():
     print(f'  {"":28} {"bruto":>14} {"taxa":>7} {"liquido":>14}')
     for forma, bruto, taxa, liq in entrada['detalhe_vendas']:
         print(f'  {forma:<28} {brl(bruto):>14} {brl(taxa * 100)+"%":>7} {brl(liq):>14}')
-    print(f'  {"= cartao + pix":<28} {"":>14} {"":>7} {brl(entrada["vendas"]):>14}')
+    print(f'  {"= cartao (D+1)":<28} {"":>14} {"":>7} {brl(entrada["vendas"]):>14}')
 
     if gravados:
         total_corte = sum(r['valor'] for r in gravados)
@@ -979,6 +1128,18 @@ def main():
         if proximas:
             print(f'  depois da meia-noite         nada guardado para {dia_previsto}')
             print(f'    datas guardadas: {", ".join(proximas)}')
+
+    if entrada.get('pix') is None:
+        print(f'  pix do dia (D+0)             SEM ESTIMATIVA')
+    else:
+        print(f'  pix de {dia_previsto} (D+0, cai no proprio dia)')
+        if entrada['pix_madrugada']:
+            print(f'    {"madrugada ja vendida":<26} '
+                  f'{brl(entrada["pix_madrugada"]):>14}')
+        print(f'    {"resto do dia (estimado)":<26} '
+              f'{brl(entrada["pix_estimativa"] or 0):>14}   {entrada["pix_criterio"]}')
+        print(f'  {"= pix do dia":<28} {"":>14} '
+              f'{brl(entrada["taxa_pix"] * 100)+"%":>7} {brl(entrada["pix"]):>14}')
 
     if agrupado_anterior is None:
         print('  voucher D+30                 FALTA --mes-anterior')

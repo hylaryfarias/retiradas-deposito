@@ -127,6 +127,41 @@ sábado foi o pior (29.845,30 × 23.485,08, 21%).
 Flags: `--pix-hoje VALOR` força a estimativa, `--sem-pix` tira a parcela,
 `--historico outro.csv` aponta para outro arquivo.
 
+#### Quanto a estimativa erra — medido
+
+Comparando o mesmo dia da semana de agosto contra setembro (um mês de
+distância), o erro do estimador em dia normal:
+
+| Dia | Agosto | Setembro | Erro |
+|---|---:|---:|---:|
+| segunda | 17.368,32 | 17.747,02 | 2,1% |
+| quarta | 15.879,42 | 16.239,68 | 2,2% |
+| quinta | 21.475,26 | 21.785,56 | 1,4% |
+| sexta | 26.683,15 | 26.180,01 | 1,9% |
+| sábado | 34.289,17 | 27.711,73 | **23,7%** |
+
+Ou seja: **2% em dia normal**, e o risco mora nos dias atípicos. Não adianta
+refinar a fórmula — o que estraga a previsão é evento, não método.
+
+#### O alerta de fatia (o que realmente quebra a estimativa)
+
+**O Pix é uma fatia muito estável da venda**: 8,68% a 10,51% em 12 dos 13 dias
+medidos, mediana **9,56%**. Quando foge disso não foi o cliente que mudou de
+hábito — foi a operação.
+
+Em **22/09 o Pix foi 4,97% da venda** e o débito bateu recorde (23,58%, contra
+~20% de sempre), com a venda total quase igual à véspera. O dinheiro não sumiu:
+**mudou de forma**, o que tem cara de maquininha sem Pix em alguma loja.
+
+Por isso o script confere a fatia do dia anterior contra o histórico e, quando
+o desvio passa de `PIX_DESVIO_ALERTA` (25%), **acende um ALERTA no console**
+com os dois cenários: a estimativa normal (se foi pontual) e a estimativa
+corrigida pela fatia de ontem (se o problema continuar), já com o comando
+`--pix-hoje` pronto para colar.
+
+**Isso não muda número nenhum sozinho** — quem decide é ela, que sabe se
+resolveram ou não.
+
 > **O Pix não usa mais o `pos_meia_noite.csv`.** Quem guarda a madrugada dele
 > é o próprio `historico_pix.csv`, que tem a coluna `MADRUGADA` de cada dia —
 > o arrasto ficou só para crédito e débito, que são D+1.

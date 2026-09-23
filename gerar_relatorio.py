@@ -51,6 +51,11 @@ FORMAS_CARTAO = ['TEF - CREDITO', 'TEF - DEBITO']
 FORMA_PIX = 'PIX MAQUININHA'
 HISTORICO_PADRAO = 'historico_pix.csv'
 PIX_AMOSTRAS = 4          # quantos mesmos-dias-da-semana entram na mediana
+# O Pix e uma fatia muito estavel da venda (8,68% a 10,51% em 12 dos 13 dias
+# medidos). Quando foge disso, nao foi o cliente que mudou: foi problema de
+# operacao -- em 22/09 caiu para 4,97% e o debito bateu recorde, 23,58%. Isso
+# quebra a estimativa do dia seguinte, entao o script acende a luz.
+PIX_DESVIO_ALERTA = 0.25
 
 # como cada forma aparece no texto do WhatsApp: ela pediu o previsto aberto,
 # uma linha por forma, em vez de um valor unico de cartao + pix
@@ -585,7 +590,8 @@ def ler_historico(caminho):
             partes = linha.split(';')
             if len(partes) < 3:
                 continue
-            historico[partes[0].strip()] = (to_float(partes[1]), to_float(partes[2]))
+            venda = to_float(partes[4]) if len(partes) > 4 and partes[4].strip() else 0.0
+            historico[partes[0].strip()] = (to_float(partes[1]), to_float(partes[2]), venda)
     return OrderedDict(sorted(historico.items(),
                               key=lambda i: datetime.datetime.strptime(i[0], '%d/%m/%Y')))
 
@@ -597,10 +603,14 @@ def gravar_historico(caminho, historico, novos):
     ordenado = sorted(historico.items(),
                       key=lambda i: datetime.datetime.strptime(i[0], '%d/%m/%Y'))
     with open(caminho, 'w', encoding='utf-8') as arquivo:
-        arquivo.write('DATA;DIURNO;MADRUGADA;TOTAL\n')
-        for dia, (diurno, madrugada) in ordenado:
-            arquivo.write(f'{dia};{brl(diurno)};{brl(madrugada)};'
-                          f'{brl(diurno + madrugada)}\n')
+        arquivo.write('DATA;DIURNO;MADRUGADA;TOTAL;VENDA DO DIA;% DA VENDA\n')
+        for dia, valores in ordenado:
+            diurno, madrugada = valores[0], valores[1]
+            venda = valores[2] if len(valores) > 2 else 0.0
+            pix = diurno + madrugada
+            fatia = brl(pix / venda * 100) if venda else ''
+            arquivo.write(f'{dia};{brl(diurno)};{brl(madrugada)};{brl(pix)};'
+                          f'{brl(venda) if venda else ""};{fatia}\n')
     return OrderedDict(ordenado)
 
 
@@ -643,6 +653,13 @@ def pix_do_calendario(historico, dia, estimativa=None):
     if chave in historico:
         return madrugada + historico[chave][0], False
     return madrugada + (estimativa or 0.0), True
+
+
+def fatia_do_pix(historico, fora=()):
+    """A fatia que o Pix costuma ser da venda do dia -- mediana do historico."""
+    fatias = [(v[0] + v[1]) / v[2] for d, v in historico.items()
+              if d not in fora and len(v) > 2 and v[2]]
+    return mediana(fatias) if fatias else None
 
 
 def estimar_pix(historico, alvo):
@@ -1095,7 +1112,7 @@ def main():
         madrugada_dia = (madrugadas_fonte or {}).get(dia, {})
         mad_pix = madrugada_dia.get(FORMA_PIX, 0.0) if madrugada_dia else 0.0
         if total_pix:
-            novos_hist[dia] = (total_pix - mad_pix, mad_pix)
+            novos_hist[dia] = (total_pix - mad_pix, mad_pix, sum(formas.values()))
     historico = ler_historico(args.historico)
     if novos_hist:
         historico = gravar_historico(args.historico, historico, novos_hist)
@@ -1135,6 +1152,30 @@ def main():
                     valor, estimado = pix_do_calendario(historico, dia, palpite)
                     parcelas.append((dia, valor, estimado))
                 pix = {'parcelas': parcelas, 'criterio': criterio}
+
+                # O Pix e uma fatia estavel da venda. Se ontem fugiu da faixa,
+                # foi problema de operacao -- e se nao resolveram, hoje repete
+                # e a estimativa de hoje esta errada pelo mesmo tanto.
+                ontem = dias_usados[-1]
+                faixa = fatia_do_pix(historico, fora=(ontem,))
+                atual = historico.get(ontem)
+                if faixa and atual and len(atual) > 2 and atual[2]:
+                    fatia_ontem = (atual[0] + atual[1]) / atual[2]
+                    if abs(fatia_ontem / faixa - 1) > PIX_DESVIO_ALERTA:
+                        alternativa = estimativa * (fatia_ontem / faixa)
+                        print(f'\nALERTA: o Pix de {ontem} foi '
+                              f'{brl(fatia_ontem * 100)}% da venda do dia, contra '
+                              f'{brl(faixa * 100)}% de mediana no historico.',
+                              file=sys.stderr)
+                        print(f'  Isso costuma ser operacao (maquininha sem Pix), '
+                              f'nao mudanca de cliente. A estimativa de hoje supoe '
+                              f'que foi pontual.', file=sys.stderr)
+                        print(f'  Se o problema CONTINUAR hoje, a parte estimada '
+                              f'cai de R$ {brl(estimativa)} para cerca de '
+                              f'R$ {brl(alternativa)}'
+                              f' -- nesse caso rodar com --pix-hoje {alternativa:.2f}',
+                              file=sys.stderr)
+                        pix['alerta'] = (ontem, fatia_ontem, faixa, alternativa)
     eh_segunda = data_prevista.weekday() == SEGUNDA
     entrada = calcular_entrada(agrupado_previsao, agrupado_anterior, titulos,
                                dia_previsto, ifood, args.b2b, override,

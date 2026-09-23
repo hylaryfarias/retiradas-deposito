@@ -70,7 +70,7 @@ Mudança de agrupamento se faz lá, não na mão na resposta.
 | Parcela | De onde sai |
 |---|---|
 | **Cartão (D+1)** | `TEF - CREDITO` + `TEF - DEBITO` do período atual, **já agrupados** (ou seja, com CARTAO CREDITO e CARTAO DEBITO dentro), **líquidos de taxa**. |
-| **Pix (D+0)** | o Pix do **próprio dia previsto**, não o do relatório: a madrugada já vendida (número real) mais a **estimativa** do resto do dia, pela mediana do mesmo dia da semana em `historico_pix.csv`. |
+| **Pix (D+0)** | o Pix do **próprio dia previsto**, não o do relatório: a madrugada já vendida (número real) mais a **estimativa** do resto do dia, pela mediana do mesmo dia da semana em `historico_pix.csv`. **Não cai em fim de semana** — sábado e domingo entram na segunda. |
 | **Voucher D+30** | soma de `VOUCHER` + `TEF - VOUCHER` + `TEF - TICKET` do PDF de `--mes-anterior`. Voucher liquida em 30 dias, então o previsto de hoje é a venda de voucher de um mês atrás. |
 | **Repasse do iFood** | **valor informado na mão** em `--ifood-valor`, já líquido, por entidade (Grupo Ragga, Dell Iris). Cai na quarta, referente à semana segunda a domingo anterior. |
 | **Vendas a prazo** | `vendas_a_prazo.csv`, os títulos cujo `VENCIMENTO` é o **dia anterior** à data prevista: é boleto, compensa em **D+1** (vence 20/09 → entra na previsão de 21/09). Fora disso a parcela não entra. |
@@ -92,6 +92,29 @@ não foi vendido. Ela sai de duas partes:
 | **madrugada** | o que foi vendido depois da meia-noite no relatório de ontem — já é hoje no calendário, é número **real** |
 | **resto do dia** | **estimativa**: mediana do mesmo dia da semana nas últimas `PIX_AMOSTRAS` (4) semanas, em `historico_pix.csv` |
 
+#### Mas não cai em fim de semana
+
+Ela confirmou em 23/09: **o Pix não liquida sábado nem domingo**. Os dois se
+acumulam e caem **na segunda**, junto com a própria segunda. Então:
+
+| Dia previsto | Parcela de Pix |
+|---|---|
+| terça a sexta | só o próprio dia |
+| **sábado e domingo** | **nenhuma** — o script avisa e diz em que segunda aquilo entra |
+| **segunda** | **três dias**: sábado + domingo + segunda |
+
+Na segunda, só a parte da própria segunda é estimada: sábado e domingo **já
+foram vendidos** e saem do histórico, com número real. Por isso o texto da
+segunda sai com `de Pix de sábado, domingo e segunda` — quem lê na ponta
+precisa saber que ali estão três dias, senão o número assusta (na segunda
+21/09 teria dado R$ 66.279,83 contra ~R$ 17 mil de um dia comum).
+
+Isso depende de o relatório ter rodado no domingo: é ele que grava o sábado no
+histórico. Se faltar, o script **avisa** e estima aquele pedaço também.
+
+`liquida_pix_em()` e `dias_do_pix()` cuidam disso, no topo de
+`gerar_relatorio.py`. Feriado ainda **não** é tratado — só fim de semana.
+
 O script **grava o histórico sozinho** a cada rodada (`DATA;DIURNO;MADRUGADA;TOTAL`,
 com `DIURNO` = o Pix do dia fora a madrugada). Sem mesmo-dia-da-semana
 suficiente ele cai para a mediana dos últimos 7 dias e **avisa no console**.
@@ -104,10 +127,9 @@ sábado foi o pior (29.845,30 × 23.485,08, 21%).
 Flags: `--pix-hoje VALOR` força a estimativa, `--sem-pix` tira a parcela,
 `--historico outro.csv` aponta para outro arquivo.
 
-> **A madrugada do Pix não é arrasto de D+1.** No `pos_meia_noite.csv` a linha
-> de `PIX MAQUININHA` entra no **dia seguinte à origem, no calendário** (Pix
-> cai em fim de semana também), enquanto crédito e débito continuam indo para
-> o próximo dia útil + 1.
+> **O Pix não usa mais o `pos_meia_noite.csv`.** Quem guarda a madrugada dele
+> é o próprio `historico_pix.csv`, que tem a coluna `MADRUGADA` de cada dia —
+> o arrasto ficou só para crédito e débito, que são D+1.
 
 > **Fica em aberto: o dia do Pix parece fechar por volta das 23h.** Em 22/09
 > caíram R$ 10.300,08 contra R$ 8.655,58 de Pix vendidos no dia de calendário.

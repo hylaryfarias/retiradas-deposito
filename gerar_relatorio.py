@@ -865,9 +865,11 @@ def montar_texto(dias_usados, total, entrada, dia_previsto):
         rotulo = ROTULO_TEXTO.get(forma, forma.title())
         quando = referencia
         if forma == FORMA_PIX:
+            # o Pix de um dia so le igual as outras formas ("do dia"); na
+            # segunda, que carrega o fim de semana, os tres dias sao nomeados
             dias_pix = [d for d, _v, _e in entrada.get('pix_parcelas') or []]
-            quando = (rotulo_dias_pix(dias_pix) if len(dias_pix) > 1
-                      else 'do próprio dia')
+            if len(dias_pix) > 1:
+                quando = rotulo_dias_pix(dias_pix)
         partes.append(f'· R$ {brl(liq)} de {rotulo} {quando};')
 
     if entrada['voucher'] is not None:

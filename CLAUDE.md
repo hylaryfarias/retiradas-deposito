@@ -405,8 +405,12 @@ Três coisas que isso derruba:
 
 1. **O relatório de pedidos SUBESTIMA o repasse.** O líquido dele foi
    R$ 422.999,70 e o repasse real R$ 432.242,52 — **2,19% acima**.
-2. **A antecipação não é 1,59%: foi 0,847%** do repasse (R$ 3.661,54), e ainda
-   volta parte por exclusividade. A `IFOOD_ANTECIPACAO` está superestimada.
+2. **A taxa de antecipação NÃO está errada — a base é que é menor.** Ela
+   incide sobre pouco mais da **metade** do repasse (base implícita a 1,59%:
+   R$ 230.285 de R$ 432.242, 53%; e R$ 240.578 de R$ 445.150, 54%), porque só
+   parte do recebível é antecipada. **Não mexer na `IFOOD_ANTECIPACAO`** — ela
+   foi confirmada por ela em 28/09. No efeito sobre a previsão, a antecipação
+   pesa **~0,853% do repasse**.
 3. **O retido só existe no portal.** São parcelas de dívida com Santander e
    Safra que o iFood segura antes de creditar — não saem em relatório nenhum,
    então **têm de ser perguntados a ela toda semana**.
@@ -422,17 +426,30 @@ A semana 14–20/09 (print de 28/09) confirma a estrutura e fecha a calibração
 
 | Fator | Valor | Uso |
 |---|---:|---|
-| Relatório → repasse | **×1,0199** (+1,99%) | o relatório de pedidos subestima; corrigir para cima |
-| Antecipação | **0,853% do repasse** | não são 1,59% — a `IFOOD_ANTECIPACAO` está o dobro do real |
+| **Não liquidados** | **81,3% dos itens** | era aqui o erro: eu usava a razão dos liquidados (~60%) e eles valem ~81% |
+| Antecipação | **0,853% do repasse** | efeito prático dos 1,59% sobre ~54% de base |
 | **Retido** | **imprevisível** | 1,88% numa semana, 4,46% na outra — **só sai do portal, perguntar sempre** |
+
+**O buraco era a estimativa do domingo, não taxa escondida.** Medido nas duas
+semanas: o que falta entre os liquidados e o repasse cabe inteiro nos pedidos
+não liquidados, a **84,2%** e **78,4%** dos itens deles — contra os ~60% que eu
+vinha aplicando.
+
+| Semana | Liquidados | Repasse | Falta | Itens não liquidados | Razão |
+|---|---:|---:|---:|---:|---:|
+| 07–13/09 | 397.039,13 | 432.242,52 | 35.203,39 | 41.828,53 | 84,2% |
+| 14–20/09 | 411.017,76 | 445.150,58 | 34.132,82 | 43.540,43 | 78,4% |
 
 Então a conta da prévia passa a ser:
 
 ```
-repasse estimado   = líquido do relatório × 1,0199
-repasse líquido    = repasse × (1 − 0,853%)
-previsão           = repasse líquido − retido − parcela do empréstimo
+repasse estimado = liquidados + (itens não liquidados × 81,3%)
+repasse líquido  = repasse × (1 − 0,853%)
+previsão         = repasse líquido − retido − parcela do empréstimo
 ```
+
+**Estimar os não liquidados é obrigatório**, e ela confirmou em 28/09: o
+relatório só fecha na quarta e a prévia tem de sair na segunda.
 
 > **Nas próximas semanas, pedir o print dessa tela.** É o único lugar onde
 > aparecem o retido e a antecipação real. Sem o retido a previsão sai

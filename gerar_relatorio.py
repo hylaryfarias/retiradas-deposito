@@ -739,7 +739,7 @@ def gravar_arrasto(caminho, registros, origem, porforma, datas, corte):
 def calcular_entrada(agrupado, agrupado_anterior, titulos, dia_previsto,
                      ifood=None, b2b=None, override=None, liquido=True,
                      ifood_manual=None, ifood_entra=True, arrasto=None,
-                     pix=None):
+                     pix=None, ifood_descontos=None):
     """Monta as parcelas da entrada prevista.
 
     vendas   -> credito + debito do periodo atual (cartao, D+1)
@@ -772,6 +772,13 @@ def calcular_entrada(agrupado, agrupado_anterior, titulos, dia_previsto,
     else:
         taxa_ifood, ifood_bruto = (taxa_efetiva_ifood() if liquido else 0.0), ifood
         ifood_valor = None if ifood is None else (liquido_ifood(ifood) if liquido else ifood)
+
+    # o iFood desconta do proprio repasse o que a loja deve a ele (parcela de
+    # emprestimo): o dinheiro que entra na conta ja vem abatido
+    ifood_descontos = ifood_descontos or []
+    ifood_bruto_repasse = ifood_valor
+    if ifood_valor is not None and ifood_descontos:
+        ifood_valor -= sum(valor for _rotulo, valor in ifood_descontos)
     # arrasto: vendas depois do corte da meia-noite do dia anterior, que
     # liquidam junto com hoje
     detalhe_arrasto = []
@@ -801,6 +808,8 @@ def calcular_entrada(agrupado, agrupado_anterior, titulos, dia_previsto,
                     if agrupado_anterior is not None else None),
         'taxa_voucher': TAXA_VOUCHER if liquido else 0.0,
         'ifood': ifood_valor,
+        'ifood_repasse_bruto': ifood_bruto_repasse,
+        'ifood_descontos': ifood_descontos,
         'a_prazo': sum(t['valor'] for t in vencendo) if vencendo else None,
         'b2b': b2b,
         'titulos_a_prazo': vencendo,
@@ -901,6 +910,11 @@ def montar_texto(dias_usados, total, entrada, dia_previsto):
         partes += ['', f'🛵 *IFOOD — SEMANA {janela[0]:%d/%m} A {janela[1]:%d/%m}*', '']
         if entrada.get('ifood_faturado'):
             partes.append(f'· Faturamento: R$ {brl(entrada["ifood_faturado"])}')
+        descontos = entrada.get('ifood_descontos') or []
+        if descontos:
+            partes.append(f'· Repasse previsto: R$ {brl(entrada["ifood_repasse_bruto"])}')
+            for rotulo, valor in descontos:
+                partes.append(f'· {rotulo}: −R$ {brl(valor)}')
         partes += [f'· Previsão de recebimento: *R$ {brl(entrada["ifood_previa"])}*',
                    f'· Entra na quarta, {entrada["data_repasse"]:%d/%m}.']
 
@@ -930,6 +944,11 @@ def main():
                         help='liquido do relatorio de pedidos, ANTES da antecipacao: '
                              'o script aplica os 1,59% sozinho. Use este em vez de '
                              '--ifood-valor quando o numero vier do relatorio.')
+    parser.add_argument('--ifood-desconto', dest='ifood_descontos', action='append',
+                        default=[], metavar='[ROTULO=]VALOR',
+                        help='o que o iFood RETEM do repasse antes de creditar '
+                             '(ex.: --ifood-desconto "Parcela 18/22 do emprestimo='
+                             '40758.73"). Pode repetir; sai como linha propria no texto')
     parser.add_argument('--ifood-faturado', dest='ifood_faturado', type=float,
                         help='faturamento bruto da semana do iFood, para mostrar junto da previa')
     parser.add_argument('--b2b', type=float, help='valor do B2B da iKI, quando houver base')
@@ -1183,7 +1202,8 @@ def main():
                                dia_previsto, ifood, args.b2b, override,
                                liquido=not args.bruto, ifood_manual=ifood_manual,
                                ifood_entra=not eh_segunda, arrasto=arrasto,
-                               pix=pix)
+                               pix=pix,
+                               ifood_descontos=ler_ifood_manual(args.ifood_descontos))
     entrada['origem_arrasto'] = origem_arrasto
     entrada['janela_ifood'] = janela
     entrada['antecipacao_aplicada'] = bool(antecipado)
@@ -1266,6 +1286,8 @@ def main():
     if entrada['ifood_previa'] is not None:
         print(f'  PREVIA iFood (NAO entra hoje)    {brl(entrada["ifood_bruto"] or 0):>10} '
               f'{brl(entrada["taxa_ifood"] * 100)+"%":>7} {brl(entrada["ifood_previa"]):>14}')
+        for rotulo, valor in entrada.get('ifood_descontos') or []:
+            print(f'    (-) {rotulo:<22} {"":>14} {"":>7} {brl(-valor):>14}')
         print(f'    semana {janela[0]:%d/%m} a {janela[1]:%d/%m}, '
               f'cai na quarta {entrada["data_repasse"]:%d/%m}')
     elif entrada['ifood'] is None:
@@ -1281,6 +1303,8 @@ def main():
             if rotulo.endswith('(-1,59% antecip.)'):
                 continue
             print(f'    {rotulo:<26} {"":>14} {"":>7} {brl(valor):>14}')
+        for rotulo, valor in entrada.get('ifood_descontos') or []:
+            print(f'    (-) {rotulo:<22} {"":>14} {"":>7} {brl(-valor):>14}')
         print(f'  {"= repasse iFood":<28} {"":>14} {"":>7} {brl(entrada["ifood"]):>14}')
         if janela is not None:
             print(f'    referente a {janela[0]:%d/%m} a {janela[1]:%d/%m}')

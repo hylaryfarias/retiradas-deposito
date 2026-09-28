@@ -373,6 +373,46 @@ python3 gerar_relatorio.py 11-13-09.pdf --mes-anterior 11-13-08.pdf \
     --ifood-valor "Previsao=422239.80" --ifood-faturado 700841.32 --saida saida
 ```
 
+#### O que o iFood retém do repasse
+
+Quando o iFood desconta algo do próprio repasse antes de creditar — hoje a
+**parcela do empréstimo** (22 parcelas; a 18ª, de R$ 40.758,73, caiu na semana
+21–27/09) — isso entra em `--ifood-desconto "[ROTULO=]VALOR"`, que pode
+repetir. O valor é abatido da parcela e sai como **linha própria** no bloco do
+iFood, para a Amanda ver o repasse cheio, o que foi retido e o que sobra:
+
+```
+· Repasse previsto: R$ 401.767,14
+· Parcela 18/22 do empréstimo: −R$ 40.758,73
+· Previsão de recebimento: *R$ 361.008,41*
+```
+
+#### A previsão vem saindo ~2% acima do que entra
+
+Medido na semana 14–20/09, o único par previsão × recebido fechado até agora:
+
+| | |
+|---|---:|
+| Líquido do relatório de pedidos | R$ 437.288,24 |
+| Previsão enviada (−1,59%) | R$ 430.335,36 |
+| **Recebido de verdade** | **R$ 421.490,89** |
+| **Desconto real sobre o líquido** | **3,613%** |
+
+**Não foi a estimativa do domingo.** O domingo 20/09 teve razão líquido/itens
+de 62,36% nos pedidos já liquidados, *acima* dos 60,34% aplicados — se houve
+erro, foi para menos. Ou seja: entre o `VALOR LIQUIDO` e o dinheiro na conta
+some mais ~2% que o relatório não mostra (plano/assinatura, chargeback, pedido
+cancelado depois do snapshot).
+
+O teste que sustenta isso: aplicando 3,613% na semana 21–27/09 a previsão dá
+R$ 393.509,82, o que implica 25,40% de desconto sobre o `PAGAMENTO ONLINE` do
+Cloudfy — dentro da faixa das duas semanas medidas (25,06% e 25,46%). Com
+1,59% daria 23,84%, **fora da faixa**.
+
+> **Falta o segundo par** (recebido da semana 07–13/09) antes de trocar a
+> constante. Até lá, aplicar os 1,59% e **avisar no chat** que deve entrar ~2%
+> abaixo.
+
 #### Cloudfy × relatório de pedidos
 
 `PAGAMENTO ONLINE` do Cloudfy espelha **`VALOR DOS ITENS − INCENTIVO DA LOJA`**

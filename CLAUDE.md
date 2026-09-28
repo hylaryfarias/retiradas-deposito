@@ -387,6 +387,42 @@ iFood, para a Amanda ver o repasse cheio, o que foi retido e o que sobra:
 · Previsão de recebimento: *R$ 361.008,41*
 ```
 
+#### A cadeia inteira do repasse (o portal mostra, o relatório não)
+
+Ela mandou em 28/09 o print do portal da semana 07–13/09, e ele fecha a conta
+que o relatório de pedidos sozinho não fecha:
+
+| | | |
+|---|---:|---|
+| Repasse | R$ 432.242,52 | as duas operações somadas |
+| − Retido | −R$ 8.114,00 | **dívidas de bancos**: R$ 4.904,60 Santander + R$ 3.209,40 Safra |
+| = Base bruta a receber | R$ 424.128,52 | |
+| Caiu na conta | R$ 424.146,20 | R$ 17,68 a mais que a base |
+| − Taxa de antecipação | −R$ 3.661,54 | debitada **à parte**, no mesmo extrato (R$ 1.058,48 devolvidos por exclusividade → custo líquido R$ 2.603,06) |
+| **= Valor líquido recebido** | **R$ 420.484,66** | |
+
+Três coisas que isso derruba:
+
+1. **O relatório de pedidos SUBESTIMA o repasse.** O líquido dele foi
+   R$ 422.999,70 e o repasse real R$ 432.242,52 — **2,19% acima**.
+2. **A antecipação não é 1,59%: foi 0,847%** do repasse (R$ 3.661,54), e ainda
+   volta parte por exclusividade. A `IFOOD_ANTECIPACAO` está superestimada.
+3. **O retido só existe no portal.** São parcelas de dívida com Santander e
+   Safra que o iFood segura antes de creditar — não saem em relatório nenhum,
+   então **têm de ser perguntados a ela toda semana**.
+
+Ponta a ponta, o líquido recebido foi **0,995×** o líquido do relatório — quase
+igual, mas por compensação de erros (relatório baixo × retido + antecipação).
+
+> **Nas próximas semanas, pedir o print dessa tela.** É o único lugar onde
+> aparecem o retido e a antecipação real, e é o que permite calibrar.
+
+#### O empréstimo do iFood
+
+Separado do retido: é empréstimo do **próprio iFood**, abatido do crédito. Na
+semana 07–13/09 estava zerado; na semana 21–27/09 entrou a **parcela 18/22, de
+R$ 40.758,73**. Vai em `--ifood-desconto`, com rótulo próprio.
+
 #### A previsão vem saindo ~2% acima do que entra
 
 Medido na semana 14–20/09, o único par previsão × recebido fechado até agora:

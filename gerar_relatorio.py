@@ -736,6 +736,25 @@ def gravar_arrasto(caminho, registros, origem, porforma, datas, corte):
     return novos
 
 
+def ler_ifood_descontos(entradas):
+    """--ifood-desconto [ROTULO=]VALOR -> [(rotulo, valor, aproximado)].
+
+    Um ~ na frente do valor marca estimativa, e o texto sai com o ~ junto.
+    """
+    saida = []
+    for bruto in entradas:
+        rotulo, _, valor = bruto.rpartition('=')
+        valor = valor.strip()
+        aprox = valor.startswith('~')
+        valor = valor.lstrip('~')
+        try:
+            numero = to_float(valor) if ',' in valor else float(valor)
+        except Exception:
+            raise SystemExit(f'ERRO: nao entendi o valor em --ifood-desconto {bruto!r}.')
+        saida.append((rotulo.strip() or 'Retido', numero, aprox))
+    return saida
+
+
 def calcular_entrada(agrupado, agrupado_anterior, titulos, dia_previsto,
                      ifood=None, b2b=None, override=None, liquido=True,
                      ifood_manual=None, ifood_entra=True, arrasto=None,
@@ -778,7 +797,7 @@ def calcular_entrada(agrupado, agrupado_anterior, titulos, dia_previsto,
     ifood_descontos = ifood_descontos or []
     ifood_bruto_repasse = ifood_valor
     if ifood_valor is not None and ifood_descontos:
-        ifood_valor -= sum(valor for _rotulo, valor in ifood_descontos)
+        ifood_valor -= sum(d[1] for d in ifood_descontos)
     # arrasto: vendas depois do corte da meia-noite do dia anterior, que
     # liquidam junto com hoje
     detalhe_arrasto = []
@@ -913,8 +932,11 @@ def montar_texto(dias_usados, total, entrada, dia_previsto):
         descontos = entrada.get('ifood_descontos') or []
         if descontos:
             partes.append(f'· Repasse previsto: R$ {brl(entrada["ifood_repasse_bruto"])}')
-            for rotulo, valor in descontos:
-                partes.append(f'· {rotulo}: −R$ {brl(valor)}')
+            for desconto in descontos:
+                rotulo, valor = desconto[0], desconto[1]
+                # valor com ~ no comando sai com ~ no texto: e estimativa
+                til = '~' if len(desconto) > 2 and desconto[2] else ''
+                partes.append(f'· {rotulo}: −R$ {til}{brl(valor)}')
         partes += [f'· Previsão de recebimento: *R$ {brl(entrada["ifood_previa"])}*',
                    f'· Entra na quarta, {entrada["data_repasse"]:%d/%m}.']
 
@@ -1203,7 +1225,7 @@ def main():
                                liquido=not args.bruto, ifood_manual=ifood_manual,
                                ifood_entra=not eh_segunda, arrasto=arrasto,
                                pix=pix,
-                               ifood_descontos=ler_ifood_manual(args.ifood_descontos))
+                               ifood_descontos=ler_ifood_descontos(args.ifood_descontos))
     entrada['origem_arrasto'] = origem_arrasto
     entrada['janela_ifood'] = janela
     entrada['antecipacao_aplicada'] = bool(antecipado)
@@ -1286,8 +1308,8 @@ def main():
     if entrada['ifood_previa'] is not None:
         print(f'  PREVIA iFood (NAO entra hoje)    {brl(entrada["ifood_bruto"] or 0):>10} '
               f'{brl(entrada["taxa_ifood"] * 100)+"%":>7} {brl(entrada["ifood_previa"]):>14}')
-        for rotulo, valor in entrada.get('ifood_descontos') or []:
-            print(f'    (-) {rotulo:<22} {"":>14} {"":>7} {brl(-valor):>14}')
+        for desconto in entrada.get('ifood_descontos') or []:
+            print(f'    (-) {desconto[0]:<22} {"":>14} {"":>7} {brl(-desconto[1]):>14}')
         print(f'    semana {janela[0]:%d/%m} a {janela[1]:%d/%m}, '
               f'cai na quarta {entrada["data_repasse"]:%d/%m}')
     elif entrada['ifood'] is None:
@@ -1303,8 +1325,8 @@ def main():
             if rotulo.endswith('(-1,59% antecip.)'):
                 continue
             print(f'    {rotulo:<26} {"":>14} {"":>7} {brl(valor):>14}')
-        for rotulo, valor in entrada.get('ifood_descontos') or []:
-            print(f'    (-) {rotulo:<22} {"":>14} {"":>7} {brl(-valor):>14}')
+        for desconto in entrada.get('ifood_descontos') or []:
+            print(f'    (-) {desconto[0]:<22} {"":>14} {"":>7} {brl(-desconto[1]):>14}')
         print(f'  {"= repasse iFood":<28} {"":>14} {"":>7} {brl(entrada["ifood"]):>14}')
         if janela is not None:
             print(f'    referente a {janela[0]:%d/%m} a {janela[1]:%d/%m}')

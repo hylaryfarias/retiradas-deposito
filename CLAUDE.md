@@ -411,11 +411,36 @@ Três coisas que isso derruba:
    Safra que o iFood segura antes de creditar — não saem em relatório nenhum,
    então **têm de ser perguntados a ela toda semana**.
 
-Ponta a ponta, o líquido recebido foi **0,995×** o líquido do relatório — quase
-igual, mas por compensação de erros (relatório baixo × retido + antecipação).
+A semana 14–20/09 (print de 28/09) confirma a estrutura e fecha a calibração:
+
+| Semana | Líquido do relatório | Repasse | Relatório → repasse | Retido | % do repasse | Antecipação | % do repasse | Líquido recebido |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| 07–13/09 | 422.999,70 | 432.242,52 | +2,19% | 8.114,00 | 1,88% | 3.661,54 | 0,847% | 420.484,66 |
+| 14–20/09 | 437.288,24 | 445.150,58 | +1,80% | 19.839,19 | 4,46% | 3.825,19 | 0,859% | 421.490,89 |
+
+**Dois dos três fatores são estáveis e viraram régua:**
+
+| Fator | Valor | Uso |
+|---|---:|---|
+| Relatório → repasse | **×1,0199** (+1,99%) | o relatório de pedidos subestima; corrigir para cima |
+| Antecipação | **0,853% do repasse** | não são 1,59% — a `IFOOD_ANTECIPACAO` está o dobro do real |
+| **Retido** | **imprevisível** | 1,88% numa semana, 4,46% na outra — **só sai do portal, perguntar sempre** |
+
+Então a conta da prévia passa a ser:
+
+```
+repasse estimado   = líquido do relatório × 1,0199
+repasse líquido    = repasse × (1 − 0,853%)
+previsão           = repasse líquido − retido − parcela do empréstimo
+```
 
 > **Nas próximas semanas, pedir o print dessa tela.** É o único lugar onde
-> aparecem o retido e a antecipação real, e é o que permite calibrar.
+> aparecem o retido e a antecipação real. Sem o retido a previsão sai
+> **incompleta e para cima** — avisar no chat quando ele faltar.
+
+> **O `EMPRÉSTIMO IFOOD` do portal estava R$ 0,00 nas duas semanas medidas**,
+> mesmo com a parcela 18/22 existindo. Conferir em 30/09 se os R$ 40.758,73
+> aparecem nesse quadro ou em outro lugar.
 
 #### O empréstimo do iFood
 

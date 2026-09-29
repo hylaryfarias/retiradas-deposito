@@ -162,6 +162,16 @@ corrigida pela fatia de ontem (se o problema continuar), já com o comando
 **Isso não muda número nenhum sozinho** — quem decide é ela, que sabe se
 resolveram ou não.
 
+**Mas o dia anômalo sai da base de estimativa.** `dia_anomalo()` marca os dias
+cuja fatia foge da faixa, e `estimar_pix()` os ignora: eles medem um problema
+de operação, não o hábito do cliente. Sem isso, a terça 22/09 (Pix a 4,97%)
+puxava a estimativa de todas as terças seguintes — em 29/09 daria R$ 12.819,23
+em vez de R$ 17.437,63. Hoje estão marcados **22/09 (4,97%) e 23/09 (1,75%)**.
+
+Junto com isso, **uma amostra do mesmo dia da semana já vale mais que a
+mediana de sete dias misturados** — antes eram necessárias duas, e o fallback
+de 7 dias mistura sábado com segunda.
+
 > **O Pix não usa mais o `pos_meia_noite.csv`.** Quem guarda a madrugada dele
 > é o próprio `historico_pix.csv`, que tem a coluna `MADRUGADA` de cada dia —
 > o arrasto ficou só para crédito e débito, que são D+1.

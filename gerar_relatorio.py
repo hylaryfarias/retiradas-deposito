@@ -662,21 +662,39 @@ def fatia_do_pix(historico, fora=()):
     return mediana(fatias) if fatias else None
 
 
+def dia_anomalo(historico, dia, faixa):
+    """O Pix daquele dia fugiu da fatia habitual da venda?
+
+    Dia de instabilidade nao serve de base para estimar: em 22/09 o Pix foi
+    4,97% da venda e em 23/09 1,75%, contra ~9,5% de sempre. Deixar esses dias
+    na mediana puxa a previsao para baixo por um motivo que ja passou.
+    """
+    v = historico.get(dia)
+    if not faixa or not v or len(v) < 3 or not v[2]:
+        return False
+    return abs((v[0] + v[1]) / v[2] / faixa - 1) > PIX_DESVIO_ALERTA
+
+
 def estimar_pix(historico, alvo):
     """Quanto de Pix a operacao deve vender no dia ALVO (fora a madrugada).
 
     Pix liquida no mesmo dia, entao a previsao de hoje precisa do Pix de hoje
     -- que ainda nao aconteceu. A mediana do MESMO DIA DA SEMANA e o melhor
-    palpite: segunda nao parece com sabado, e a mediana aguenta um dia fora da
-    curva sem puxar o numero (22/09 vendeu metade do Pix de uma terca normal).
+    palpite: segunda nao parece com sabado, e o mesmo dia da semana repete com
+    1% a 5% de diferenca de um mes para o outro.
+
+    Os dias de instabilidade ficam FORA da conta -- eles medem um problema de
+    operacao, nao o habito do cliente.
 
     Devolve (valor, quantas amostras, criterio) ou (None, 0, '') sem historico.
     """
     if not historico:
         return None, 0, ''
-    dias = [(datetime.datetime.strptime(d, '%d/%m/%Y').date(), v[0])
+    faixa = fatia_do_pix(historico)
+    dias = [(datetime.datetime.strptime(d, '%d/%m/%Y').date(), v[0], d)
             for d, v in historico.items()]
-    dias = [(d, v) for d, v in dias if d < alvo]
+    dias = [(d, v) for d, v, chave in dias
+            if d < alvo and not dia_anomalo(historico, chave, faixa)]
     if not dias:
         return None, 0, ''
     dias.sort(key=lambda i: i[0])
@@ -684,13 +702,15 @@ def estimar_pix(historico, alvo):
     SEMANAS = [nome for nome in ('segunda', 'terca', 'quarta', 'quinta',
                                  'sexta', 'sabado', 'domingo')]
     mesmo_dia = [v for d, v in dias if d.weekday() == alvo.weekday()][-PIX_AMOSTRAS:]
-    if len(mesmo_dia) >= 2:
-        return (mediana(mesmo_dia), len(mesmo_dia),
-                f'mediana de {len(mesmo_dia)} {SEMANAS[alvo.weekday()]}s')
+    if mesmo_dia:      # uma amostra do mesmo dia ja vale mais que sete dias mistos
+        quantos = len(mesmo_dia)
+        nome = SEMANAS[alvo.weekday()] + ('s' if quantos > 1 else '')
+        return (mediana(mesmo_dia), quantos,
+                f'mediana de {quantos} {nome}' if quantos > 1 else f'a unica {nome} do historico')
     ultimos = [v for _d, v in dias][-7:]
     return (mediana(ultimos), len(ultimos),
             f'mediana dos ultimos {len(ultimos)} dias (sem {SEMANAS[alvo.weekday()]} '
-            f'suficiente no historico)')
+            f'no historico)')
 
 
 def ler_arrasto(caminho):

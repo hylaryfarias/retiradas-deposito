@@ -436,14 +436,31 @@ A semana 14–20/09 (print de 28/09) confirma a estrutura e fecha a calibração
 
 | Fator | Valor | Uso |
 |---|---:|---|
-| **Não liquidados** | **81,3% dos itens** | era aqui o erro: eu usava a razão dos liquidados (~60%) e eles valem ~81% |
+| **Não liquidados** | **66,4% dos itens** | medido direto em 30/09 (ver abaixo) — **não** 81,3% |
+| Relatório fechado → repasse | **×1,0147** | sobra ~1,5% que o relatório não mostra, mesmo depois de tudo liquidado |
 | Antecipação | **0,853% do repasse** | efeito prático dos 1,59% sobre ~54% de base |
 | **Retido** | **imprevisível** | 1,88% numa semana, 4,46% na outra — **só sai do portal, perguntar sempre** |
 
-**O buraco era a estimativa do domingo, não taxa escondida.** Medido nas duas
-semanas: o que falta entre os liquidados e o repasse cabe inteiro nos pedidos
-não liquidados, a **84,2%** e **78,4%** dos itens deles — contra os ~60% que eu
-vinha aplicando.
+**MEDIDO DIRETO EM 30/09: os não liquidados valem 66,4% dos itens.** Ela mandou
+o relatório da MESMA semana (21–27/09) puxado na quarta, com tudo liquidado, e
+isso matou o chute:
+
+| | |
+|---|---:|
+| Domingo 27/09 na segunda | R$ 40.667,70 (1.119 pedidos) |
+| Domingo 27/09 na quarta | R$ 59.898,35 (1.672 pedidos) |
+| **Os 553 pedidos valiam** | **R$ 19.230,65** |
+| sobre itens de R$ 28.977,17 | **66,36%** |
+
+Eu tinha estimado 81,3% (R$ 23.558,44) e **errei 22,5% para cima**. A razão
+certa é ~66%, um pouco acima da razão dos liquidados (~63%), não 80%.
+
+**E sobra um resíduo que o relatório não explica.** Refazendo as duas semanas
+com 66,36%, o repasse ainda fica **1,5% acima** do relatório fechado
+(R$ 7.443,96 e R$ 5.237,29). Não é o domingo — é outra coisa, ainda sem nome.
+
+> **Pedir o relatório de pedidos de novo na quarta.** É de graça, fecha a
+> semana com número real e é o que permite medir o resíduo em vez de estimar.
 
 | Semana | Liquidados | Repasse | Falta | Itens não liquidados | Razão |
 |---|---:|---:|---:|---:|---:|
@@ -453,7 +470,7 @@ vinha aplicando.
 Então a conta da prévia passa a ser:
 
 ```
-repasse estimado = liquidados + (itens não liquidados × 81,3%)
+repasse estimado = (liquidados + itens não liquidados × 66,4%) × 1,0147
 repasse líquido  = repasse × (1 − 0,853%)
 previsão         = repasse líquido − retido − parcela do empréstimo
 ```

@@ -882,6 +882,12 @@ O de:para virou painel, em **https://retiradas-deposito.vercel.app** (código em
   — aquele lançamento passa a contar como depósito da loja. É o caso da
   BIGGS 13 de 13/09.
 - Um escreve, o time lê: quem tem o token publica; quem abre o link só olha.
+- **O time não vê o bloco "Em aberto".** Quem abre o link sem token vê só as
+  semanas fechadas, e a página **abre na última semana apurada** (a de período
+  mais recente). Trabalho pela metade não vai para a diretoria.
+  A aba selecionada viaja dentro do publicado, então sem isso o time caía
+  exatamente onde a Hylary estava quando publicou — foi o que a Amanda pegou
+  em 30/09, abrindo direto no "Em aberto".
 - **O bloco "Em aberto" não é uma semana.** O arquivo que sobe cai nele, e ele
   só vira semana quando ela clica em **Fechar semana** — é aí que nasce a aba
   com cadeado. Antes disso não há o que trancar, e foi essa confusão que fez

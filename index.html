@@ -481,6 +481,9 @@
       }));
     }catch(e){ /* sem espaco ou armazenamento bloqueado: segue sem gravar */ }
   }
+  // a aba que veio gravada/publicada: o render de visitante troca estado.aba,
+  // e a editora tem de voltar para a que era dela
+  var abaGravada = "";
   function restaurarDados(){
     var bruto = null;
     try{ bruto = localStorage.getItem(LS_DADOS); }catch(e){ return false; }
@@ -493,7 +496,7 @@
       estado.amostra = !!d.amostra; estado.nomeA = d.nomeA||""; estado.nomeB = d.nomeB||"";
       estado.nomeC = d.nomeC || "";
       estado.semanas = d.semanas || [];
-      estado.aba = d.aba || "";
+      estado.aba = abaGravada = d.aba || "";
       if(d.kw) $("kw").value = d.kw;
       if(estado.nomeA){
         $("fA").textContent = "\u2713 " + estado.nomeA + " · " + estado.sangria.length + " lançamentos";
@@ -980,10 +983,6 @@
                     sem:sem, atual:false });
     });
 
-    // cada semana e uma aba: mostra uma de cada vez, nunca empilhadas
-    if(estado.aba && !blocos.some(function(x){ return x.id === estado.aba; })) estado.aba = "";
-    var lista = $("abasLista");
-    lista.innerHTML = "";
     // as abas saem em ordem de periodo: refazer uma semana antiga nao pode
     // jogar ela para o fim da fila. A data sai dos proprios lancamentos, e so
     // cai no nome da semana quando nao houver lancamento nenhum.
@@ -1001,6 +1000,29 @@
       if(m) return new Date().getFullYear() * 10000 + (+m[2]) * 100 + (+m[1]);
       return 0;                    // bloco vazio fica na frente
     }
+
+    // cada semana e uma aba: mostra uma de cada vez, nunca empilhadas
+    if(estado.aba && !blocos.some(function(x){ return x.id === estado.aba; })) estado.aba = "";
+
+    // QUEM SO LE nao ve o bloco em aberto: trabalho pela metade nao e para o
+    // time. E o link abre na ULTIMA SEMANA APURADA, nao no que ficou aberto --
+    // a aba selecionada viaja no publicado, entao sem isso o time cai onde a
+    // Hylary estava quando publicou.
+    var soLeitura = !editor();
+    if(soLeitura){
+      var fechados = blocos.filter(function(x){ return !x.atual; });
+      if(fechados.length){
+        blocos = fechados;
+        if(!fechados.some(function(x){ return x.id === estado.aba; })){
+          var ultima = fechados.slice().sort(function(a, b){
+            return ordemDoBloco(a) - ordemDoBloco(b);
+          }).pop();
+          estado.aba = ultima.id;
+        }
+      }
+    }
+    var lista = $("abasLista");
+    lista.innerHTML = "";
     blocos.slice().sort(function(a, b){ return ordemDoBloco(a) - ordemDoBloco(b); })
           .forEach(function(bl){
       var bt = document.createElement("button");
@@ -1518,6 +1540,9 @@
 
   function iniciarSync(){
     sync.token = pegar(LS_TOKEN);
+    // o primeiro render acontece antes daqui, entao ele roda como se fosse
+    // visitante e esconde o bloco em aberto. Com token na mao, refaz a tela.
+    if(sync.token){ estado.aba = abaGravada; render(); }
     sync.gist  = gistDaUrl() || pegar(LS_GIST) || GIST_PADRAO;
     if(gistDaUrl()) guardar(LS_GIST, gistDaUrl());
     // so trava a edicao quando existe painel publicado por outra pessoa

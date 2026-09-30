@@ -453,6 +453,12 @@ A semana 14–20/09 (print de 28/09) confirma a estrutura e fecha a calibração
 | Antecipação | **0,853% do repasse** | efeito prático dos 1,59% sobre ~54% de base |
 | **Retido** | **imprevisível** | 1,88% numa semana, 4,46% na outra — **só sai do portal, perguntar sempre** |
 
+A semana **21–27/09** trouxe o retido em **R$ 16.900,01** (4,07% do repasse
+estimado), passado por ela em 30/09 como **"semi atualizado"** — ou seja, ainda
+pode mexer até o crédito cair. Com três semanas medidas o retido segue sem
+padrão (1,88% · 4,46% · 4,07%): **continua sendo pergunta de toda semana**, e
+quando vier como parcial, dizer isso no chat junto com a previsão.
+
 **MEDIDO DIRETO EM 30/09: os não liquidados valem 66,4% dos itens.** Ela mandou
 o relatório da MESMA semana (21–27/09) puxado na quarta, com tudo liquidado, e
 isso matou o chute:

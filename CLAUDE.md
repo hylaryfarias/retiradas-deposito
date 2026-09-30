@@ -882,6 +882,14 @@ O de:para virou painel, em **https://retiradas-deposito.vercel.app** (código em
   — aquele lançamento passa a contar como depósito da loja. É o caso da
   BIGGS 13 de 13/09.
 - Um escreve, o time lê: quem tem o token publica; quem abre o link só olha.
+- **O bloco "Em aberto" não é uma semana.** O arquivo que sobe cai nele, e ele
+  só vira semana quando ela clica em **Fechar semana** — é aí que nasce a aba
+  com cadeado. Antes disso não há o que trancar, e foi essa confusão que fez
+  ela achar que tinha criado uma semana nova em 30/09.
+- **As abas saem em ordem de período**, pela menor data dos lançamentos (não
+  pela ordem em que foram fechadas): refazer uma semana antiga não joga ela
+  para o fim da fila. A aba do bloco em aberto diz `Em aberto · <período>` —
+  antes ela mostrava só o período, igualzinha a uma semana fechada.
 - **Semana fechada nasce TRANCADA** (cadeado na aba e no cabeçalho). Trancada,
   ela não aceita upload, não deixa renomear, não deixa marcar/desmarcar
   lançamento, não deixa editar situação nem observação, e o botão Remover some.
@@ -895,6 +903,10 @@ O de:para virou painel, em **https://retiradas-deposito.vercel.app** (código em
 > da semana anterior selecionada e o arquivo entrou por cima — a semana passada
 > foi embora sem aviso nenhum. A trava e o aviso de substituição fecham os dois
 > buracos.
+>
+> **E o nome do botão ajudou o acidente.** Ele se chamava `+ Nova semana`, o que
+> lê como "cria uma aba vazia" — mas o que ele faz é **fechar** o que está em
+> aberto. Hoje se chama **Fechar semana**. Não voltar ao nome antigo.
 
 ### Quando o painel perder dado
 

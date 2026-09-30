@@ -331,7 +331,8 @@
     </div>
     <div class="abas" id="abas">
       <span id="abasLista"></span>
-      <button class="btn-semana" id="btnSemana" type="button">+ Nova semana</button>
+      <button class="btn-semana" id="btnSemana" type="button"
+              title="Guarda o que está em aberto como semana fechada e trancada, e deixa o painel pronto para a próxima">Fechar semana</button>
     </div>
     <div class="tbox">
       <div class="scroll"><table id="tabDepara">
@@ -983,13 +984,32 @@
     if(estado.aba && !blocos.some(function(x){ return x.id === estado.aba; })) estado.aba = "";
     var lista = $("abasLista");
     lista.innerHTML = "";
-    blocos.forEach(function(bl){
+    // as abas saem em ordem de periodo: refazer uma semana antiga nao pode
+    // jogar ela para o fim da fila. A data sai dos proprios lancamentos, e so
+    // cai no nome da semana quando nao houver lancamento nenhum.
+    function ordemDoBloco(bl){
+      var linhas = bl.atual ? estado.sangria : ((bl.sem && bl.sem.sangria) || []);
+      var menor = null;
+      for(var i = 0; i < linhas.length; i++){
+        var d = String(linhas[i].data || "").split("/");
+        if(d.length < 3) continue;
+        var n = (+d[2]) * 10000 + (+d[1]) * 100 + (+d[0]);
+        if(menor === null || n < menor) menor = n;
+      }
+      if(menor !== null) return menor;
+      var m = String(bl.nome || "").match(/(\d{1,2})\/(\d{1,2})/);
+      if(m) return new Date().getFullYear() * 10000 + (+m[2]) * 100 + (+m[1]);
+      return 0;                    // bloco vazio fica na frente
+    }
+    blocos.slice().sort(function(a, b){ return ordemDoBloco(a) - ordemDoBloco(b); })
+          .forEach(function(bl){
       var bt = document.createElement("button");
       bt.type = "button";
       bt.className = "aba" + (bl.id === estado.aba ? " ativa" : "");
       bt.setAttribute("data-id", bl.id);
-      bt.textContent = bl.atual ? (estado.sangria.length ? periodoCarregado() : "Em aberto")
-                                : ((bl.sem && bl.sem.travada ? "\uD83D\uDD12 " : "") + (bl.nome || "semana"));
+      bt.textContent = bl.atual
+        ? (estado.sangria.length ? "Em aberto \u00b7 " + periodoCarregado() : "Em aberto")
+        : ((bl.sem && bl.sem.travada ? "\uD83D\uDD12 " : "") + (bl.nome || "semana"));
       bt.addEventListener("click", function(){
         estado.aba = bl.id; escolhaTexto = bl.id;
         $("pA").textContent = TEXTO_PA; $("pB").textContent = TEXTO_PB;

@@ -888,6 +888,9 @@ O de:para virou painel, em **https://retiradas-deposito.vercel.app** (código em
   A aba selecionada viaja dentro do publicado, então sem isso o time caía
   exatamente onde a Hylary estava quando publicou — foi o que a Amanda pegou
   em 30/09, abrindo direto no "Em aberto".
+  Some também o **cabeçalho da semana dentro da tabela** (nome + cadeado +
+  `nada entra nem sai daqui`): é ferramenta de quem edita, e o nome e o
+  cadeado já estão na aba.
 - **O bloco "Em aberto" não é uma semana.** O arquivo que sobe cai nele, e ele
   só vira semana quando ela clica em **Fechar semana** — é aí que nasce a aba
   com cadeado. Antes disso não há o que trancar, e foi essa confusão que fez

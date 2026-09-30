@@ -212,6 +212,9 @@
   body.leitura .obs,body.leitura .flag,body.leitura .rotulo-semana,
   body.leitura input[type=checkbox],body.leitura .kw{pointer-events:none}
   body.leitura .obs,body.leitura .rotulo-semana,body.leitura .kw{background:transparent;border-color:transparent}
+  /* o cabecalho da semana e so ferramenta de quem edita: o nome e o cadeado
+     ja estao na aba, e o aviso da trava nao diz nada para quem so le */
+  body.leitura tr.semana{display:none!important}
   details{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden;box-shadow:var(--shadow)}
   summary{padding:13px 16px;cursor:pointer;font-weight:600;font-size:14.5px;letter-spacing:-.01em;
     display:flex;gap:10px;align-items:center;justify-content:space-between}

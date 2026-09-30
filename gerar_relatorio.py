@@ -949,8 +949,16 @@ def montar_texto(dias_usados, total, entrada, dia_previsto):
 
     partes[-1] = partes[-1].rstrip(';') + '.'  # a ultima linha fecha com ponto
 
-    # A previa do iFood fica FORA do total: o dinheiro so entra na quarta.
-    if entrada.get('ifood_previa') is not None:
+    # O bloco do iFood abre a conta do repasse: faturamento da semana, o que o
+    # iFood retem e o que sobra. Na segunda e previa e fica FORA do total (o
+    # dinheiro so entra na quarta); na quarta o valor ja esta na linha acima,
+    # e o bloco so mostra de onde ele veio.
+    valor_ifood = entrada.get('ifood_previa')
+    ja_no_total = valor_ifood is None
+    if ja_no_total:
+        valor_ifood = entrada.get('ifood')
+    tem_memoria = entrada.get('ifood_faturado') or entrada.get('ifood_descontos')
+    if valor_ifood is not None and tem_memoria:
         janela = entrada['janela_ifood']
         partes += ['', f'🛵 *IFOOD — SEMANA {janela[0]:%d/%m} A {janela[1]:%d/%m}*', '']
         if entrada.get('ifood_faturado'):
@@ -963,8 +971,13 @@ def montar_texto(dias_usados, total, entrada, dia_previsto):
                 # valor com ~ no comando sai com ~ no texto: e estimativa
                 til = '~' if len(desconto) > 2 and desconto[2] else ''
                 partes.append(f'· {rotulo}: −R$ {til}{brl(valor)}')
-        partes += [f'· Previsão de recebimento: *R$ {brl(entrada["ifood_previa"])}*',
-                   f'· Entra na quarta, {entrada["data_repasse"]:%d/%m}.']
+        partes.append(f'· Previsão de recebimento: *R$ {brl(valor_ifood)}*')
+        if ja_no_total:
+            # nao e parcela nova: e a abertura da linha que ja entrou no total
+            partes.append(f'· Entra hoje, {entrada["data_repasse"]:%d/%m}, '
+                          f'e já está no total acima.')
+        else:
+            partes.append(f'· Entra na quarta, {entrada["data_repasse"]:%d/%m}.')
 
     return '\n'.join(partes) + '\n'
 
@@ -1262,9 +1275,11 @@ def main():
     entrada['origem_arrasto'] = origem_arrasto
     entrada['janela_ifood'] = janela
     entrada['antecipacao_aplicada'] = bool(antecipado)
-    # na segunda o repasse cai na quarta seguinte
+    # na segunda o repasse cai na quarta seguinte; na quarta ele cai no
+    # proprio dia previsto, e o bloco do iFood so abre a conta da linha
     entrada['data_repasse'] = (data_prevista + datetime.timedelta(days=2)
-                               if eh_segunda else None)
+                               if eh_segunda else
+                               (data_prevista if janela is not None else None))
     entrada['ifood_faturado'] = args.ifood_faturado
 
     txt = os.path.join(args.saida, 'texto_whatsapp.txt')

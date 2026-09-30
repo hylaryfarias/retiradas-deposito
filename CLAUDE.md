@@ -404,9 +404,29 @@ repetir. O valor é abatido da parcela e sai como **linha própria** no bloco do
 iFood, para a Amanda ver o repasse cheio, o que foi retido e o que sobra:
 
 ```
+· Faturamento: R$ 651.314,45
 · Repasse previsto: R$ 401.767,14
 · Parcela 18/22 do empréstimo: −R$ 40.758,73
+· Retido (dívidas Santander/Safra): −R$ 16.900,01
 · Previsão de recebimento: *R$ 361.008,41*
+```
+
+**O bloco sai nos dois dias, não só na segunda.** Na quarta o repasse já é
+parcela do total, e o bloco vira a **abertura daquela linha** — fecha com
+`Entra hoje, dd/mm, e já está no total acima.` para ninguém somar duas vezes.
+Ele aparece sempre que houver `--ifood-faturado` ou `--ifood-desconto`; sem
+nada disso o texto sai só com a linha no total, como antes.
+
+Na quarta, passar em `--ifood-valor` o **repasse líquido de antecipação**, e os
+descontos em `--ifood-desconto` — assim o bloco mostra a conta inteira e a
+linha do total já sai abatida:
+
+```bash
+python3 gerar_relatorio.py cupons.xlsx --mes-anterior cupons_mes_anterior.xlsx \
+    --ifood-valor "Semana 21 a 27/09=411789.77" \
+    --ifood-desconto "Parcela 18/22 do empréstimo=40758.73" \
+    --ifood-desconto "Retido (dívidas Santander/Safra)=16900.01" \
+    --ifood-faturado 651314.45 --saida saida
 ```
 
 #### A cadeia inteira do repasse (o portal mostra, o relatório não)

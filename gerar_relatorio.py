@@ -48,6 +48,11 @@ CARTAO_E_PIX = ['TEF - CREDITO', 'TEF - DEBITO', 'PIX MAQUININHA']
 # depois da meia-noite e ja e hoje no calendario) e o resto do dia sai
 # estimado do historico, pela mediana do mesmo dia da semana.
 FORMAS_CARTAO = ['TEF - CREDITO', 'TEF - DEBITO']
+# Ela pediu em 30/09 para voltar ao modelo antigo: o Pix entra como a VENDA
+# DE ONTEM, na mesma linha de credito e debito, sem estimativa. A maquinaria
+# do D+0 (estimativa pelo historico, fim de semana caindo na segunda) fica no
+# codigo e volta com --pix-d0.
+PIX_D0_PADRAO = False
 FORMA_PIX = 'PIX MAQUININHA'
 HISTORICO_PADRAO = 'historico_pix.csv'
 PIX_AMOSTRAS = 4          # quantos mesmos-dias-da-semana entram na mediana
@@ -798,8 +803,9 @@ def calcular_entrada(agrupado, agrupado_anterior, titulos, dia_previsto,
     vencendo = [t for t in titulos if entrada_do_boleto(t['vencimento']) == alvo]
 
     # detalhe por forma, para poder auditar bruto -> taxa -> liquido
+    formas_do_dia = FORMAS_CARTAO if pix else CARTAO_E_PIX
     detalhe = []
-    for forma in FORMAS_CARTAO:
+    for forma in formas_do_dia:
         bruto = agrupado.get(forma, 0.0)
         taxa = TAXAS.get(forma, 0.0) if liquido else 0.0
         detalhe.append((forma, bruto, taxa, bruto * (1 - taxa)))
@@ -1017,8 +1023,14 @@ def main():
     parser.add_argument('--pix-hoje', dest='pix_hoje', metavar='VALOR',
                         help='forca a estimativa do Pix do dia previsto, no lugar da '
                              'mediana do historico')
+    parser.add_argument('--pix-d0', dest='pix_d0', action='store_true',
+                        default=PIX_D0_PADRAO,
+                        help='trata o Pix como D+0: parcela propria, estimada pelo '
+                             'historico, com o fim de semana caindo na segunda. '
+                             'Por padrao o Pix entra como a venda do dia, junto '
+                             'com credito e debito')
     parser.add_argument('--sem-pix', dest='sem_pix', action='store_true',
-                        help='nao estima o Pix do dia (a previsao sai sem essa parcela)')
+                        help='nao estima o Pix do dia (so vale com --pix-d0)')
     parser.add_argument('--arrasto', default=POS_MEIA_NOITE_PADRAO, metavar='CSV',
                         help=f'arquivo do arrasto (padrao: {POS_MEIA_NOITE_PADRAO})')
     parser.add_argument('--sem-arrasto', dest='sem_arrasto', action='store_true',
@@ -1146,10 +1158,11 @@ def main():
         # que ja guarda a madrugada de cada dia
         entra_em = proximo_util(data_prevista
                                 + datetime.timedelta(days=1)).strftime('%d/%m/%Y')
-        so_cartao = {f: v for f, v in porforma.items() if f != FORMA_PIX}
-        datas = {forma: entra_em for forma in so_cartao}
+        arrastaveis = ({f: v for f, v in porforma.items() if f != FORMA_PIX}
+                       if args.pix_d0 else dict(porforma))
+        datas = {forma: entra_em for forma in arrastaveis}
         gravados = gravar_arrasto(args.arrasto, registros, dias_usados[-1],
-                                  so_cartao, datas, args.corte)
+                                  arrastaveis, datas, args.corte)
         registros = ler_arrasto(args.arrasto)
     else:
         print('AVISO: nada em --pos-meia-noite. A previsao esta com TUDO o que o '
@@ -1158,8 +1171,8 @@ def main():
 
     arrasto, origem_arrasto = [], ''
     if not args.sem_arrasto:
-        dearrastar = [r for r in registros
-                      if r['entrada'] == dia_previsto and r['forma'] != FORMA_PIX]
+        dearrastar = [r for r in registros if r['entrada'] == dia_previsto
+                      and (r['forma'] != FORMA_PIX or not args.pix_d0)]
         porforma_hoje = OrderedDict()
         for r in dearrastar:
             porforma_hoje[r['forma']] = porforma_hoje.get(r['forma'], 0.0) + r['valor']
@@ -1181,7 +1194,7 @@ def main():
         historico = gravar_historico(args.historico, historico, novos_hist)
 
     pix = None
-    if not args.sem_pix:
+    if args.pix_d0 and not args.sem_pix:
         calendarios = dias_do_pix(data_prevista)
         if not calendarios:
             segunda = proximo_util(data_prevista)
@@ -1279,7 +1292,8 @@ def main():
     print(f'  {"":28} {"bruto":>14} {"taxa":>7} {"liquido":>14}')
     for forma, bruto, taxa, liq in entrada['detalhe_vendas']:
         print(f'  {forma:<28} {brl(bruto):>14} {brl(taxa * 100)+"%":>7} {brl(liq):>14}')
-    print(f'  {"= cartao (D+1)":<28} {"":>14} {"":>7} {brl(entrada["vendas"]):>14}')
+    rot_vendas = '= cartao (D+1)' if entrada.get('pix') is not None else '= cartao + pix'
+    print(f'  {rot_vendas:<28} {"":>14} {"":>7} {brl(entrada["vendas"]):>14}')
 
     if gravados:
         total_corte = sum(r['valor'] for r in gravados)
@@ -1299,9 +1313,10 @@ def main():
             print(f'    datas guardadas: {", ".join(proximas)}')
 
     if entrada.get('pix') is None:
-        print(f'  pix                          '
-              + ('nao cai em fim de semana' if not dias_do_pix(data_prevista)
-                 else 'SEM ESTIMATIVA'))
+        if args.pix_d0:
+            print(f'  pix                          '
+                  + ('nao cai em fim de semana' if not dias_do_pix(data_prevista)
+                     else 'SEM ESTIMATIVA'))
     else:
         parcelas = entrada['pix_parcelas']
         cabe = ('D+0, cai no proprio dia' if len(parcelas) == 1

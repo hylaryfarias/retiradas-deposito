@@ -70,14 +70,26 @@ Mudança de agrupamento se faz lá, não na mão na resposta.
 | Parcela | De onde sai |
 |---|---|
 | **Cartão (D+1)** | `TEF - CREDITO` + `TEF - DEBITO` do período atual, **já agrupados** (ou seja, com CARTAO CREDITO e CARTAO DEBITO dentro), **líquidos de taxa**. |
-| **Pix (D+0)** | o Pix do **próprio dia previsto**, não o do relatório: a madrugada já vendida (número real) mais a **estimativa** do resto do dia, pela mediana do mesmo dia da semana em `historico_pix.csv`. **Não cai em fim de semana** — sábado e domingo entram na segunda. |
+| **Pix** | **a venda do dia**, junto com crédito e débito (decisão dela em 30/09). O modelo D+0 — parcela própria, estimada pelo histórico, fim de semana caindo na segunda — só entra com `--pix-d0`. |
 | **Voucher D+30** | soma de `VOUCHER` + `TEF - VOUCHER` + `TEF - TICKET` do PDF de `--mes-anterior`. Voucher liquida em 30 dias, então o previsto de hoje é a venda de voucher de um mês atrás. |
 | **Repasse do iFood** | **valor informado na mão** em `--ifood-valor`, já líquido, por entidade (Grupo Ragga, Dell Iris). Cai na quarta, referente à semana segunda a domingo anterior. |
 | **Vendas a prazo** | `vendas_a_prazo.csv`, os títulos cujo `VENCIMENTO` é o **dia anterior** à data prevista: é boleto, compensa em **D+1** (vence 20/09 → entra na previsão de 21/09). Fora disso a parcela não entra. |
 | **B2B iKI** | ainda **sem base**. Entra só quando vier `--b2b`. |
 | **Depois da meia-noite** | o que foi vendido depois do corte **sai** da previsão de amanhã e fica gravado em `pos_meia_noite.csv` para entrar sozinho na do dia seguinte. Valor informado em `--pos-meia-noite`. |
 
-### O Pix cai no mesmo dia (D+0)
+### O Pix: hoje entra como a venda do dia
+
+> **DECISÃO DELA, 30/09: o Pix volta a ser a VENDA DE ONTEM**, na mesma linha
+> de crédito e débito, sem estimativa. É o modelo antigo. Toda a máquina de
+> D+0 descrita abaixo continua no código e volta com **`--pix-d0`**, mas o
+> padrão (`PIX_D0_PADRAO = False`) é o Pix como venda do dia.
+>
+> Na prática: a linha do Pix no texto é o Pix do relatório menos a madrugada
+> dele, mais a madrugada da véspera — igual ao cartão. O arrasto volta a levar
+> o Pix junto.
+
+O que está escrito abaixo é **por que o D+0 existe**, e vale se ela mandar
+ligar de novo.
 
 **O Pix não é D+1.** Ela confirmou em 23/09: o Pix da maquininha liquida no
 mesmo dia da venda, e por isso a previsão estava saindo alta. Em 22/09 o texto

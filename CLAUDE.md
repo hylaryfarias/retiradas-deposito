@@ -882,6 +882,40 @@ O de:para virou painel, em **https://retiradas-deposito.vercel.app** (código em
   — aquele lançamento passa a contar como depósito da loja. É o caso da
   BIGGS 13 de 13/09.
 - Um escreve, o time lê: quem tem o token publica; quem abre o link só olha.
+- **Semana fechada nasce TRANCADA** (cadeado na aba e no cabeçalho). Trancada,
+  ela não aceita upload, não deixa renomear, não deixa marcar/desmarcar
+  lançamento, não deixa editar situação nem observação, e o botão Remover some.
+  Destrancar é um clique no cadeado com confirmação.
+- **Antes de um arquivo entrar por cima de outro**, o painel diz o que vai ser
+  substituído (aba, nome do arquivo e quantos lançamentos) e pede confirmação.
+
+> **Por que isso existe.** O upload sempre foi para a **aba que está aberta**, e
+> a aba aberta pode ser uma semana já fechada (`alvo()` devolve a semana da aba,
+> não o bloco em aberto). Em 30/09 ela subiu o arquivo da semana nova com a aba
+> da semana anterior selecionada e o arquivo entrou por cima — a semana passada
+> foi embora sem aviso nenhum. A trava e o aviso de substituição fecham os dois
+> buracos.
+
+### Quando o painel perder dado
+
+O estado vive num **gist secreto**, id `d84f5b4a270c092d2e8cfda4da4a9baa`, arquivo
+`painel-depositos.json`. O GitHub guarda **todas as revisões** desse gist, então
+nada se perde de verdade: é só restaurar em
+`https://gist.github.com/d84f5b4a270c092d2e8cfda4da4a9baa/revisions`, abrir a
+revisão certa em Raw, copiar e colar de volta no gist (Edit → Update).
+
+Duas coisas que mordem nessa hora:
+
+1. **Fechar todas as abas do painel antes.** Uma aba aberta republica o estado
+   dela por cima em 2,5 s (`agendar()`), desfazendo a restauração.
+2. Para quem edita, o painel só aplica o gist se ele for **mais novo** que o que
+   está na tela — mas `sync.carimbo` mora só na memória e volta a 0 a cada
+   carregamento, então **abrir a página do zero sempre aplica** o que está no
+   gist. Restaurar e recarregar funciona; restaurar com a aba aberta, não.
+
+> **Gist está fora do alcance do Claude Code aqui**: a sessão só fala com
+> endpoints do próprio repositório (`repos/{owner}/{repo}/...`), e
+> `api.github.com/gists/...` volta 403. Restauração é na mão, pelo navegador.
 
 ## Conciliação
 

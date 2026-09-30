@@ -123,6 +123,13 @@
   .remover{font:inherit;font-size:11px;font-weight:600;color:var(--ink-3);background:transparent;
     border:1px solid var(--line-2);border-radius:6px;padding:3px 9px;cursor:pointer}
   .remover:hover{color:var(--brand);border-color:var(--brand)}
+  .cadeado{font:inherit;font-size:11px;font-weight:600;color:var(--ink-3);background:transparent;
+    border:1px solid var(--line-2);border-radius:6px;padding:3px 9px;cursor:pointer}
+  .cadeado:hover{color:var(--brand);border-color:var(--brand)}
+  .cadeado.fechado{color:var(--brand);border-color:rgba(184,29,34,.35);background:var(--brand-soft)}
+  .rotulo-semana[readonly]{color:var(--ink-2);cursor:default}
+  .rotulo-semana[readonly]:hover{border-color:transparent}
+  .aviso-trava{font-size:11.5px;color:var(--ink-3)}
   tr.semana td{background:var(--brand-soft);border-bottom:1px solid var(--line);padding-block:7px}
   .rotulo-semana{font:inherit;font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
     color:var(--brand);background:transparent;border:1px solid transparent;border-radius:6px;
@@ -563,6 +570,8 @@
   }
 
   function carregarSangria(file){
+    if(barrado("Subir o relat\u00f3rio de sangrias")) return;
+    if(!deixaTrocar("A")) return;
     lerArquivo(file, function(linhas){
       var ic = acharCabecalho(linhas, ["FILIAL"]);
       if(ic < 0){ alert("Não achei a coluna Filial. Esse arquivo é o relatório de sangrias e suprimentos?"); return; }
@@ -600,6 +609,8 @@
   // corrigir o furo da descricao (a BIGGS 13 de 13/09 era deposito escrito
   // como suprimento).
   function carregarSuprimentos(file){
+    if(barrado("Subir o relat\u00f3rio de suprimentos")) return;
+    if(!deixaTrocar("C")) return;
     lerArquivo(file, function(linhas){
       var ic = acharCabecalho(linhas, ["FILIAL"]);
       if(ic < 0){ alert("Não achei a coluna Filial. Esse arquivo é o relatório de sangrias e suprimentos?"); return; }
@@ -623,6 +634,8 @@
   }
 
   function carregarExtrato(file){
+    if(barrado("Subir o extrato")) return;
+    if(!deixaTrocar("B")) return;
     lerArquivo(file, function(linhas){
       var ic = acharCabecalho(linhas, ["DATA"]);
       if(ic < 0){ alert("Não achei a coluna Data. Esse arquivo é o extrato bancário?"); return; }
@@ -668,6 +681,45 @@
     return estado;
   }
   function ehAberta(){ return alvo() === estado; }
+
+  // SEMANA TRANCADA -------------------------------------------------------
+  // O upload sempre foi para a ABA ABERTA, e a aba aberta pode ser uma semana
+  // ja fechada. Em 30/09 isso apagou a semana passada: ela subiu o arquivo da
+  // semana nova com a aba da anterior selecionada, e o arquivo entrou por
+  // cima. Fechar a semana agora TRANCA ela -- nada escreve ali dentro ate
+  // alguem destrancar de proposito.
+  function travada(a){ return !!(a && a !== estado && a.travada); }
+  function travadaPorId(id){
+    for(var i=0;i<estado.semanas.length;i++)
+      if(estado.semanas[i].id === id) return !!estado.semanas[i].travada;
+    return false;
+  }
+  function travadaPorNid(nid){
+    var id = String(nid||"").split("::")[0];
+    return id.indexOf("aberto:") === 0 ? false : travadaPorId(id);
+  }
+  // usado nos botoes que ficam fora da tabela (upload, limpar fonte)
+  function barrado(oque){
+    var a = alvo();
+    if(!travada(a)) return false;
+    alert("A semana \u201c" + (a.nome || "sem nome") + "\u201d est\u00e1 trancada.\n\n" +
+          oque + " n\u00e3o d\u00e1 enquanto ela estiver assim.\n\n" +
+          "Para mexer nela, clique no cadeado ao lado do nome e confirme. " +
+          "Para come\u00e7ar uma semana nova, abra a aba \u201cEm aberto\u201d.");
+    return true;
+  }
+  // antes de um arquivo entrar por cima de outro, dizer de quem e o que sai
+  function deixaTrocar(qual){
+    var a = alvo();
+    var nome = qual === "A" ? a.nomeA : (qual === "C" ? a.nomeC : a.nomeB);
+    if(!nome) return true;
+    var quantos = (qual === "A" ? (a.sangria||[]) :
+                   qual === "C" ? (a.suprimentos||[]) : (a.extrato||[])).length;
+    var onde = a === estado ? "na aba Em aberto" : "na semana \u201c" + (a.nome||"sem nome") + "\u201d";
+    return confirm("Isso substitui o que j\u00e1 est\u00e1 " + onde + ":\n\n" +
+                   nome + " (" + quantos + " lan\u00e7amentos)\n\n" +
+                   "O arquivo novo entra no lugar dele. Continuar?");
+  }
 
   // O nome da semana manda: "07/09 a 13/09" corta o que for de fora. Serve
   // para quando o relatorio vem com dias a mais do que a semana cobre.
@@ -878,14 +930,24 @@
         '" placeholder="o que aconteceu">'+esc(n.obs||"")+'</textarea></td>';
 
     var sel = tr.querySelector("select");
+    var presa = travadaPorNid(ck);          // semana trancada nao aceita edicao
+    if(presa){ sel.disabled = true; sel.title = "Semana trancada"; }
     sel.addEventListener("change", function(){
+      if(presa) return;
       nota(ck).flag = sel.value === auto ? null : sel.value;
       salvar(); render();
     });
     var rst = tr.querySelector(".reset");
-    if(rst) rst.addEventListener("click", function(){ nota(ck).flag = null; salvar(); render(); });
+    if(rst){
+      if(presa) rst.disabled = true;
+      rst.addEventListener("click", function(){ if(presa) return; nota(ck).flag = null; salvar(); render(); });
+    }
     var obs = tr.querySelector(".obs");
-    obs.addEventListener("input", function(){ nota(ck).obs = obs.value; alturaObs(obs); salvar(); });
+    if(presa){ obs.readOnly = true; obs.title = "Semana trancada"; }
+    obs.addEventListener("input", function(){
+      if(presa){ obs.value = n.obs || ""; return; }
+      nota(ck).obs = obs.value; alturaObs(obs); salvar();
+    });
     return tr;
   }
 
@@ -926,7 +988,7 @@
       bt.className = "aba" + (bl.id === estado.aba ? " ativa" : "");
       bt.setAttribute("data-id", bl.id);
       bt.textContent = bl.atual ? (estado.sangria.length ? periodoCarregado() : "Em aberto")
-                                : (bl.nome || "semana");
+                                : ((bl.sem && bl.sem.travada ? "\uD83D\uDD12 " : "") + (bl.nome || "semana"));
       bt.addEventListener("click", function(){
         estado.aba = bl.id; escolhaTexto = bl.id;
         $("pA").textContent = TEXTO_PA; $("pB").textContent = TEXTO_PB;
@@ -975,11 +1037,19 @@
         if(bloco.atual){
           trs.innerHTML = '<td colspan="6"><span class="rotulo-fixo">Em aberto &middot; arquivos carregados agora</span></td>';
         }else{
+          var presa = !!(bloco.sem && bloco.sem.travada);
           trs.innerHTML = '<td colspan="6"><span class="semana-cab">'+
-            '<input class="rotulo-semana" type="text" value="'+esc(bloco.nome)+'" aria-label="Nome da semana">'+
-            '<button class="remover" type="button" title="Remover esta semana">Remover</button></span></td>';
+            '<input class="rotulo-semana" type="text" value="'+esc(bloco.nome)+'" aria-label="Nome da semana"'+
+              (presa ? ' readonly' : '')+'>'+
+            '<button class="cadeado'+(presa?' fechado':'')+'" type="button" title="'+
+              (presa ? 'Semana trancada: clique para destrancar' : 'Trancar esta semana')+'">'+
+              (presa ? '&#128274; Trancada' : '&#128275; Trancar')+'</button>'+
+            (presa ? '<span class="aviso-trava">nada entra nem sai daqui</span>'
+                   : '<button class="remover" type="button" title="Remover esta semana">Remover</button>')+
+            '</span></td>';
           var inp = trs.querySelector("input");
           inp.addEventListener("input", function(){
+            if(presa){ inp.value = bloco.nome; return; }
             for(var i=0;i<estado.semanas.length;i++)
               if(estado.semanas[i].id === bloco.id) estado.semanas[i].nome = inp.value;
             // a aba acompanha o nome enquanto ela digita, sem refazer a tabela
@@ -993,7 +1063,23 @@
             clearTimeout(window._tRenome);
             window._tRenome = setTimeout(render, 600);   // a faixa mudou
           });
-          trs.querySelector(".remover").addEventListener("click", function(){
+          trs.querySelector(".cadeado").addEventListener("click", function(){
+            for(var i=0;i<estado.semanas.length;i++){
+              if(estado.semanas[i].id !== bloco.id) continue;
+              if(presa){
+                if(!confirm("Destrancar a semana \u201c" + (bloco.nome||"sem nome") + "\u201d?\n\n" +
+                            "Enquanto ela estiver destrancada, um arquivo subido com esta aba " +
+                            "aberta entra por cima do que est\u00e1 aqui.")) return;
+                estado.semanas[i].travada = false;
+              }else{
+                estado.semanas[i].travada = true;
+              }
+            }
+            salvarDados(); render();
+          });
+          var btRem = trs.querySelector(".remover");
+          if(btRem) btRem.addEventListener("click", function(){
+            if(!confirm("Remover a semana \u201c" + (bloco.nome||"sem nome") + "\u201d de vez?")) return;
             estado.semanas = estado.semanas.filter(function(s){ return s.id !== bloco.id; });
             salvarDados(); render();
           });
@@ -1058,6 +1144,7 @@
     // as listas de lancamento mostram a aba aberta, nao o arquivo carregado
     var sangViz = estado.sangria, suprViz = estado.suprimentos,
         extViz = estado.extrato, semLancamentos = false, foraDaFaixa = 0;
+    vizTravada = !!(abaAtiva && !abaAtiva.atual && abaAtiva.sem && abaAtiva.sem.travada);
     if(abaAtiva && !abaAtiva.atual){
       if(abaAtiva.sem && (abaAtiva.sem.sangria || abaAtiva.sem.suprimentos)){
         sangViz = sangriaDaSemana(abaAtiva.sem);
@@ -1120,6 +1207,7 @@
     return termos.every(function(q){ return t.indexOf(q) >= 0; });
   }
 
+  var vizTravada = false;      // a aba que esta na tela e uma semana trancada?
   function renderDetalhe(tabId, linhas, contaId, cols, busca){
     var tb = document.getElementById(tabId).tBodies[0];
     tb.innerHTML = "";
@@ -1131,7 +1219,10 @@
       vistos++;
       var tr = document.createElement("tr");
       tr.innerHTML = '<td><input type="checkbox" id="'+tabId+'-'+r.id+'"'+(r.marcado?" checked":"")+'></td>' + cols(r);
-      tr.querySelector("input").addEventListener("change", function(ev){
+      var cx = tr.querySelector("input");
+      if(vizTravada){ cx.disabled = true; cx.title = "Semana trancada"; }
+      cx.addEventListener("change", function(ev){
+        if(vizTravada){ ev.target.checked = r.marcado; return; }
         r.marcado = ev.target.checked; salvarDados(); render();
       });
       tb.appendChild(tr);
@@ -1167,6 +1258,7 @@
 
   // fecha o que esta carregado numa semana nova, que fica guardada
   function limparFonte(qual){
+    if(barrado("Tirar um arquivo")) return;
     var a = alvo();
     var nome = qual === "A" ? a.nomeA : (qual === "C" ? a.nomeC : a.nomeB);
     if(nome && !confirm("Tirar " + nome + " desta aba?")) return;
@@ -1211,7 +1303,7 @@
     salvar();
     // a semana leva os lancamentos dela: sem isso as duas abas mostravam
     // sempre o ultimo arquivo subido
-    estado.semanas.push({ id:id, nome:periodoCarregado(),
+    estado.semanas.push({ id:id, nome:periodoCarregado(), travada:true,
                           sangria:estado.sangria.slice(), extrato:estado.extrato.slice(),
                           suprimentos:estado.suprimentos.slice(),
                           nomeA:estado.nomeA, nomeB:estado.nomeB, nomeC:estado.nomeC });

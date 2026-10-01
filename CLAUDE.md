@@ -473,11 +473,53 @@ A semana 14–20/09 (print de 28/09) confirma a estrutura e fecha a calibração
 | Antecipação | **0,853% do repasse** | efeito prático dos 1,59% sobre ~54% de base |
 | **Retido** | **imprevisível** | 1,88% numa semana, 4,46% na outra — **só sai do portal, perguntar sempre** |
 
-A semana **21–27/09** trouxe o retido em **R$ 16.900,01** (4,07% do repasse
-estimado), passado por ela em 30/09 como **"semi atualizado"** — ou seja, ainda
-pode mexer até o crédito cair. Com três semanas medidas o retido segue sem
-padrão (1,88% · 4,46% · 4,07%): **continua sendo pergunta de toda semana**, e
-quando vier como parcial, dizer isso no chat junto com a previsão.
+#### A semana 21–27/09 fechou — e é a melhor medição que existe
+
+Ela mandou o print do portal em 01/10, com o repasse já creditado em 30/09.
+Essa é a **única semana com os dois lados reais**: relatório de pedidos
+fechado (puxado na quarta) **e** repasse creditado.
+
+| | | |
+|---|---:|---|
+| Líquido do relatório fechado | R$ 409.315,62 | puxado na quarta |
+| Repasse | R$ 414.830,96 | **×1,01347** sobre o relatório fechado |
+| − Retido | −R$ 17.922,16 | R$ 14.663,32 Santander + R$ 3.258,84 Safra |
+| = Base bruta a receber | R$ 396.908,80 | |
+| Caiu na conta | R$ 396.913,49 | R$ 4,69 a mais |
+| − Taxa de antecipação | −R$ 3.589,32 | **0,865% do repasse**; R$ 1.103,50 devolvidos por exclusividade → custo líquido R$ 2.485,82 |
+| **= Valor líquido recebido** | **R$ 393.324,17** | |
+| − Parcela 18/22 do empréstimo | −R$ 40.758,73 | **debitada à parte, não está dentro do repasse** |
+| + Subsídio iFood | +R$ 3.667,05 | ver abaixo |
+| **= o que sobrou de fato** | **R$ 356.232,49** | |
+
+**A previsão que foi mandada em 30/09 era R$ 354.131,03** — ficou **0,44%
+abaixo** do líquido recebido menos o empréstimo (R$ 352.565,44) e 0,59% abaixo
+quando se conta o subsídio. É de longe o melhor acerto até hoje, e valida a
+cadeia inteira.
+
+Três coisas novas que esse print ensinou:
+
+1. **O empréstimo NÃO está dentro do repasse.** `Caiu na conta` bate exatamente
+   com `repasse − retido`; a parcela é debitada à parte, depois. Por isso ela
+   entra como desconto **no fim** da conta, nunca abatida do repasse.
+2. **Existe um `SUBSÍDIO IFOOD`**, R$ 3.667,05 nessa semana: o próprio iFood
+   credita e abate do empréstimo dele, em 27 e 28/09, em 3 contas, categoria
+   `Subsídio Empréstimo`. O custo real do empréstimo na semana foi
+   R$ 37.091,68, não R$ 40.758,73. **Perguntar por ele junto com o retido.**
+3. **Retido parcial é piso, não número final.** Ela passou R$ 16.900,01 como
+   "semi atualizado" e fechou em R$ 17.922,16 — **6,0% acima**. Quando vier
+   parcial, avisar no chat que a previsão tende a sair um pouco alta.
+
+**As réguas, com três semanas:**
+
+| Fator | 07–13/09 | 14–20/09 | 21–27/09 | Usar |
+|---|---:|---:|---:|---|
+| Relatório fechado → repasse | 1,0147* | 1,0147* | **1,01347** | **1,0135** — só esta foi medida com relatório fechado de verdade; as outras duas saíram de um fechado *estimado* |
+| Antecipação / repasse | 0,847% | 0,859% | 0,865% | **0,857%** (média) |
+| Retido / repasse | 1,88% | 4,46% | 4,32% | **imprevisível** — só sai do portal, perguntar sempre |
+
+O retido não tem padrão (1,88% · 4,46% · 4,32%): **continua sendo pergunta de
+toda semana**, e quando vier parcial, dizer isso no chat junto com a previsão.
 
 **MEDIDO DIRETO EM 30/09: os não liquidados valem 66,4% dos itens.** Ela mandou
 o relatório da MESMA semana (21–27/09) puxado na quarta, com tudo liquidado, e
@@ -552,9 +594,12 @@ R$ 393.509,82, o que implica 25,40% de desconto sobre o `PAGAMENTO ONLINE` do
 Cloudfy — dentro da faixa das duas semanas medidas (25,06% e 25,46%). Com
 1,59% daria 23,84%, **fora da faixa**.
 
-> **Falta o segundo par** (recebido da semana 07–13/09) antes de trocar a
-> constante. Até lá, aplicar os 1,59% e **avisar no chat** que deve entrar ~2%
-> abaixo.
+> **Isso vale para a PRÉVIA de segunda feita só com −1,59%**, que foi como
+> aquela semana saiu. A cadeia completa (relatório fechado × 1,0135 −
+> antecipação − retido − empréstimo) acertou a semana 21–27/09 com **0,44%**
+> de erro, então o desconto de ~2% não é para ser somado em cima dela. Na
+> prévia de segunda, que ainda estima os não liquidados, continuar avisando no
+> chat que o número tende a sair um pouco acima.
 
 #### Cloudfy × relatório de pedidos
 

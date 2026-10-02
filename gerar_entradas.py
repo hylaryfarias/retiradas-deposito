@@ -7,7 +7,7 @@ prevista; este manda, depois, o que de fato entrou.
 Uso:
     python3 gerar_entradas.py --data 04/09/2026 --previsao 110000 \
         --pix 24739.28 --debito 44730.61 --credito 46217.25 \
-        --voucher 6730.53 --b2b 1045.86
+        --voucher 6730.53 --a-prazo 1045.86
 
     python3 gerar_entradas.py --dados recebimentos.json
 """
@@ -28,7 +28,7 @@ FORMAS = [
     ('debito', 'Débito'),
     ('credito', 'Crédito'),
     ('voucher', 'Voucher'),
-    ('b2b', 'B2B'),
+    ('a_prazo', 'A prazo'),
     ('dinheiro', 'Dinheiro'),
     ('online', 'Pagamento online'),
 ]
@@ -74,7 +74,11 @@ def main():
     parser.add_argument('--previsao', type=float,
                         help='previsao daquele dia (a que foi mandada antes)')
     for flag, rotulo in FORMAS:
-        parser.add_argument(f'--{flag}', type=float, help=f'recebido em {rotulo}')
+        parser.add_argument(f'--{flag.replace("_", "-")}', dest=flag, type=float,
+                            help=f'recebido em {rotulo}')
+    # decisao dela em 02/10: B2B e venda a prazo sao a mesma coisa. O --b2b
+    # continua valendo como apelido para nao quebrar o que ela ja digita.
+    parser.add_argument('--b2b', dest='a_prazo', type=float, help=argparse.SUPPRESS)
     parser.add_argument('--total-informado', dest='total_informado', type=float,
                         help='total que voce ja tem na mao; so para conferir a soma')
     parser.add_argument('--dados', help='JSON com data, previsao, recebido e total_informado')

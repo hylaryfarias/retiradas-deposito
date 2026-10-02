@@ -168,13 +168,13 @@ def taxa_efetiva_ifood():
 # nao sair otimista. Se a media real por operadora for levantada, trocar aqui.
 TAXA_VOUCHER = 0.069
 
-# Venda a prazo e B2B entram BRUTOS: sao boleto, sem adquirente no meio.
+# A venda a prazo entra BRUTA: e boleto, sem adquirente no meio.
 
 # Voucher: liquida em D+30, entao o previsto de hoje sai das vendas de voucher
 # do mesmo periodo do mes anterior (--mes-anterior).
 FORMAS_VOUCHER = ['VOUCHER', 'TEF - VOUCHER', 'TEF - TICKET']
 
-# Venda a prazo (B2B das BGs, Casaria etc.): tabela de recebiveis com data de
+# Venda a prazo (BGs, Casaria, iKI etc.): tabela de recebiveis com data de
 # vencimento em vendas_a_prazo.csv. O titulo NAO entra no dia da venda -- essa ja
 # foi na venda bruta -- e tambem nao entra no dia do vencimento: e BOLETO, que
 # compensa em D+1. Entao o titulo entra na previsao do DIA SEGUINTE ao vencimento
@@ -428,7 +428,7 @@ def renderizar_png(html, destino):
 
 
 PARCELAS = ('vendas', 'pos_meia_noite', 'pix', 'voucher', 'ifood',
-            'a_prazo', 'b2b')
+            'a_prazo')
 
 
 def normaliza_forma(texto):
@@ -781,7 +781,7 @@ def ler_ifood_descontos(entradas):
 
 
 def calcular_entrada(agrupado, agrupado_anterior, titulos, dia_previsto,
-                     ifood=None, b2b=None, override=None, liquido=True,
+                     ifood=None, override=None, liquido=True,
                      ifood_manual=None, ifood_entra=True, arrasto=None,
                      pix=None, ifood_descontos=None):
     """Monta as parcelas da entrada prevista.
@@ -793,9 +793,11 @@ def calcular_entrada(agrupado, agrupado_anterior, titulos, dia_previsto,
     ifood    -> repasse do iFood, so quando a data prevista e QUARTA
 
     Com liquido=True (padrao) cartao, voucher e a estimativa de iFood saem
-    liquidos das taxas. Venda a prazo e B2B saem brutos (boleto).
-    a_prazo  -> boletos que venceram no dia anterior (compensam em D+1)
-    b2b      -> iKI Produtos Alimenticios; None enquanto nao houver base
+    liquidos das taxas. A venda a prazo sai bruta (boleto, sem adquirente).
+    a_prazo  -> boletos que venceram no dia anterior (compensam em D+1).
+                Decisao dela em 02/10: B2B e venda a prazo sao a MESMA coisa,
+                a iKI e so mais um cliente da tabela -- nao ha parcela
+                separada de B2B.
     """
     # boleto compensa em D+1 do pagamento, e vencimento em fim de semana so e
     # pago na segunda
@@ -856,7 +858,6 @@ def calcular_entrada(agrupado, agrupado_anterior, titulos, dia_previsto,
         'ifood_repasse_bruto': ifood_bruto_repasse,
         'ifood_descontos': ifood_descontos,
         'a_prazo': sum(t['valor'] for t in vencendo) if vencendo else None,
-        'b2b': b2b,
         'titulos_a_prazo': vencendo,
         'vencimento_a_prazo': ', '.join(sorted({t['vencimento'] for t in vencendo})),
     }
@@ -943,10 +944,6 @@ def montar_texto(dias_usados, total, entrada, dia_previsto):
         partes.append(f'· R$ {brl(entrada["a_prazo"])} de vendas a prazo com '
                       f'vencimento em {venc[:5]} ({quantos} títulos);')
 
-    if entrada['b2b'] is not None:
-        partes.append(f'· R$ {brl(entrada["b2b"])} referente a iKI Produtos '
-                      f'Alimentícios – B2B.')
-
     partes[-1] = partes[-1].rstrip(';') + '.'  # a ultima linha fecha com ponto
 
     # O bloco do iFood abre a conta do repasse: faturamento da semana, o que o
@@ -1012,14 +1009,13 @@ def main():
                              '40758.73"). Pode repetir; sai como linha propria no texto')
     parser.add_argument('--ifood-faturado', dest='ifood_faturado', type=float,
                         help='faturamento bruto da semana do iFood, para mostrar junto da previa')
-    parser.add_argument('--b2b', type=float, help='valor do B2B da iKI, quando houver base')
     parser.add_argument('--a-prazo', dest='a_prazo', default=A_PRAZO_PADRAO,
                         help='CSV de vendas a prazo (padrao: vendas_a_prazo.csv do projeto)')
     parser.add_argument('--dia-previsto', dest='dia_previsto',
                         help='data da entrada prevista (dd/mm/aaaa); padrao: dia seguinte')
     parser.add_argument('--bruto', action='store_true',
                         help='nao aplicar taxas: entrada prevista no bruto')
-    parser.add_argument('--entrada', help='JSON para forcar vendas, voucher, a_prazo ou b2b')
+    parser.add_argument('--entrada', help='JSON para forcar vendas, voucher ou a_prazo')
     parser.add_argument('--pos-meia-noite', dest='pos_meia_noite', action='append',
                         default=[], metavar='[FORMA=]VALOR',
                         help='venda feita depois do corte (entra na previsao do dia '
@@ -1267,7 +1263,7 @@ def main():
                         pix['alerta'] = (ontem, fatia_ontem, faixa, alternativa)
     eh_segunda = data_prevista.weekday() == SEGUNDA
     entrada = calcular_entrada(agrupado_previsao, agrupado_anterior, titulos,
-                               dia_previsto, ifood, args.b2b, override,
+                               dia_previsto, ifood, override,
                                liquido=not args.bruto, ifood_manual=ifood_manual,
                                ifood_entra=not eh_segunda, arrasto=arrasto,
                                pix=pix,
@@ -1399,8 +1395,6 @@ def main():
         print(f'  {"vendas a prazo (boleto D+1)":<28} R$ {brl(entrada["a_prazo"]):>13} '
               f'({len(entrada["titulos_a_prazo"])} titulos, venc. {venc_alvo})')
 
-    print(f'  {"B2B iKI":<28} '
-          f'{"SEM BASE" if entrada["b2b"] is None else "R$ " + brl(entrada["b2b"])}')
     print(f'  {"TOTAL PREVISTO":<28} {"":>14} {"":>7} {brl(entrada["total"]):>14}')
 
     print(f'\nGerado:\n  {png}\n  {txt}\n  {csv}')

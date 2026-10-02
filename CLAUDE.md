@@ -40,10 +40,9 @@ Flags úteis:
   o voucher D+30. Sem ele, a parcela de voucher não entra.
 - `--dia-previsto dd/mm/aaaa` — força a data da entrada prevista (o padrão é o
   dia seguinte ao último dia do relatório, já tratando virada de mês).
-- `--b2b 1177.80` — valor do B2B da iKI, quando a base existir.
 - `--a-prazo outro.csv` — outra tabela de recebíveis (padrão: `vendas_a_prazo.csv`).
 - `--entrada forcar.json` — sobrescreve na mão qualquer parcela:
-  `{"vendas": 0, "voucher": 0, "a_prazo": 0, "b2b": 0}`
+  `{"vendas": 0, "voucher": 0, "a_prazo": 0}`
 
 ## Regras que ela já definiu (não perguntar de novo)
 
@@ -73,8 +72,7 @@ Mudança de agrupamento se faz lá, não na mão na resposta.
 | **Pix** | **a venda do dia**, junto com crédito e débito (decisão dela em 30/09). O modelo D+0 — parcela própria, estimada pelo histórico, fim de semana caindo na segunda — só entra com `--pix-d0`. |
 | **Voucher D+30** | soma de `VOUCHER` + `TEF - VOUCHER` + `TEF - TICKET` do PDF de `--mes-anterior`. Voucher liquida em 30 dias, então o previsto de hoje é a venda de voucher de um mês atrás. |
 | **Repasse do iFood** | **valor informado na mão** em `--ifood-valor`, já líquido, por entidade (Grupo Ragga, Dell Iris). Cai na quarta, referente à semana segunda a domingo anterior. |
-| **Vendas a prazo** | `vendas_a_prazo.csv`, os títulos cujo `VENCIMENTO` é o **dia anterior** à data prevista: é boleto, compensa em **D+1** (vence 20/09 → entra na previsão de 21/09). Fora disso a parcela não entra. |
-| **B2B iKI** | ainda **sem base**. Entra só quando vier `--b2b`. |
+| **Vendas a prazo** | `vendas_a_prazo.csv`, os títulos cujo `VENCIMENTO` é o **dia anterior** à data prevista: é boleto, compensa em **D+1** (vence 20/09 → entra na previsão de 21/09). Fora disso a parcela não entra. **Cobre todo o B2B, iKI inclusive.** |
 | **Depois da meia-noite** | o que foi vendido depois do corte **sai** da previsão de amanhã e fica gravado em `pos_meia_noite.csv` para entrar sozinho na do dia seguinte. Valor informado em `--pos-meia-noite`. |
 
 ### O Pix: hoje entra como a venda do dia
@@ -698,7 +696,7 @@ Regras de uso:
   formas de `FORMAS_VOUCHER`: `VOUCHER`, `TEF - VOUCHER` e `TEF - TICKET`.
   Substituiu os 5% fictícios que valiam antes. Se um dia a média real por
   operadora for levantada, é trocar uma linha — **não perguntar a cada envio**.
-- **Venda a prazo e B2B saem brutos** — são boleto, sem adquirente no meio.
+- **A venda a prazo sai bruta** — é boleto, sem adquirente no meio.
 - `--bruto` desliga tudo e devolve a entrada prevista no bruto, para comparar.
 
 #### Validação contra o Sicredi (semana 08–14/09/2026)
@@ -750,8 +748,14 @@ sai como aviso no console, para não mandar `[PREENCHER]` para a diretoria.
 
 ## vendas_a_prazo.csv
 
-Tabela de recebíveis B2B a prazo (BGs, Casaria etc.) que ela manda de vez em
-quando. Formato: `RAZAO SOCIAL;CNPJ;VALOR;VENCIMENTO;ORIGEM DO CONSUMO`, com
+Tabela de recebíveis B2B a prazo (BGs, Casaria, iKI etc.) que ela manda de vez
+em quando.
+
+> **DECISÃO DELA, 02/10: B2B e venda a prazo são a MESMA coisa.** Não existe
+> mais parcela separada de B2B na previsão, e a **iKI é só mais um cliente**
+> desta tabela. A flag `--b2b` do `gerar_relatorio.py` deixou de existir; no
+> `gerar_entradas.py` a forma virou `--a-prazo` (rótulo `A prazo`), e `--b2b`
+> continua funcionando como apelido para não quebrar o que ela já digita. Formato: `RAZAO SOCIAL;CNPJ;VALOR;VENCIMENTO;ORIGEM DO CONSUMO`, com
 valor em padrão BR e vencimento `dd/mm/aaaa`.
 
 Estado atual: **26 títulos, R$ 53.102,69**, assim distribuídos:
@@ -816,7 +820,7 @@ Quando ela passar os valores que entraram:
 ```bash
 python3 gerar_entradas.py --data 04/09/2026 --previsao 110000 \
     --pix 24739.28 --debito 44730.61 --credito 46217.25 \
-    --voucher 6730.53 --b2b 1045.86 --saida saida
+    --voucher 6730.53 --a-prazo 1045.86 --saida saida
 ```
 
 Ou com `--dados recebimentos.json`:
@@ -826,13 +830,13 @@ Ou com `--dados recebimentos.json`:
   "data": "04/09/2026",
   "previsao": 110000.00,
   "recebido": {"PIX": 24739.28, "Débito": 44730.61, "Crédito": 46217.25,
-               "Voucher": 6730.53, "B2B": 1045.86},
+               "Voucher": 6730.53, "A prazo": 1045.86},
   "total_informado": 128115.36
 }
 ```
 
 Formas disponíveis, na ordem em que saem no texto: `--pix`, `--debito`,
-`--credito`, `--voucher`, `--b2b`, `--dinheiro`, `--online`. Só as que forem
+`--credito`, `--voucher`, `--a-prazo`, `--dinheiro`, `--online`. Só as que forem
 passadas aparecem na mensagem.
 
 ## Regras do envio 2

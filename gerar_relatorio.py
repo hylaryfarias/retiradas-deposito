@@ -312,6 +312,7 @@ def ler_a_prazo(caminho):
                     'razao': (linha.get('RAZAO SOCIAL') or '').strip(),
                     'valor': to_float(valor),
                     'vencimento': vencimento,
+                    'forma': (linha.get('FORMA') or 'BOLETO').strip() or 'BOLETO',
                     'origem': (linha.get('ORIGEM DO CONSUMO') or '').strip(),
                 })
             except ValueError:
@@ -569,6 +570,22 @@ def proximo_util(data):
     return data
 
 
+def entrada_do_titulo(vencimento, forma='BOLETO'):
+    """Quando o dinheiro de um titulo a prazo cai, pela forma de pagamento.
+
+    Boleto compensa em D+1 (entrada_do_boleto). Pix cai NA HORA, inclusive em
+    fim de semana. TED cai no mesmo dia, mas so em dia util. Ela passou o
+    calendario de outubro em 06/10 com as tres formas misturadas, e tratar
+    tudo como boleto jogava 42% do valor um dia para a frente.
+    """
+    forma = (forma or 'BOLETO').strip().upper()
+    if forma == 'PIX':
+        return datetime.datetime.strptime(vencimento, '%d/%m/%Y').date()
+    if forma == 'TED':
+        return proximo_util(datetime.datetime.strptime(vencimento, '%d/%m/%Y').date())
+    return entrada_do_boleto(vencimento)
+
+
 def entrada_do_boleto(vencimento):
     """Quando o dinheiro do boleto cai, a partir da data de vencimento.
 
@@ -802,7 +819,8 @@ def calcular_entrada(agrupado, agrupado_anterior, titulos, dia_previsto,
     # boleto compensa em D+1 do pagamento, e vencimento em fim de semana so e
     # pago na segunda
     alvo = datetime.datetime.strptime(dia_previsto, '%d/%m/%Y').date()
-    vencendo = [t for t in titulos if entrada_do_boleto(t['vencimento']) == alvo]
+    vencendo = [t for t in titulos
+                if entrada_do_titulo(t['vencimento'], t.get('forma')) == alvo]
 
     # detalhe por forma, para poder auditar bruto -> taxa -> liquido
     formas_do_dia = FORMAS_CARTAO if pix else CARTAO_E_PIX
@@ -1384,15 +1402,17 @@ def main():
 
     venc_alvo = entrada.get('vencimento_a_prazo', '')
     if entrada['a_prazo'] is None:
-        print(f'  vendas a prazo               nenhum boleto compensa em {dia_previsto}')
-        proximos = sorted({t['vencimento'] for t in titulos},
-                          key=lambda d: datetime.datetime.strptime(d, '%d/%m/%Y'))
+        print(f'  vendas a prazo               nada compensa em {dia_previsto}')
+        proximos = sorted({(t['vencimento'], (t.get('forma') or 'BOLETO').upper())
+                           for t in titulos},
+                          key=lambda dv: datetime.datetime.strptime(dv[0], '%d/%m/%Y'))
         if proximos:
-            entradas = ', '.join(f'{d} (entra {entrada_do_boleto(d):%d/%m})'
-                                 for d in proximos)
+            entradas = ', '.join(
+                f'{d} {fo.lower()} (entra {entrada_do_titulo(d, fo):%d/%m})'
+                for d, fo in proximos)
             print(f'    vencimentos na tabela: {entradas}')
     else:
-        print(f'  {"vendas a prazo (boleto D+1)":<28} R$ {brl(entrada["a_prazo"]):>13} '
+        print(f'  {"vendas a prazo":<28} R$ {brl(entrada["a_prazo"]):>13} '
               f'({len(entrada["titulos_a_prazo"])} titulos, venc. {venc_alvo})')
 
     print(f'  {"TOTAL PREVISTO":<28} {"":>14} {"":>7} {brl(entrada["total"]):>14}')

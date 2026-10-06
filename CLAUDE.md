@@ -803,16 +803,42 @@ em quando.
 > mais parcela separada de B2B na previsão, e a **iKI é só mais um cliente**
 > desta tabela. A flag `--b2b` do `gerar_relatorio.py` deixou de existir; no
 > `gerar_entradas.py` a forma virou `--a-prazo` (rótulo `A prazo`), e `--b2b`
-> continua funcionando como apelido para não quebrar o que ela já digita. Formato: `RAZAO SOCIAL;CNPJ;VALOR;VENCIMENTO;ORIGEM DO CONSUMO`, com
-valor em padrão BR e vencimento `dd/mm/aaaa`.
+> continua funcionando como apelido para não quebrar o que ela já digita.
 
-Estado atual: **26 títulos, R$ 53.102,69**, assim distribuídos:
+Formato: `RAZAO SOCIAL;CNPJ;VALOR;VENCIMENTO;FORMA;ORIGEM DO CONSUMO`, com valor
+em padrão BR e vencimento `dd/mm/aaaa`.
 
-| Vencimento | Títulos | Valor |
-|---|---:|---:|
-| 14/09/2026 | 22 | R$ 38.482,02 |
-| 20/09/2026 | 3 | R$ 12.748,67 |
-| 28/09/2026 | 1 | R$ 1.872,00 |
+> **A COLUNA `FORMA` DECIDE O PRAZO** (criada em 06/10, quando ela passou o
+> calendário de outubro com as três formas misturadas):
+>
+> | FORMA | Quando o dinheiro entra |
+> |---|---|
+> | `BOLETO` (padrão) | próximo dia útil do vencimento **+ D+1**, pulando fim de semana |
+> | `PIX` | **no próprio dia**, inclusive sábado e domingo |
+> | `TED` | no próprio dia, mas só em **dia útil** |
+>
+> Tratar tudo como boleto jogava 42% do valor de outubro um dia para a frente.
+> Coluna ausente ou vazia = `BOLETO`, então as tabelas antigas continuam valendo.
+
+Estado atual (consumo de setembro, calendário que ela passou em 06/10):
+**31 títulos, R$ 68.958,98**.
+
+| Entra em | Títulos | Valor | |
+|---|---:|---:|---|
+| 06/10/2026 | 1 | R$ 2.200,00 | Pix |
+| 08/10/2026 | 1 | R$ 1.802,20 | Pix |
+| 09/10/2026 | 1 | R$ 503,40 | Pix |
+| 13/10/2026 | 1 | R$ 300,00 | Pix |
+| **19/10/2026** | **23** | **R$ 40.591,09** | boletos do dia 16/10 (sexta → D+1 cai no sábado → segunda) |
+| 20/10/2026 | 2 | R$ 21.722,59 | Pix |
+| 30/10/2026 | 2 | R$ 1.839,70 | Pix |
+
+**Fora da tabela, de propósito:**
+
+- **UEL, R$ 1.208,30, TED** — ela não deu a data (“previsão: MONALISA”). Sem
+  data o título não tem como entrar; cobrar a data e acrescentar a linha.
+- **Permuta, R$ 3.324,23** — Alison Ceccotti (R$ 1.393,69) e HELP DESK
+  (R$ 1.930,54). É troca, não é dinheiro.
 
 Quando ela mandar títulos novos, acrescentar linhas no arquivo e commitar.
 

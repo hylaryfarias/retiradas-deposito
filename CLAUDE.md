@@ -519,6 +519,54 @@ Três coisas novas que esse print ensinou:
 O retido não tem padrão (1,88% · 4,46% · 4,32%): **continua sendo pergunta de
 toda semana**, e quando vier parcial, dizer isso no chat junto com a previsão.
 
+#### A semana 28/09–04/10: segundo par fechado, e a régua se mexeu
+
+Ela mandou em 07/10 o relatório da mesma semana puxado na quarta **e** o
+quadro da API, com o repasse fechado. Segundo par completo seguido.
+
+| | | |
+|---|---:|---|
+| Líquido do relatório fechado | R$ 418.321,69 | nada zerado, 15.223 pedidos |
+| Repasse total | R$ 424.901,97 | **×1,01573** sobre o relatório fechado |
+| − Retido | −R$ 16.263,20 | **3,83% do repasse** |
+| = Base bruta a receber | R$ 408.638,77 | |
+| − Taxa de antecipação | −R$ 2.984,14 | **0,702% do repasse** |
+| **= Valor líquido a receber** | **R$ 405.654,63** | sem empréstimo e sem subsídio nesta semana |
+
+**A prévia de segunda foi R$ 398.542,31 — ficou 1,75% abaixo.** A conta do erro,
+que é o que interessa:
+
+| De onde veio | |
+|---|---:|
+| Retido: ela estimou ~R$ 18.450,00, veio R$ 16.263,20 | +R$ 2.186,80 |
+| Não liquidados do domingo: usei 66,36%, valiam 80,42% | +R$ 3.372,21 |
+| Fator relatório→repasse: usei 1,0135, foi 1,01573 | +R$ 932,94 |
+| Antecipação: usei 0,857%, foi 0,702% | +R$ 620,37 |
+| **Total** | **+R$ 7.112,32** |
+
+> **A RAZÃO DOS NÃO LIQUIDADOS NÃO É UMA CONSTANTE.** Foi **66,36%** no domingo
+> 27/09 e **80,42%** no domingo 04/10. Com duas medições tão distantes, usar
+> qualquer uma delas como régua fixa erra alguns milhares de reais. Enquanto não
+> houver uma terceira, usar a **média, ~73%**, e dizer no chat que essa é a
+> parcela mais frágil da prévia. Foi o maior componente do erro desta semana.
+
+**As réguas, agora com os dois pares fechados:**
+
+| Fator | 21–27/09 | 28/09–04/10 | Usar |
+|---|---:|---:|---|
+| Relatório fechado → repasse | 1,01347 | 1,01573 | **1,0146** (média) |
+| Antecipação / repasse | 0,865% | 0,702% | **0,78%** (média) — varia com quanto foi antecipado |
+| Retido / repasse | 4,32% | 3,83% | **imprevisível**, perguntar sempre |
+| Não liquidados / itens | 66,36% | 80,42% | **~73%** (média), e avisar que é chute |
+
+> **O quadro da API e o do Portal não dizem a mesma coisa.** A API mostra
+> `Repasse total R$ 424.901,97` com a nota *"antes da antecipação · no Portal:
+> R$ 421.917,83"*, e a diferença entre os dois é exatamente a antecipação
+> (R$ 2.984,14). Ou seja: **o número do Portal nesta semana já está líquido de
+> antecipação**, ao contrário do print de 21–27/09, onde o repasse do Portal
+> era o bruto. Ao receber um número solto, conferir se `repasse − retido`
+> bate com a base bruta antes de montar a cadeia.
+
 **MEDIDO DIRETO EM 30/09: os não liquidados valem 66,4% dos itens.** Ela mandou
 o relatório da MESMA semana (21–27/09) puxado na quarta, com tudo liquidado, e
 isso matou o chute:

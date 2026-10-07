@@ -55,7 +55,37 @@
   .marca{height:26px;width:auto;display:block}
   .marca.quadrada{height:34px}
 
-  .wrap{max-width:1120px;margin:0 auto;padding-inline:16px;padding-block:26px 64px}
+  .wrap{max-width:1380px;margin:0 auto;padding-inline:16px;padding-block:26px 64px;
+    display:grid;grid-template-columns:228px minmax(0,1fr);gap:24px;align-items:start}
+  .miolo{min-width:0}
+  .lateral{position:sticky;top:18px;display:flex;flex-direction:column;gap:9px}
+  .lateral nav{display:flex;flex-direction:column;gap:7px}
+  /* o mes e um cartao clicavel; as semanas ficam dentro dele */
+  .mes{font:inherit;text-align:left;width:100%;cursor:pointer;background:var(--surface);
+    border:1px solid var(--line-2);border-radius:9px;padding:9px 11px;color:var(--ink);
+    display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+  .mes:hover{border-color:var(--brand)}
+  .mes .nome{font-size:11.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase}
+  .mes .sub{font-size:11px;color:var(--ink-3);font-weight:500;letter-spacing:0;text-transform:none}
+  .mes .seta{font-size:10px;color:var(--ink-3)}
+  .mes.atual{background:var(--brand);border-color:var(--brand);color:#fff}
+  .mes.atual .sub,.mes.atual .seta{color:rgba(255,255,255,.78)}
+  .semanas{display:flex;flex-direction:column;gap:6px;padding:2px 0 4px 10px}
+  .sem-item{font:inherit;text-align:left;width:100%;cursor:pointer;background:var(--surface);
+    border:1px solid var(--line-2);border-radius:8px;padding:8px 10px;color:var(--ink);
+    display:flex;flex-direction:column;gap:2px}
+  .sem-item:hover{border-color:var(--brand)}
+  .sem-item .rot{font-size:12px;font-weight:600;letter-spacing:.01em}
+  .sem-item .det{font-size:10.5px;color:var(--ink-3)}
+  .sem-item.ativa{border-color:var(--brand);box-shadow:inset 3px 0 0 var(--brand);
+    background:var(--brand-soft)}
+  .sem-item.ativa .rot{color:var(--brand)}
+  /* a faixa de abas horizontal perde as abas e fica so com o botao */
+  body.leitura .abas{display:none}
+  @media (max-width:860px){
+    .wrap{grid-template-columns:minmax(0,1fr)}
+    .lateral{position:static}
+  }
   h2{font-weight:700;font-size:17px;letter-spacing:-.02em;margin:0}
   .eyebrow{font-size:11px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3)}
   :focus-visible{outline:2px solid var(--brand);outline-offset:2px}
@@ -257,6 +287,11 @@
 </div>
 
 <div class="wrap">
+  <aside class="lateral">
+    <span class="eyebrow">Semanas</span>
+    <nav id="lateralLista"></nav>
+  </aside>
+  <div class="miolo">
 
   <div class="sync" id="sync">
     <span class="ponto"></span>
@@ -403,6 +438,7 @@
       <div class="empty" id="vazioB">Suba o extrato bancário para listar os créditos.</div>
     </details>
   </section>
+  </div>
 </div>
 
 <script>
@@ -1024,23 +1060,84 @@
         }
       }
     }
-    var lista = $("abasLista");
-    lista.innerHTML = "";
-    blocos.slice().sort(function(a, b){ return ordemDoBloco(a) - ordemDoBloco(b); })
-          .forEach(function(bl){
-      var bt = document.createElement("button");
-      bt.type = "button";
-      bt.className = "aba" + (bl.id === estado.aba ? " ativa" : "");
-      bt.setAttribute("data-id", bl.id);
-      bt.textContent = bl.atual
+    // MENU LATERAL: o mes e um cartao clicavel e as semanas ficam dentro dele.
+    // Substituiu a faixa de abas horizontal em 07/10, a pedido dela, sem mexer
+    // no miolo da pagina.
+    var MESES = ["janeiro","fevereiro","março","abril","maio","junho","julho",
+                 "agosto","setembro","outubro","novembro","dezembro"];
+    function abrir(bl){
+      estado.aba = bl.id; escolhaTexto = bl.id;
+      $("pA").textContent = TEXTO_PA; $("pB").textContent = TEXTO_PB;
+      salvarDados(); render();
+    }
+    function rotulo(bl){
+      return bl.atual
         ? (estado.sangria.length ? "Em aberto \u00b7 " + periodoCarregado() : "Em aberto")
         : ((bl.sem && bl.sem.travada ? "\uD83D\uDD12 " : "") + (bl.nome || "semana"));
+    }
+    function detalhe(bl){
+      var t = 0, n = 0;
+      Object.keys(bl.lojas || {}).forEach(function(k){ t += bl.lojas[k].s; n++; });
+      if(!n) return bl.atual ? "sem arquivo" : "sem lançamento";
+      return n + (n === 1 ? " loja \u00b7 " : " lojas \u00b7 ") + brl(t);
+    }
+    var nav = $("lateralLista");
+    nav.innerHTML = "";
+    var ordenados = blocos.slice().sort(function(a, b){
+      return ordemDoBloco(b) - ordemDoBloco(a);     // mes mais novo primeiro
+    });
+    // agrupa por mes, pela data que ordena o bloco (AAAAMMDD)
+    var grupos = [], porChave = {};
+    ordenados.forEach(function(bl){
+      var n = ordemDoBloco(bl);
+      var chave = n ? String(n).slice(0, 6) : "aberto";
+      if(!porChave[chave]){
+        porChave[chave] = { chave:chave, blocos:[],
+          nome: n ? (MESES[(+String(n).slice(4, 6)) - 1] + " " + String(n).slice(0, 4))
+                  : "em aberto" };
+        grupos.push(porChave[chave]);
+      }
+      porChave[chave].blocos.push(bl);
+    });
+    // o mes da aba selecionada abre; os outros respeitam o que ela clicou
+    var doAtivo = null;
+    grupos.forEach(function(g){
+      if(g.blocos.some(function(x){ return x.id === estado.aba; })) doAtivo = g.chave;
+    });
+    // o "em aberto" sem arquivo e o trabalho de agora: sobe para o topo
+    grupos.sort(function(a, b){
+      return (a.chave === "aberto" ? 0 : 1) - (b.chave === "aberto" ? 0 : 1);
+    });
+    if(doAtivo && mesesFechados[doAtivo]) delete mesesFechados[doAtivo];
+    grupos.forEach(function(g){
+      var aberto = !mesestaFechado(g.chave);
+      var bt = document.createElement("button");
+      bt.type = "button";
+      bt.className = "mes" + (aberto ? " aberto" : "") + (g.chave === doAtivo ? " atual" : "");
+      bt.innerHTML = '<span><span class="nome">' + esc(g.nome) + '</span><br>' +
+        '<span class="sub">' + g.blocos.length +
+        (g.blocos.length === 1 ? " semana" : " semanas") + '</span></span>' +
+        '<span class="seta">' + (aberto ? "\u25BE" : "\u25B8") + '</span>';
       bt.addEventListener("click", function(){
-        estado.aba = bl.id; escolhaTexto = bl.id;
-        $("pA").textContent = TEXTO_PA; $("pB").textContent = TEXTO_PB;
-        salvarDados(); render();
+        if(mesestaFechado(g.chave)) delete mesesFechados[g.chave];
+        else mesesFechados[g.chave] = 1;
+        render();
       });
-      lista.appendChild(bt);
+      nav.appendChild(bt);
+      if(!aberto) return;
+      var caixa = document.createElement("div");
+      caixa.className = "semanas";
+      g.blocos.forEach(function(bl){
+        var it = document.createElement("button");
+        it.type = "button";
+        it.className = "sem-item" + (bl.id === estado.aba ? " ativa" : "");
+        it.setAttribute("data-id", bl.id);
+        it.innerHTML = '<span class="rot">' + esc(rotulo(bl)) + '</span>' +
+                       '<span class="det">' + esc(detalhe(bl)) + '</span>';
+        it.addEventListener("click", function(){ abrir(bl); });
+        caixa.appendChild(it);
+      });
+      nav.appendChild(caixa);
     });
 
     // semana guardada: os cartoes do topo mostram a aba aberta, nao o arquivo
@@ -1252,6 +1349,11 @@
     var t = textoDaLinha(r);
     return termos.every(function(q){ return t.indexOf(q) >= 0; });
   }
+
+  // meses recolhidos no menu lateral: so na memoria, volta tudo aberto ao
+  // recarregar. Nao vai para o publicado -- e preferencia de quem olha.
+  var mesesFechados = {};
+  function mesestaFechado(chave){ return !!mesesFechados[chave]; }
 
   var vizTravada = false;      // a aba que esta na tela e uma semana trancada?
   function renderDetalhe(tabId, linhas, contaId, cols, busca){

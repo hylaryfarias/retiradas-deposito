@@ -1018,10 +1018,22 @@ O de:para virou painel, em **https://retiradas-deposito.vercel.app** (código em
   só vira semana quando ela clica em **Fechar semana** — é aí que nasce a aba
   com cadeado. Antes disso não há o que trancar, e foi essa confusão que fez
   ela achar que tinha criado uma semana nova em 30/09.
-- **As abas saem em ordem de período**, pela menor data dos lançamentos (não
-  pela ordem em que foram fechadas): refazer uma semana antiga não joga ela
-  para o fim da fila. A aba do bloco em aberto diz `Em aberto · <período>` —
-  antes ela mostrava só o período, igualzinha a uma semana fechada.
+- **A escolha da semana virou MENU LATERAL** (pedido dela em 07/10, com o
+  painel do iFood como referência). A faixa de abas horizontal saiu; a coluna
+  da esquerda lista **o mês como cartão clicável e as semanas dentro dele**.
+  O miolo da página não mudou — a lateral entrou como primeira coluna de um
+  grid, e todo o conteúdo antigo foi para dentro de `.miolo`.
+  - o mês da semana aberta é o **único em vermelho**; os outros ficam claros;
+  - clicar no mês **recolhe ou expande** só ele, e isso vive apenas na memória
+    do navegador: não vai para o publicado, porque é preferência de quem olha;
+  - cada semana mostra **quantas lojas e o total do Cloudfy** embaixo do nome,
+    e a selecionada ganha a barra vermelha na borda;
+  - o bloco **"Em aberto" sem arquivo sobe para o topo**; com arquivo, ele cai
+    no mês do próprio período.
+- **A ordem é por período**, pela menor data dos lançamentos (não pela ordem em
+  que foram fechadas): refazer uma semana antiga não joga ela para o fim da
+  fila. O bloco em aberto aparece como `Em aberto · <período>` — antes mostrava
+  só o período, igualzinha a uma semana fechada.
 - **Semana fechada nasce TRANCADA** (cadeado na aba e no cabeçalho). Trancada,
   ela não aceita upload, não deixa renomear, não deixa marcar/desmarcar
   lançamento, não deixa editar situação nem observação, e o botão Remover some.

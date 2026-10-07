@@ -71,10 +71,13 @@
   .mes.atual{background:var(--brand);border-color:var(--brand);color:#fff}
   .mes.atual .sub,.mes.atual .seta{color:rgba(255,255,255,.78)}
   .semanas{display:flex;flex-direction:column;gap:6px;padding:2px 0 4px 10px}
-  .sem-item{font:inherit;text-align:left;width:100%;cursor:pointer;background:var(--surface);
+  .sem-item{width:100%;background:var(--surface);
     border:1px solid var(--line-2);border-radius:8px;padding:8px 10px;color:var(--ink);
     display:flex;flex-direction:column;gap:2px}
   .sem-item:hover{border-color:var(--brand)}
+  .sem-abrir{font:inherit;text-align:left;width:100%;cursor:pointer;background:transparent;
+    border:0;padding:0;color:inherit;display:flex;flex-direction:column;gap:2px}
+  .sem-acoes{display:flex;gap:5px;margin-top:6px}
   .sem-item .rot{font-size:12px;font-weight:600;letter-spacing:.01em}
   .sem-item .det{font-size:10.5px;color:var(--ink-3)}
   .sem-item.ativa{border-color:var(--brand);box-shadow:inset 3px 0 0 var(--brand);
@@ -147,25 +150,13 @@
     cursor:pointer;line-height:1.4}
   .btn-semana:hover{background:var(--brand-soft)}
   .btn-semana:active{background:var(--brand);color:#fff}
-  .semana-cab{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-  .rotulo-fixo{font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
-  tr.semana.aberta td{background:var(--sunk)}
-  .remover{font:inherit;font-size:11px;font-weight:600;color:var(--ink-3);background:transparent;
-    border:1px solid var(--line-2);border-radius:6px;padding:3px 9px;cursor:pointer}
-  .remover:hover{color:var(--brand);border-color:var(--brand)}
-  .cadeado{font:inherit;font-size:11px;font-weight:600;color:var(--ink-3);background:transparent;
-    border:1px solid var(--line-2);border-radius:6px;padding:3px 9px;cursor:pointer}
-  .cadeado:hover{color:var(--brand);border-color:var(--brand)}
+  /* trancar/renomear/remover vivem na lateral; na tabela nao sobra nada
+     de ferramenta, porque ela printa a tabela para a diretoria */
+  .remover,.cadeado,.renomear{font:inherit;font-size:11px;font-weight:600;line-height:1;
+    color:var(--ink-3);background:var(--surface);border:1px solid var(--line-2);
+    border-radius:6px;padding:4px 7px;cursor:pointer}
+  .remover:hover,.cadeado:hover,.renomear:hover{color:var(--brand);border-color:var(--brand)}
   .cadeado.fechado{color:var(--brand);border-color:rgba(184,29,34,.35);background:var(--brand-soft)}
-  .rotulo-semana[readonly]{color:var(--ink-2);cursor:default}
-  .rotulo-semana[readonly]:hover{border-color:transparent}
-  .aviso-trava{font-size:11.5px;color:var(--ink-3)}
-  tr.semana td{background:var(--brand-soft);border-bottom:1px solid var(--line);padding-block:7px}
-  .rotulo-semana{font:inherit;font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
-    color:var(--brand);background:transparent;border:1px solid transparent;border-radius:6px;
-    padding:3px 7px;width:100%;max-width:420px}
-  .rotulo-semana:hover{border-color:rgba(184,29,34,.3)}
-  .rotulo-semana:focus{border-color:var(--brand);background:var(--surface);outline:none}
   tr.subtotal td{background:#FBFAF6;font-weight:600;border-bottom:1px solid var(--line-2)}
   .hint{font-size:12.5px;color:var(--ink-3)}
 
@@ -236,15 +227,13 @@
   .chave .linha{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-top:10px}
   /* visitante: ve tudo, nao mexe em nada */
   body.leitura .pick,body.leitura .btn-semana,body.leitura .remover,body.leitura .reset,
-  body.leitura .cadeado,
+  body.leitura .cadeado,body.leitura .renomear,
   body.leitura .drop p,body.leitura #limpar{display:none!important}
   body.leitura #btnSalvarToken{display:inline-block!important}
-  body.leitura .obs,body.leitura .flag,body.leitura .rotulo-semana,
+  body.leitura .obs,body.leitura .flag,
   body.leitura input[type=checkbox],body.leitura .kw{pointer-events:none}
-  body.leitura .obs,body.leitura .rotulo-semana,body.leitura .kw{background:transparent;border-color:transparent}
-  /* o cabecalho da semana e so ferramenta de quem edita: o nome e o cadeado
-     ja estao na aba, e o aviso da trava nao diz nada para quem so le */
-  body.leitura tr.semana{display:none!important}
+  body.leitura .obs,body.leitura .kw{background:transparent;border-color:transparent}
+  body.leitura .sem-acoes{display:none!important}
   details{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden;box-shadow:var(--shadow)}
   summary{padding:13px 16px;cursor:pointer;font-weight:600;font-size:14.5px;letter-spacing:-.01em;
     display:flex;gap:10px;align-items:center;justify-content:space-between}
@@ -362,9 +351,6 @@
 
   <section>
     <div class="shead">
-      <div class="esq">
-        <h2>De:para por loja</h2>
-      </div>
       <span class="hint" id="perNota"></span>
     </div>
     <div class="abas" id="abas">
@@ -1073,13 +1059,59 @@
     function rotulo(bl){
       return bl.atual
         ? (estado.sangria.length ? "Em aberto \u00b7 " + periodoCarregado() : "Em aberto")
-        : ((bl.sem && bl.sem.travada ? "\uD83D\uDD12 " : "") + (bl.nome || "semana"));
+        : (bl.nome || "semana");
     }
     function detalhe(bl){
       var t = 0, n = 0;
       Object.keys(bl.lojas || {}).forEach(function(k){ t += bl.lojas[k].s; n++; });
       if(!n) return bl.atual ? "sem arquivo" : "sem lançamento";
       return n + (n === 1 ? " loja \u00b7 " : " lojas \u00b7 ") + brl(t);
+    }
+    // trancar, renomear e remover: so para quem edita (body.leitura esconde)
+    function acoesDaSemana(bl){
+      var presa = !!(bl.sem && bl.sem.travada);
+      var cx = document.createElement("span");
+      cx.className = "sem-acoes";
+      cx.innerHTML =
+        '<button class="cadeado' + (presa ? ' fechado' : '') + '" type="button" title="' +
+          (presa ? 'Semana trancada: clique para destrancar'
+                 : 'Semana destrancada: clique para trancar') + '">' +
+          (presa ? '\uD83D\uDD12' : '\uD83D\uDD13') + '</button>' +
+        (presa ? '' :
+          '<button class="renomear" type="button" title="Renomear esta semana">\u270E</button>' +
+          '<button class="remover" type="button" title="Remover esta semana">\u00D7</button>');
+      cx.querySelector(".cadeado").addEventListener("click", function(){
+        for(var i=0;i<estado.semanas.length;i++){
+          if(estado.semanas[i].id !== bl.id) continue;
+          if(presa){
+            if(!confirm("Destrancar a semana \u201c" + (bl.nome||"sem nome") + "\u201d?\n\n" +
+                        "Enquanto ela estiver destrancada, um arquivo subido com esta aba " +
+                        "aberta entra por cima do que est\u00e1 aqui.")) return;
+            estado.semanas[i].travada = false;
+          }else{
+            estado.semanas[i].travada = true;
+          }
+        }
+        salvarDados(); render();
+      });
+      var btRen = cx.querySelector(".renomear");
+      if(btRen) btRen.addEventListener("click", function(){
+        // o nome manda no periodo (faixaDoNome), por isso so com a semana aberta
+        var nome = prompt("Nome desta semana:", bl.nome || "");
+        if(nome === null) return;
+        nome = nome.trim();
+        if(!nome) return;
+        for(var i=0;i<estado.semanas.length;i++)
+          if(estado.semanas[i].id === bl.id) estado.semanas[i].nome = nome;
+        atualizarTexto(); salvarDados(); render();
+      });
+      var btRem = cx.querySelector(".remover");
+      if(btRem) btRem.addEventListener("click", function(){
+        if(!confirm("Remover a semana \u201c" + (bl.nome||"sem nome") + "\u201d de vez?")) return;
+        estado.semanas = estado.semanas.filter(function(s){ return s.id !== bl.id; });
+        salvarDados(); render();
+      });
+      return cx;
     }
     var nav = $("lateralLista");
     nav.innerHTML = "";
@@ -1128,13 +1160,20 @@
       var caixa = document.createElement("div");
       caixa.className = "semanas";
       g.blocos.forEach(function(bl){
-        var it = document.createElement("button");
-        it.type = "button";
+        var it = document.createElement("div");
         it.className = "sem-item" + (bl.id === estado.aba ? " ativa" : "");
         it.setAttribute("data-id", bl.id);
-        it.innerHTML = '<span class="rot">' + esc(rotulo(bl)) + '</span>' +
-                       '<span class="det">' + esc(detalhe(bl)) + '</span>';
-        it.addEventListener("click", function(){ abrir(bl); });
+        var bta = document.createElement("button");
+        bta.type = "button";
+        bta.className = "sem-abrir";
+        bta.innerHTML = '<span class="rot">' + esc(rotulo(bl)) + '</span>' +
+                        '<span class="det">' + esc(detalhe(bl)) + '</span>';
+        bta.addEventListener("click", function(){ abrir(bl); });
+        it.appendChild(bta);
+        // o cadeado mora aqui desde 07/10: a linha dentro da tabela saia no
+        // print que ela manda para a diretoria, entao as ferramentas de quem
+        // edita ficam todas na lateral
+        if(!bl.atual) it.appendChild(acoesDaSemana(bl));
         caixa.appendChild(it);
       });
       nav.appendChild(caixa);
@@ -1172,63 +1211,6 @@
       if(!lojas.length) return;
       nLinhas += lojas.length;
       lojas.forEach(function(l){ nLojas[l.k] = 1; });
-
-      // cabecalho da semana: nome editavel, porque o repasse nem sempre fecha igual
-      if(!bloco.atual){
-        var trs = document.createElement("tr");
-        trs.className = "semana" + (bloco.atual ? " aberta" : "");
-        if(bloco.atual){
-          trs.innerHTML = '<td colspan="6"><span class="rotulo-fixo">Em aberto &middot; arquivos carregados agora</span></td>';
-        }else{
-          var presa = !!(bloco.sem && bloco.sem.travada);
-          trs.innerHTML = '<td colspan="6"><span class="semana-cab">'+
-            '<input class="rotulo-semana" type="text" value="'+esc(bloco.nome)+'" aria-label="Nome da semana"'+
-              (presa ? ' readonly' : '')+'>'+
-            '<button class="cadeado'+(presa?' fechado':'')+'" type="button" title="'+
-              (presa ? 'Semana trancada: clique para destrancar' : 'Trancar esta semana')+'">'+
-              (presa ? '&#128274; Trancada' : '&#128275; Trancar')+'</button>'+
-            (presa ? '<span class="aviso-trava">nada entra nem sai daqui</span>'
-                   : '<button class="remover" type="button" title="Remover esta semana">Remover</button>')+
-            '</span></td>';
-          var inp = trs.querySelector("input");
-          inp.addEventListener("input", function(){
-            if(presa){ inp.value = bloco.nome; return; }
-            for(var i=0;i<estado.semanas.length;i++)
-              if(estado.semanas[i].id === bloco.id) estado.semanas[i].nome = inp.value;
-            // a aba acompanha o nome enquanto ela digita, sem refazer a tabela
-            // (um render aqui tiraria o cursor do campo)
-            var abas = $("abasLista").children;
-            for(var j=0;j<abas.length;j++)
-              if(abas[j].getAttribute("data-id") === bloco.id)
-                abas[j].textContent = inp.value || "semana";
-            atualizarTexto();
-            salvarDados();
-            clearTimeout(window._tRenome);
-            window._tRenome = setTimeout(render, 600);   // a faixa mudou
-          });
-          trs.querySelector(".cadeado").addEventListener("click", function(){
-            for(var i=0;i<estado.semanas.length;i++){
-              if(estado.semanas[i].id !== bloco.id) continue;
-              if(presa){
-                if(!confirm("Destrancar a semana \u201c" + (bloco.nome||"sem nome") + "\u201d?\n\n" +
-                            "Enquanto ela estiver destrancada, um arquivo subido com esta aba " +
-                            "aberta entra por cima do que est\u00e1 aqui.")) return;
-                estado.semanas[i].travada = false;
-              }else{
-                estado.semanas[i].travada = true;
-              }
-            }
-            salvarDados(); render();
-          });
-          var btRem = trs.querySelector(".remover");
-          if(btRem) btRem.addEventListener("click", function(){
-            if(!confirm("Remover a semana \u201c" + (bloco.nome||"sem nome") + "\u201d de vez?")) return;
-            estado.semanas = estado.semanas.filter(function(s){ return s.id !== bloco.id; });
-            salvarDados(); render();
-          });
-        }
-        tb.appendChild(trs);
-      }
 
       var ss = 0, sb = 0;
       lojas.forEach(function(l){
@@ -1460,7 +1442,7 @@
     estado.nomeA = ""; estado.nomeB = ""; estado.nomeC = ""; estado.amostra = false;
     estado.aba = id; escolhaTexto = id;          // a semana nova ja abre na aba dela
     salvarDados(); render();
-    var novo = document.querySelector("#tabDepara .rotulo-semana");
+    var novo = document.querySelector(".sem-item.ativa .sem-abrir");
     if(novo) novo.focus();
   });
 

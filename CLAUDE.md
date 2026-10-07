@@ -1011,9 +1011,6 @@ O de:para virou painel, em **https://retiradas-deposito.vercel.app** (código em
   A aba selecionada viaja dentro do publicado, então sem isso o time caía
   exatamente onde a Hylary estava quando publicou — foi o que a Amanda pegou
   em 30/09, abrindo direto no "Em aberto".
-  Some também o **cabeçalho da semana dentro da tabela** (nome + cadeado +
-  `nada entra nem sai daqui`): é ferramenta de quem edita, e o nome e o
-  cadeado já estão na aba.
 - **O bloco "Em aberto" não é uma semana.** O arquivo que sobe cai nele, e ele
   só vira semana quando ela clica em **Fechar semana** — é aí que nasce a aba
   com cadeado. Antes disso não há o que trancar, e foi essa confusão que fez
@@ -1029,12 +1026,21 @@ O de:para virou painel, em **https://retiradas-deposito.vercel.app** (código em
   - cada semana mostra **quantas lojas e o total do Cloudfy** embaixo do nome,
     e a selecionada ganha a barra vermelha na borda;
   - o bloco **"Em aberto" sem arquivo sobe para o topo**; com arquivo, ele cai
-    no mês do próprio período.
+    no mês do próprio período;
+  - **todo o controle da semana mora no item da lateral**: cadeado, ✎ para
+    renomear e × para remover, embaixo do nome. Trancada, só o cadeado aparece.
+- **A TABELA NÃO TEM MAIS A LINHA DA SEMANA** (pedido dela em 07/10): o nome
+  editável, o `🔓 Trancar` e o `nada entra nem sai daqui` saíam no print que ela
+  manda para a diretoria. Foram para a lateral, que é ferramenta de quem edita e
+  já some para quem só lê. **Não devolver nada disso para dentro da tabela.**
+  Saiu junto o título **"De:para por loja"**, pelo mesmo motivo.
+  Renomear passa por `prompt()` e, como antes, exige a semana destrancada — o
+  nome manda no período (`faixaDoNome`), que é justamente o que a trava protege.
 - **A ordem é por período**, pela menor data dos lançamentos (não pela ordem em
   que foram fechadas): refazer uma semana antiga não joga ela para o fim da
   fila. O bloco em aberto aparece como `Em aberto · <período>` — antes mostrava
   só o período, igualzinha a uma semana fechada.
-- **Semana fechada nasce TRANCADA** (cadeado na aba e no cabeçalho). Trancada,
+- **Semana fechada nasce TRANCADA** (cadeado no item da lateral). Trancada,
   ela não aceita upload, não deixa renomear, não deixa marcar/desmarcar
   lançamento, não deixa editar situação nem observação, e o botão Remover some.
   Destrancar é um clique no cadeado com confirmação.

@@ -1012,9 +1012,19 @@ O de:para virou painel, em **https://retiradas-deposito.vercel.app** (código em
   exatamente onde a Hylary estava quando publicou — foi o que a Amanda pegou
   em 30/09, abrindo direto no "Em aberto".
 - **O bloco "Em aberto" não é uma semana.** O arquivo que sobe cai nele, e ele
-  só vira semana quando ela clica em **Fechar semana** — é aí que nasce a aba
-  com cadeado. Antes disso não há o que trancar, e foi essa confusão que fez
-  ela achar que tinha criado uma semana nova em 30/09.
+  só vira semana quando ela clica no **cadeado do cartão "Em aberto"** — é aí que
+  nasce a semana, já trancada. Antes disso não há o que trancar, e foi essa
+  confusão que fez ela achar que tinha criado uma semana nova em 30/09.
+- **O botão "Fechar semana" DEIXOU DE EXISTIR** (07/10): com um cadeado em cada
+  cartão da lateral, dois controles chamados "fechar" só confundiam, e ela
+  apontou isso. Quem guarda a semana agora é o cadeado do cartão "Em aberto",
+  com uma confirmação que diz o período e avisa que a semana nasce trancada —
+  confirmação que o botão não tinha. **Não recriar o botão.**
+- **A FAIXA VERMELHA acima da tabela** (pedido dela em 07/10) é **só
+  informativa**: diz `SEMANA APURADA` + o período da aba aberta, centralizado,
+  para sair no print que ela manda. Em "Em aberto" com arquivo ela diz
+  `APURANDO · EM ABERTO`; sem arquivo some. **Não pendurar botão nenhum nela** —
+  foi exatamente isso que tirou o `Fechar semana` dali.
 - **A escolha da semana virou MENU LATERAL** (pedido dela em 07/10, com o
   painel do iFood como referência). A faixa de abas horizontal saiu; a coluna
   da esquerda lista **o mês como cartão clicável e as semanas dentro dele**.
@@ -1027,8 +1037,10 @@ O de:para virou painel, em **https://retiradas-deposito.vercel.app** (código em
     e a selecionada ganha a barra vermelha na borda;
   - o bloco **"Em aberto" sem arquivo sobe para o topo**; com arquivo, ele cai
     no mês do próprio período;
-  - **todo o controle da semana mora no item da lateral**: cadeado, ✎ para
-    renomear e × para remover, embaixo do nome. Trancada, só o cadeado aparece.
+  - **todo o controle da semana mora no cartão da lateral**, à **direita** do
+    nome, na mesma linha, para o cartão ficar baixo: cadeado, ✎ para renomear e
+    × para remover. Trancada, só o cadeado aparece. No cartão "Em aberto" o
+    cadeado tem outro sentido — ele **guarda** o que está carregado como semana.
 - **A TABELA NÃO TEM MAIS A LINHA DA SEMANA** (pedido dela em 07/10): o nome
   editável, o `🔓 Trancar` e o `nada entra nem sai daqui` saíam no print que ela
   manda para a diretoria. Foram para a lateral, que é ferramenta de quem edita e
@@ -1055,8 +1067,10 @@ O de:para virou painel, em **https://retiradas-deposito.vercel.app** (código em
 > buracos.
 >
 > **E o nome do botão ajudou o acidente.** Ele se chamava `+ Nova semana`, o que
-> lê como "cria uma aba vazia" — mas o que ele faz é **fechar** o que está em
-> aberto. Hoje se chama **Fechar semana**. Não voltar ao nome antigo.
+> lê como "cria uma aba vazia" — mas o que ele fazia era **fechar** o que está em
+> aberto. Virou `Fechar semana` e, em 07/10, o cadeado do cartão "Em aberto". O
+> que não pode voltar é a ideia de "criar semana": o que existe é **guardar** o
+> que está carregado.
 
 ### Quando o painel perder dado
 

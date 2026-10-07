@@ -1020,6 +1020,11 @@ O de:para virou painel, em **https://retiradas-deposito.vercel.app** (código em
   apontou isso. Quem guarda a semana agora é o cadeado do cartão "Em aberto",
   com uma confirmação que diz o período e avisa que a semana nasce trancada —
   confirmação que o botão não tinha. **Não recriar o botão.**
+- **O "Texto do fechamento" SEGUE A SEMANA ABERTA**, sempre (07/10). O seletor
+  de data saiu: obrigava a trocar na mão a cada semana nova e deixava copiar o
+  texto da semana errada sem perceber. No lugar dele ficou só o rótulo com o
+  período, ao lado do `Copiar texto`. **Não devolver o seletor** — para ver o
+  texto de outra semana, é clicar nela na lateral.
 - **A FAIXA VERMELHA acima da tabela** (pedido dela em 07/10) é **só
   informativa**: diz `SEMANA APURADA` + o período da aba aberta, centralizado,
   para sair no print que ela manda. Em "Em aberto" com arquivo ela diz

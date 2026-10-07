@@ -215,8 +215,9 @@
     border:0;border-radius:7px;padding:7px 14px;cursor:pointer;flex:none}
   .sync .publicar:hover{background:var(--brand-dark)}
   .sync .publicar[disabled]{background:var(--ink-3);cursor:default}
-  #secTexto .selsem{font:inherit;font-size:12.5px;padding:7px 9px;border:1px solid var(--line-2);
-    border-radius:7px;background:var(--surface);color:var(--ink)}
+  #secTexto .selsem{font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;
+    padding:6px 10px;border:1px solid var(--line-2);border-radius:7px;
+    background:var(--surface);color:var(--ink-2)}
   .resumo{margin:0;background:var(--surface);border:1px solid var(--line);border-radius:12px;
     padding:16px 18px;box-shadow:var(--shadow);font-family:var(--body);font-size:13.5px;
     line-height:1.65;white-space:pre-wrap;word-break:break-word;color:var(--ink)}
@@ -377,7 +378,7 @@
         <span class="hint">só você vê — quem abre o link do time não recebe este bloco</span>
       </div>
       <div class="esq">
-        <select id="selTexto" class="selsem" aria-label="Semana do texto"></select>
+        <span class="selsem" id="semTexto"></span>
         <button class="pick" type="button" id="btnCopiar">Copiar texto</button>
       </div>
     </div>
@@ -1052,7 +1053,7 @@
     var MESES = ["janeiro","fevereiro","março","abril","maio","junho","julho",
                  "agosto","setembro","outubro","novembro","dezembro"];
     function abrir(bl){
-      estado.aba = bl.id; escolhaTexto = bl.id;
+      estado.aba = bl.id;
       $("pA").textContent = TEXTO_PA; $("pB").textContent = TEXTO_PB;
       salvarDados(); render();
     }
@@ -1465,7 +1466,7 @@
     // a aba aberta fica limpa: os arquivos agora pertencem a semana fechada
     estado.sangria = []; estado.extrato = []; estado.suprimentos = [];
     estado.nomeA = ""; estado.nomeB = ""; estado.nomeC = ""; estado.amostra = false;
-    estado.aba = id; escolhaTexto = id;          // a semana nova ja abre na aba dela
+    estado.aba = id;                            // a semana nova ja abre na aba dela
     salvarDados(); render();
     var novo = document.querySelector(".sem-item.ativa .sem-abrir");
     if(novo) novo.focus();
@@ -1721,8 +1722,6 @@
    * escreveu na mao, para justificar a diferenca. So aparece para quem
    * edita; quem le pelo link do time nao ve este bloco.
    * ------------------------------------------------------------------ */
-  var escolhaTexto = "";
-
   function blocosDeTexto(){
     var sang = marcados(juntar(estado.sangria, estado.suprimentos));
     var ext  = estado.extrato.filter(function(r){ return r.marcado; });
@@ -1799,30 +1798,23 @@
     return t.join("\n");
   }
 
+  // O TEXTO SEGUE A SEMANA ABERTA, sempre. Ela nao escolhe mais data nenhuma:
+  // o seletor saiu em 07/10, porque obrigava a trocar na mao a cada semana
+  // nova e era facil copiar o texto da semana errada.
   function atualizarTexto(){
-    var bs = blocosDeTexto(), sel = $("selTexto");
+    var bs = blocosDeTexto(), rot = $("semTexto");
     if(!bs.length){
       $("txtResumo").textContent = "Suba o relatório do Cloudfy para o texto sair.";
-      sel.innerHTML = ""; return;
+      rot.textContent = ""; return;
     }
-    var atual = escolhaTexto;
-    var existe = bs.some(function(b){ return b.id === atual; });
-    if(!existe) atual = bs[0].id;
-    escolhaTexto = atual;
-    sel.innerHTML = bs.map(function(b){
-      var rot = b.nome || "semana";
-      return '<option value="'+esc(b.id)+'"'+(b.id===atual?" selected":"")+'>'+esc(rot)+'</option>';
-    }).join("");
-    var bloco = bs.filter(function(b){ return b.id === atual; })[0];
+    var bloco = bs.filter(function(b){ return b.id === estado.aba; })[0] || bs[0];
+    rot.textContent = bloco.nome || "semana";
     $("txtResumo").textContent = textoDoBloco(bloco);
   }
 
   var _render = render;
   render = function(){ _render(); atualizarTexto(); };
 
-  $("selTexto").addEventListener("change", function(){
-    escolhaTexto = $("selTexto").value; atualizarTexto();
-  });
   $("btnCopiar").addEventListener("click", function(){
     var txt = $("txtResumo").textContent;
     if(navigator.clipboard) navigator.clipboard.writeText(txt);

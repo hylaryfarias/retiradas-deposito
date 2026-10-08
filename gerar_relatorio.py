@@ -30,8 +30,22 @@ from collections import OrderedDict
 GRUPOS = OrderedDict([
     ('TEF - DEBITO',             ['TEF - DEBITO', 'CARTAO DEBITO']),
     ('TEF - CREDITO',            ['TEF - CREDITO', 'CARTAO CREDITO']),
+    # PIX - TEF apareceu pela primeira vez em 07/10/2026, so na BIGGS 07
+    # (R$ 2.268,71): e Pix de TEF, mesma liquidacao e mesma taxa zero do
+    # PIX MAQUININHA. Sem estar aqui, ele ficava fora da previsao.
+    ('PIX MAQUININHA',           ['PIX MAQUININHA', 'PIX - TEF']),
     ('VOUCHER IFOOD (DESCONTO)', ['VOUCHER IFOOD (DESCONTO)', 'IFOOD']),
 ])
+
+# Toda forma que o Cloudfy ja mandou. Serve so para o script GRITAR quando
+# aparecer uma nova: forma desconhecida nao entra em parcela nenhuma e sai
+# calada da previsao, que foi o que aconteceu com PIX - TEF em 07/10.
+FORMAS_CONHECIDAS = {
+    'TEF - CREDITO', 'TEF - DEBITO', 'CARTAO CREDITO', 'CARTAO DEBITO',
+    'PIX MAQUININHA', 'PIX - TEF', 'VOUCHER', 'TEF - VOUCHER', 'TEF - TICKET',
+    'DINHEIRO', 'VENDA A PRAZO', 'PAGAMENTO ONLINE', 'IFOOD',
+    'VOUCHER IFOOD (DESCONTO)',
+}
 
 # VOUCHER, TEF - VOUCHER e TEF - TICKET ficam separados de proposito.
 
@@ -321,6 +335,16 @@ def ler_a_prazo(caminho):
     return titulos
 
 
+def aplicar_grupos(formas):
+    """Mapeia as formas de um dia pelos GRUPOS, sem mexer no total."""
+    membro_para_grupo = {m: destino for destino, ms in GRUPOS.items() for m in ms}
+    saida = OrderedDict()
+    for forma, valor in formas.items():
+        destino = membro_para_grupo.get(forma, forma)
+        saida[destino] = saida.get(destino, 0.0) + valor
+    return saida
+
+
 def agrupar(dias, rotulo='PDF do periodo'):
     """Consolida os dias num bloco unico e aplica GRUPOS. Valida a soma."""
     membro_para_grupo = {m: destino for destino, ms in GRUPOS.items() for m in ms}
@@ -342,6 +366,13 @@ def agrupar(dias, rotulo='PDF do periodo'):
     if ignorados:
         print(f'AVISO: {rotulo}: formas de GRUPOS que nao aparecem nele: '
               f'{", ".join(ignorados)}', file=sys.stderr)
+
+    novas = [f for f in bruto if f not in FORMAS_CONHECIDAS]
+    if novas:
+        print(f'ATENCAO: {rotulo}: FORMA NOVA que o script nao conhece: ' +
+              ', '.join(f'{f} (R$ {brl(bruto[f])})' for f in novas) +
+              '. Ela NAO entra na entrada prevista enquanto nao for '
+              'classificada em GRUPOS/CARTAO_E_PIX.', file=sys.stderr)
 
     return agrupado, composicao
 
@@ -1210,7 +1241,10 @@ def main():
     # o Pix cai no mesmo dia, entao a previsao de hoje precisa do Pix de hoje:
     # a madrugada ja esta vendida e o resto sai da mediana do historico
     novos_hist = OrderedDict()
-    for dia, formas in dias.items():
+    for dia, formas_cruas in dias.items():
+        # agrupado, igual a madrugada: sem isso o PIX - TEF ficava fora do
+        # total do dia e o DIURNO saia menor que o proprio total
+        formas = aplicar_grupos(formas_cruas)
         total_pix = formas.get(FORMA_PIX, 0.0)
         madrugada_dia = (madrugadas_fonte or {}).get(dia, {})
         mad_pix = madrugada_dia.get(FORMA_PIX, 0.0) if madrugada_dia else 0.0

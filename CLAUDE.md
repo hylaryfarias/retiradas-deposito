@@ -51,7 +51,25 @@ Flags úteis:
 2. **Agrupar mantendo o nome do primeiro da dupla:**
    - `TEF - DEBITO` + `CARTAO DEBITO` → **TEF - DEBITO**
    - `TEF - CREDITO` + `CARTAO CREDITO` → **TEF - CREDITO**
+   - `PIX MAQUININHA` + `PIX - TEF` → **PIX MAQUININHA**
    - `VOUCHER IFOOD (DESCONTO)` + `IFOOD` → **VOUCHER IFOOD (DESCONTO)**
+
+   > **`PIX - TEF` nasceu em 07/10/2026**, só na **BIGGS 07 - JAMIL E AÇAÍ**,
+   > R$ 2.268,71. É Pix de TEF: mesma liquidação (venda do dia) e mesma taxa
+   > zero do `PIX MAQUININHA`. Sem estar no `GRUPOS` ele ficava **fora da
+   > entrada prevista** — a previsão de 08/10 sairia R$ 2.268,71 abaixo.
+   > **Se ela disser que é outra coisa, é tirar essa linha do `GRUPOS`.**
+
+   > **Forma nova agora GRITA no console.** `FORMAS_CONHECIDAS` lista tudo o que
+   > o Cloudfy já mandou, e qualquer nome fora dela sai como
+   > `ATENCAO: FORMA NOVA que o script nao conhece`, com o valor. Antes disso a
+   > forma entrava calada no quadrinho e **sumia** da previsão, que é exatamente
+   > como o `PIX - TEF` passou batido na primeira rodada de 08/10.
+
+   > **O histórico do Pix também lê a forma JÁ AGRUPADA** (`aplicar_grupos()`).
+   > A madrugada vinha agrupada de `ler_cupons()` e o total do dia não — então
+   > o `DIURNO` de 07/10 saiu R$ 17.059,08 contra um total de R$ 18.835,53, e a
+   > fatia ficou 9,77% em vez de 10,95%. Corrigido.
 3. **Deixar separados:** `VOUCHER`, `TEF - VOUCHER` e `TEF - TICKET`. Ela
    desfez esse agrupamento de propósito — não juntar de novo.
 4. Ordenar o quadrinho **do maior para o menor percentual**, com linha `Total`

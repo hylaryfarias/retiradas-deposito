@@ -902,20 +902,29 @@ em padrão BR e vencimento `dd/mm/aaaa`.
 > fechou) — essas não entram, pela regra da linha zerada. O recebimento cai na
 > **sexta seguinte ao fim do consumo** (consumo 05–11/10 → Pix em 16/10).
 
-Estado atual (atualizado em 13/10): **31 títulos, R$ 68.406,72**.
+Estado atual (atualizado em 13/10): **30 títulos, R$ 66.206,72**.
 
 | Entra em | Títulos | Valor | |
 |---|---:|---:|---|
-| 06/10/2026 | 1 | R$ 2.200,00 | Pix · Evento Carrinho |
 | 13/10/2026 | 1 | R$ 300,00 | Pix · Imobiliária Cruciol |
 | 16/10/2026 | 2 | R$ 1.753,34 | Pix · iKI R$ 1.183,80 + TAON R$ 569,54 (consumo 05–11/10) |
 | **19/10/2026** | **23** | **R$ 40.591,09** | boletos do dia 16/10 (sexta → D+1 cai no sábado → segunda) |
 | 20/10/2026 | 2 | R$ 21.722,59 | Pix |
 | 30/10/2026 | 2 | R$ 1.839,70 | Pix |
 
-Saíram da tabela em 13/10: **TAON R$ 503,40** (RECEBIDO em 09/10) e **iKI
-R$ 1.802,20** de 08/10, que continua `A RECEBER` cinco dias depois do
-vencimento — pela regra, título vencido sai até ela dar data nova.
+Saíram da tabela em 13/10:
+
+- **TAON R$ 503,40** — RECEBIDO em 09/10;
+- **iKI R$ 1.802,20** de 08/10 — continua `A RECEBER` cinco dias depois do
+  vencimento; pela regra, título vencido sai até ela dar data nova. **Cobrar.**
+- **Evento Carrinho R$ 2.200,00** de 06/10 — *"NF 42. Evento será remarcado.
+  Valor foi recebido e estornado em 06/10"*, e a planilha já mostra R$ 0,00.
+
+> **ESTORNO NÃO É RECEBIMENTO.** O título do Evento Carrinho entrou e saiu no
+> mesmo dia, então a previsão de 06/10 saiu R$ 2.200,00 alta. Quando a planilha
+> trouxer valor **zerado com observação de estorno**, o título sai da tabela —
+> não é caixa, é dinheiro que foi e voltou. Se o evento for remarcado, ele
+> volta com data e valor novos.
 
 **Fora da tabela, de propósito:**
 

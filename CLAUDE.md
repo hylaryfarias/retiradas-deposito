@@ -902,11 +902,11 @@ em padrão BR e vencimento `dd/mm/aaaa`.
 > fechou) — essas não entram, pela regra da linha zerada. O recebimento cai na
 > **sexta seguinte ao fim do consumo** (consumo 05–11/10 → Pix em 16/10).
 
-Estado atual (atualizado em 13/10): **30 títulos, R$ 66.206,72**.
+Estado atual (atualizado em 13/10): **31 títulos, R$ 68.008,92**.
 
 | Entra em | Títulos | Valor | |
 |---|---:|---:|---|
-| 13/10/2026 | 1 | R$ 300,00 | Pix · Imobiliária Cruciol |
+| 13/10/2026 | 2 | R$ 2.102,20 | Pix · Cruciol R$ 300,00 + iKI R$ 1.802,20 (renegociada) |
 | 16/10/2026 | 2 | R$ 1.753,34 | Pix · iKI R$ 1.183,80 + TAON R$ 569,54 (consumo 05–11/10) |
 | **19/10/2026** | **23** | **R$ 40.591,09** | boletos do dia 16/10 (sexta → D+1 cai no sábado → segunda) |
 | 20/10/2026 | 2 | R$ 21.722,59 | Pix |
@@ -915,8 +915,10 @@ Estado atual (atualizado em 13/10): **30 títulos, R$ 66.206,72**.
 Saíram da tabela em 13/10:
 
 - **TAON R$ 503,40** — RECEBIDO em 09/10;
-- **iKI R$ 1.802,20** de 08/10 — continua `A RECEBER` cinco dias depois do
-  vencimento; pela regra, título vencido sai até ela dar data nova. **Cobrar.**
+- **iKI R$ 1.802,20** de 08/10 — estava `A RECEBER` cinco dias depois do
+  vencimento. Ela cobrou no mesmo dia e o cliente ficou de pagar em **13/10**;
+  o título **voltou** para a tabela com a data nova. Foi a regra funcionando:
+  tirar o vencido obrigou a cobrar, e a cobrança trouxe a data.
 - **Evento Carrinho R$ 2.200,00** de 06/10 — *"NF 42. Evento será remarcado.
   Valor foi recebido e estornado em 06/10"*, e a planilha já mostra R$ 0,00.
 

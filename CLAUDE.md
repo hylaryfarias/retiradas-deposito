@@ -889,18 +889,33 @@ em padrão BR e vencimento `dd/mm/aaaa`.
 > Tratar tudo como boleto jogava 42% do valor de outubro um dia para a frente.
 > Coluna ausente ou vazia = `BOLETO`, então as tabelas antigas continuam valendo.
 
-Estado atual (consumo de setembro, calendário que ela passou em 06/10):
-**31 títulos, R$ 68.958,98**.
+> **iKI e TAON são SEMANAIS, e ela tira o valor na SEGUNDA.**
+> Decisão dela, 13/10. **Cobrar os dois valores toda segunda** para entrar na
+> programação da semana — é tarefa recorrente minha, não dela lembrar.
+>
+> | Cliente | CNPJ | Loja | Forma |
+> |---|---|---|---|
+> | IKI PRODUTOS ALIMENTICIOS LTDA | 51.757.765/0001-01 | BIGGS 07 | Pix |
+> | TAON DELIVERY TECNOLOGIA LTDA | 33.292.501/0001-48 | TODAS | Pix |
+>
+> A planilha dela já traz as semanas futuras **zeradas** (consumo que ainda não
+> fechou) — essas não entram, pela regra da linha zerada. O recebimento cai na
+> **sexta seguinte ao fim do consumo** (consumo 05–11/10 → Pix em 16/10).
+
+Estado atual (atualizado em 13/10): **31 títulos, R$ 68.406,72**.
 
 | Entra em | Títulos | Valor | |
 |---|---:|---:|---|
-| 06/10/2026 | 1 | R$ 2.200,00 | Pix |
-| 08/10/2026 | 1 | R$ 1.802,20 | Pix |
-| 09/10/2026 | 1 | R$ 503,40 | Pix |
-| 13/10/2026 | 1 | R$ 300,00 | Pix |
+| 06/10/2026 | 1 | R$ 2.200,00 | Pix · Evento Carrinho |
+| 13/10/2026 | 1 | R$ 300,00 | Pix · Imobiliária Cruciol |
+| 16/10/2026 | 2 | R$ 1.753,34 | Pix · iKI R$ 1.183,80 + TAON R$ 569,54 (consumo 05–11/10) |
 | **19/10/2026** | **23** | **R$ 40.591,09** | boletos do dia 16/10 (sexta → D+1 cai no sábado → segunda) |
 | 20/10/2026 | 2 | R$ 21.722,59 | Pix |
 | 30/10/2026 | 2 | R$ 1.839,70 | Pix |
+
+Saíram da tabela em 13/10: **TAON R$ 503,40** (RECEBIDO em 09/10) e **iKI
+R$ 1.802,20** de 08/10, que continua `A RECEBER` cinco dias depois do
+vencimento — pela regra, título vencido sai até ela dar data nova.
 
 **Fora da tabela, de propósito:**
 

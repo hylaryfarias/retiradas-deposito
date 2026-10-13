@@ -891,28 +891,36 @@ Cuidado para **não contar em dobro**: a venda a prazo já entrou na venda bruta
 no dia da venda; o que entra aqui é o **caixa** na compensação. São coisas
 diferentes, e é por isso que `VENDA A PRAZO` não está em `CARTAO_E_PIX`.
 
-## Bloco de fim de semana: cuidado quando a SEGUNDA entra nele
+## FERIADO NÃO LIQUIDA NADA — e agora o script sabe disso
 
-O bloco único só está certo quando **todos os dias dele liquidam no mesmo dia
-previsto**. Isso vale para o bloco normal de segunda (sexta + sábado + domingo
-→ tudo cai na segunda), e **não vale** quando a segunda entra no bloco.
+**Feriado é igual a domingo:** cartão, boleto e voucher não caem. O que estava
+marcado para ele **acumula para o próximo dia útil**.
 
-Aconteceu em 13/10/2026: ela mandou **09 a 12/10** (sexta a segunda) numa terça.
-Rodando em bloco, o script jogou os quatro dias na previsão de 13/10 e deu
-**R$ 607.586,23** — mas sexta, sábado e domingo **liquidaram na segunda 12/10**,
-e só a segunda liquida na terça. O número certo saiu de
-`--dia 12/10/2026`: **R$ 158.002,08**.
+Isso custou um erro em 13/10/2026. Ela mandou o bloco **09 a 12/10** (sexta a
+segunda) numa terça, e eu li a segunda como dia normal: concluí que sexta,
+sábado e domingo tinham liquidado em 12/10 e que a previsão da terça devia sair
+só da segunda, R$ 158.002,08. **Errado** — 12/10 foi Nossa Senhora Aparecida,
+não caiu nada, e os quatro dias acumularam para 13/10. Ela corrigiu. O bloco
+inteiro estava certo desde o começo.
 
-**A regra:** se o último dia do bloco for uma segunda-feira, o quadrinho sai do
-bloco inteiro (é a venda do período), mas **a entrada prevista tem de sair só da
-segunda** — `--dia <segunda>`, e com um `--mes-anterior` filtrado no mesmo dia,
-senão o voucher D+30 também sai somado de quatro dias.
+**A regra completa do bloco único:** ele vale quando **todos os dias dele
+liquidam no mesmo dia previsto**. Isso acontece no bloco normal de segunda
+(sexta + sábado + domingo → segunda) **e** quando um feriado emenda. Só não vale
+se houver um dia útil de liquidação no meio do bloco — aí a entrada prevista sai
+de `--dia <último dia útil>`, com `--mes-anterior` filtrado no mesmo dia, senão o
+voucher D+30 também sai somado.
 
-> **Consequência do dia pulado:** quando não se manda o relatório de um dia, a
-> previsão daquele dia nunca sai e o arrasto guardado para ele **nunca é
-> consumido** — fica no `pos_meia_noite.csv` com data passada e o script não
-> olha para trás. Em 12/10 ficaram R$ 8.944,11 assim (madrugada de 08/10).
-> Não é dinheiro perdido: entrou na conta normalmente, só não foi previsto.
+`FERIADOS` vive no topo de `gerar_relatorio.py`, com os nacionais de 2026 e
+01/01/2027, e `dia_parado()` trata feriado igual a fim de semana dentro de
+`proximo_util()`. **Feriado municipal (Londrina, Maringá) ainda não está lá** —
+acrescentar quando ela confirmar quais param a liquidação.
+
+> **O arrasto parado em cima do feriado.** Antes dessa correção, a madrugada de
+> 08/10 (R$ 8.944,11) foi datada para 12/10 porque `proximo_util()` só pulava
+> fim de semana. Como nada foi previsto para o feriado, aquela linha ficaria
+> parada para sempre — **o script nunca olha para trás**. As linhas foram
+> redatadas para 13/10 na mão e entraram na previsão de hoje, R$ 8.840,79
+> líquidos. Com `FERIADOS` no lugar, isso não se repete.
 
 ## Conferências que o script já faz
 

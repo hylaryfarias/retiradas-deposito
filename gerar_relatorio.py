@@ -599,9 +599,39 @@ def ler_fonte(caminho):
     return dias, cnpj, None, {}
 
 
+# Feriado nao liquida nada: cartao, boleto e voucher param igual a domingo.
+# Em 12/10/2026 (Nossa Senhora Aparecida, numa segunda) nada caiu, e tudo o
+# que estava marcado para aquele dia acumulou para a terca 13/10. O script
+# nao sabia disso e datava o arrasto em cima do feriado, onde ele ficava
+# parado para sempre -- o script nunca olha para tras.
+#
+# Sao so os feriados NACIONAIS com liquidacao parada; feriado municipal de
+# Londrina/Maringa entra aqui quando ela confirmar. Formato: (dia, mes, ano).
+FERIADOS = {
+    datetime.date(2026, 1, 1),    # Confraternizacao Universal
+    datetime.date(2026, 2, 17),   # Carnaval
+    datetime.date(2026, 4, 3),    # Sexta-feira Santa
+    datetime.date(2026, 4, 21),   # Tiradentes
+    datetime.date(2026, 5, 1),    # Dia do Trabalho
+    datetime.date(2026, 6, 4),    # Corpus Christi
+    datetime.date(2026, 9, 7),    # Independencia
+    datetime.date(2026, 10, 12),  # Nossa Senhora Aparecida
+    datetime.date(2026, 11, 2),   # Finados
+    datetime.date(2026, 11, 15),  # Proclamacao da Republica
+    datetime.date(2026, 11, 20),  # Consciencia Negra
+    datetime.date(2026, 12, 25),  # Natal
+    datetime.date(2027, 1, 1),
+}
+
+
+def dia_parado(data):
+    """Fim de semana ou feriado: nao ha liquidacao."""
+    return data.weekday() >= 5 or data in FERIADOS
+
+
 def proximo_util(data):
-    """Sabado e domingo nao tem credito: joga para a segunda."""
-    while data.weekday() >= 5:
+    """Sabado, domingo e feriado nao tem credito: joga para o proximo util."""
+    while dia_parado(data):
         data += datetime.timedelta(days=1)
     return data
 

@@ -30,10 +30,14 @@ from collections import OrderedDict
 GRUPOS = OrderedDict([
     ('TEF - DEBITO',             ['TEF - DEBITO', 'CARTAO DEBITO']),
     ('TEF - CREDITO',            ['TEF - CREDITO', 'CARTAO CREDITO']),
-    # PIX - TEF apareceu pela primeira vez em 07/10/2026, so na BIGGS 07
-    # (R$ 2.268,71): e Pix de TEF, mesma liquidacao e mesma taxa zero do
-    # PIX MAQUININHA. Sem estar aqui, ele ficava fora da previsao.
-    ('PIX MAQUININHA',           ['PIX MAQUININHA', 'PIX - TEF']),
+    # Pix de TEF: mesma liquidacao e mesma taxa zero do PIX MAQUININHA.
+    # Sem estar aqui, fica fora da previsao.
+    #   PIX - TEF  nasceu em 07/10/2026 na BIGGS 07, e em 09/10 chegou na
+    #              BIGGS 11;
+    #   TEF - PIX  e o MESMO meio com outro nome, na BIGGS 01, desde 09/10
+    #              (R$ 159,58 em 3 cupons, teste) e cheio a partir de 10/10.
+    # Sao dois rotulos para a mesma coisa: o Cloudfy nomeia conforme a loja.
+    ('PIX MAQUININHA',           ['PIX MAQUININHA', 'PIX - TEF', 'TEF - PIX']),
     ('VOUCHER IFOOD (DESCONTO)', ['VOUCHER IFOOD (DESCONTO)', 'IFOOD']),
 ])
 
@@ -42,7 +46,8 @@ GRUPOS = OrderedDict([
 # calada da previsao, que foi o que aconteceu com PIX - TEF em 07/10.
 FORMAS_CONHECIDAS = {
     'TEF - CREDITO', 'TEF - DEBITO', 'CARTAO CREDITO', 'CARTAO DEBITO',
-    'PIX MAQUININHA', 'PIX - TEF', 'VOUCHER', 'TEF - VOUCHER', 'TEF - TICKET',
+    'PIX MAQUININHA', 'PIX - TEF', 'TEF - PIX',
+    'VOUCHER', 'TEF - VOUCHER', 'TEF - TICKET',
     'DINHEIRO', 'VENDA A PRAZO', 'PAGAMENTO ONLINE', 'IFOOD',
     'VOUCHER IFOOD (DESCONTO)',
 }

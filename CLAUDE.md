@@ -54,11 +54,19 @@ Flags úteis:
    - `PIX MAQUININHA` + `PIX - TEF` → **PIX MAQUININHA**
    - `VOUCHER IFOOD (DESCONTO)` + `IFOOD` → **VOUCHER IFOOD (DESCONTO)**
 
-   > **`PIX - TEF` nasceu em 07/10/2026**, só na **BIGGS 07 - JAMIL E AÇAÍ**,
-   > R$ 2.268,71. É Pix de TEF: mesma liquidação (venda do dia) e mesma taxa
-   > zero do `PIX MAQUININHA`. Sem estar no `GRUPOS` ele ficava **fora da
-   > entrada prevista** — a previsão de 08/10 sairia R$ 2.268,71 abaixo.
-   > **Se ela disser que é outra coisa, é tirar essa linha do `GRUPOS`.**
+   > **O Pix de TEF está entrando loja a loja, e com DOIS nomes diferentes.**
+   > É Pix: mesma liquidação (venda do dia) e mesma taxa zero do
+   > `PIX MAQUININHA`. Fora do `GRUPOS` ele some da entrada prevista.
+   >
+   > | Rótulo | Onde | Desde |
+   > |---|---|---|
+   > | `PIX - TEF` | BIGGS 07 - JAMIL E AÇAÍ | 07/10 (R$ 2.268,71) |
+   > | `PIX - TEF` | BIGGS 11 - SANTO AMARO | 09/10 |
+   > | `TEF - PIX` | BIGGS 01 - MARINGÁ | 09/10 (R$ 159,58, teste) e cheio em 10/10 |
+   >
+   > São o **mesmo meio com nomes trocados** — o Cloudfy nomeia conforme a loja.
+   > Como a implantação está correndo, **esperar mais nomes e mais lojas**.
+   > Se ela disser que é outra coisa, é tirar a linha do `GRUPOS`.
 
    > **Forma nova agora GRITA no console.** `FORMAS_CONHECIDAS` lista tudo o que
    > o Cloudfy já mandou, e qualquer nome fora dela sai como
@@ -882,6 +890,29 @@ vive em `A_PRAZO_COMPENSACAO`, no topo de `gerar_relatorio.py`.
 Cuidado para **não contar em dobro**: a venda a prazo já entrou na venda bruta
 no dia da venda; o que entra aqui é o **caixa** na compensação. São coisas
 diferentes, e é por isso que `VENDA A PRAZO` não está em `CARTAO_E_PIX`.
+
+## Bloco de fim de semana: cuidado quando a SEGUNDA entra nele
+
+O bloco único só está certo quando **todos os dias dele liquidam no mesmo dia
+previsto**. Isso vale para o bloco normal de segunda (sexta + sábado + domingo
+→ tudo cai na segunda), e **não vale** quando a segunda entra no bloco.
+
+Aconteceu em 13/10/2026: ela mandou **09 a 12/10** (sexta a segunda) numa terça.
+Rodando em bloco, o script jogou os quatro dias na previsão de 13/10 e deu
+**R$ 607.586,23** — mas sexta, sábado e domingo **liquidaram na segunda 12/10**,
+e só a segunda liquida na terça. O número certo saiu de
+`--dia 12/10/2026`: **R$ 158.002,08**.
+
+**A regra:** se o último dia do bloco for uma segunda-feira, o quadrinho sai do
+bloco inteiro (é a venda do período), mas **a entrada prevista tem de sair só da
+segunda** — `--dia <segunda>`, e com um `--mes-anterior` filtrado no mesmo dia,
+senão o voucher D+30 também sai somado de quatro dias.
+
+> **Consequência do dia pulado:** quando não se manda o relatório de um dia, a
+> previsão daquele dia nunca sai e o arrasto guardado para ele **nunca é
+> consumido** — fica no `pos_meia_noite.csv` com data passada e o script não
+> olha para trás. Em 12/10 ficaram R$ 8.944,11 assim (madrugada de 08/10).
+> Não é dinheiro perdido: entrou na conta normalmente, só não foi previsto.
 
 ## Conferências que o script já faz
 

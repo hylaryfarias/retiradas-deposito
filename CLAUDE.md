@@ -638,6 +638,49 @@ relatório só fecha na quarta e a prévia tem de sair na segunda.
 > mesmo com a parcela 18/22 existindo. Conferir em 30/09 se os R$ 40.758,73
 > aparecem nesse quadro ou em outro lugar.
 
+#### A semana 05–11/10: puxada na TERÇA, veio fechada
+
+A segunda 12/10 foi feriado e a prévia não saiu; o relatório foi puxado na
+**terça 13/10**. Resultado: **12.884 pedidos válidos e UM só sem liquidar**
+(R$ 31,90 de itens). Ou seja, **a parcela mais frágil da prévia — estimar os não
+liquidados — praticamente desapareceu**.
+
+| | |
+|---|---:|
+| Faturamento (itens, sem cancelados) | R$ 647.364,96 |
+| Líquido do relatório | R$ 404.445,23 |
+| Repasse estimado (×1,0146) | R$ 410.350,13 |
+| − Antecipação (0,78%) | −R$ 3.200,73 |
+| **= Antes do retido** | **R$ 407.149,40** |
+
+> **UMA AMOSTRA SÓ.** É a primeira puxada de terça. Se a próxima também vier
+> fechada, **vale mudar a rotina e puxar sempre na terça** em vez de segunda — a
+> prévia atrasa um dia mas deixa de depender do chute de 66% a 80%. Conferir na
+> semana 12–18/10.
+
+#### Teste de completude do relatório de pedidos (Cloudfy × iFood)
+
+Para saber se o último dia veio inteiro, **comparar dia a dia de calendário** o
+`PAGAMENTO ONLINE` do Cloudfy com `VALOR DOS ITENS − INCENTIVO DA LOJA` do iFood.
+Em 05–11/10:
+
+| Dia | iFood (itens − incentivo) | Cloudfy | Cloudfy/iFood |
+|---|---:|---:|---:|
+| sex 09/10 | R$ 96.682,54 | R$ 98.086,01 | 101,45% |
+| sáb 10/10 | R$ 91.300,80 | R$ 90.976,78 | 99,65% |
+| dom 11/10 | R$ 74.071,01 | R$ 71.260,01 | 96,20% |
+| **soma** | **R$ 262.054,35** | **R$ 260.322,80** | **99,34%** |
+
+A soma a 99,34% diz que **não falta pedido**. Domingo sozinho a 96,20% é só o
+corte das 02h espalhando volume entre os dias.
+
+> **ARMADILHA: o deslocamento de 2h NÃO vale no último dia da janela.** Agrupar
+> por `DATA E HORA − 2h` reduz o erro no meio da semana, mas no último dia o
+> balde perde as primeiras duas horas e **não recebe nada do dia seguinte**,
+> porque o dia seguinte está fora do relatório. Com o deslocamento, o domingo
+> 11/10 aparecia com 106,10% e parecia faltar R$ 4,8 mil de pedido — **falso
+> alarme**. Para o teste de completude, usar o **dia de calendário puro**.
+
 #### O empréstimo do iFood
 
 Separado do retido: é empréstimo do **próprio iFood**, abatido do crédito. Na

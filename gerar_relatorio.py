@@ -44,6 +44,13 @@ GRUPOS = OrderedDict([
 # Toda forma que o Cloudfy ja mandou. Serve so para o script GRITAR quando
 # aparecer uma nova: forma desconhecida nao entra em parcela nenhuma e sai
 # calada da previsao, que foi o que aconteceu com PIX - TEF em 07/10.
+# O Pix de TEF esta sendo implantado LOJA A LOJA, e com nomes diferentes
+# conforme a loja. Saber o nome nao basta: quando uma loja NOVA estreia, o
+# script tem de avisar (pedido dela em 14/10). O caderno abaixo guarda quem ja
+# estreou; quem nao estiver nele sai como ATENCAO no console e e gravado.
+FORMAS_PIX_TEF = ('PIX - TEF', 'TEF - PIX')
+LOJAS_PIX_TEF_PADRAO = 'pix_tef_lojas.csv'
+
 FORMAS_CONHECIDAS = {
     'TEF - CREDITO', 'TEF - DEBITO', 'CARTAO CREDITO', 'CARTAO DEBITO',
     'PIX MAQUININHA', 'PIX - TEF', 'TEF - PIX',
@@ -518,6 +525,59 @@ def ler_pos_meia_noite_args(entradas, agrupado):
     return porforma
 
 
+def ler_lojas_pix_tef(caminho):
+    """Quem ja estreou o Pix de TEF: {(loja, forma): primeiro dia}."""
+    conhecidas = {}
+    try:
+        with open(caminho, encoding='utf-8') as f:
+            for numero, linha in enumerate(f, 1):
+                partes = [p.strip() for p in linha.rstrip('\n').split(';')]
+                if numero == 1 and partes and partes[0].upper() == 'LOJA':
+                    continue
+                if len(partes) < 3 or not partes[0]:
+                    continue
+                conhecidas[(partes[0], partes[1])] = partes[2]
+    except FileNotFoundError:
+        pass
+    return conhecidas
+
+
+def avisar_pix_tef(caminho, visto):
+    """Grita quando uma LOJA NOVA estreia o Pix de TEF, e grava a estreia.
+
+    Pedido dela em 14/10: o aviso de FORMA nova nao pega loja nova usando um
+    nome ja conhecido, e a implantacao esta correndo loja a loja.
+    """
+    if not visto:
+        return
+    conhecidas = ler_lojas_pix_tef(caminho)
+    novas = [(loja, forma, dia, valor)
+             for (loja, forma), (dia, valor) in visto.items()
+             if (loja, forma) not in conhecidas]
+    if novas:
+        print('', file=sys.stderr)
+        print('ATENCAO: PIX DE TEF ESTREOU EM LOJA NOVA:', file=sys.stderr)
+        for loja, forma, dia, valor in sorted(novas):
+            print(f'   {loja} -- {forma}, desde {dia}, R$ {brl(valor)} no periodo',
+                  file=sys.stderr)
+        print('   Ja esta agrupado no PIX MAQUININHA e dentro da previsao.',
+              file=sys.stderr)
+        print('', file=sys.stderr)
+        existia = os.path.exists(caminho)
+        with open(caminho, 'a', encoding='utf-8') as f:
+            if not existia:
+                f.write('LOJA;FORMA;PRIMEIRO DIA;VALOR NO PRIMEIRO RELATORIO\n')
+            for loja, forma, dia, valor in sorted(novas):
+                f.write(f'{loja};{forma};{dia};{brl(valor)}\n')
+
+
+def chave_dia(d):
+    try:
+        return datetime.datetime.strptime(d, '%d/%m/%Y')
+    except ValueError:
+        return datetime.datetime.min
+
+
 def ler_cupons(caminho):
     """Le o Relatriodecuponsdevendas_*.xlsx: cupom a cupom, com hora e forma.
 
@@ -555,12 +615,27 @@ def ler_cupons(caminho):
     cD, cH = coluna('data'), coluna('hora')
     cF, cV = coluna('desc. pagam', 'forma'), coluna('vl. pagamento', 'valor')
 
+    try:
+        cL = coluna('filial', 'loja')
+    except SystemExit:
+        cL = None                      # export sem filial: o aviso nao roda
+
     dias, madrugadas, total = OrderedDict(), OrderedDict(), 0.0
+    pix_tef = OrderedDict()            # (loja, forma) -> [primeiro dia, valor]
     for linha in linhas:
         if not linha or linha[cV] is None:
             continue
         valor = float(linha[cV] or 0)
         forma = str(linha[cF] or '').strip().upper()
+        if cL is not None and forma in FORMAS_PIX_TEF:
+            loja = str(linha[cL] or '').strip()
+            bruto_dia = linha[cD]
+            d = (bruto_dia.strftime('%d/%m/%Y') if hasattr(bruto_dia, 'strftime')
+                 else str(bruto_dia).strip())
+            item = pix_tef.setdefault((loja, forma), [d, 0.0])
+            item[1] += valor
+            if chave_dia(d) < chave_dia(item[0]):
+                item[0] = d
         bruto = linha[cD]
         dia = (bruto.strftime('%d/%m/%Y') if hasattr(bruto, 'strftime')
                else str(bruto).strip())
@@ -578,26 +653,21 @@ def ler_cupons(caminho):
             doDia = madrugadas.setdefault(dia, OrderedDict())
             doDia[agrupada] = doDia.get(agrupada, 0.0) + valor
 
-    def chave(d):
-        try:
-            return datetime.datetime.strptime(d, '%d/%m/%Y')
-        except ValueError:
-            return datetime.datetime.min
-    dias = OrderedDict(sorted(dias.items(), key=lambda i: chave(i[0])))
+    dias = OrderedDict(sorted(dias.items(), key=lambda i: chave_dia(i[0])))
     # num bloco de varios dias, so a madrugada do ultimo dia fica para o dia
     # seguinte: as do meio do periodo liquidam dentro do proprio bloco
     ultimo = list(dias)[-1] if dias else None
-    return dias, madrugadas.get(ultimo, OrderedDict()), total, madrugadas
+    return (dias, madrugadas.get(ultimo, OrderedDict()), total, madrugadas,
+            pix_tef)
 
 
 def ler_fonte(caminho):
     """Le o dia a dia do PDF ou do xlsx de cupons, o que vier."""
     if caminho.lower().endswith(('.xlsx', '.xls')):
-        dias, madrugada, _total, madrugadas = ler_cupons(caminho)
-        return dias, None, madrugada, madrugadas
+        dias, madrugada, _total, madrugadas, ptef = ler_cupons(caminho)
+        return dias, None, madrugada, madrugadas, ptef
     dias, cnpj = ler_pdf(caminho)
-    return dias, cnpj, None, {}
-
+    return dias, cnpj, None, {}, {}
 
 # Feriado nao liquida nada: cartao, boleto e voucher param igual a domingo.
 # Em 12/10/2026 (Nossa Senhora Aparecida, numa segunda) nada caiu, e tudo o
@@ -1084,6 +1154,9 @@ def main():
                         help='PDF de vendas por forma de pagamento ou o xlsx '
                              'de cupons (do xlsx sai tambem o corte da madrugada)')
     parser.add_argument('--dia', help='usar so este dia (dd/mm/aaaa); padrao: todos somados')
+    parser.add_argument('--lojas-pix-tef', default=LOJAS_PIX_TEF_PADRAO,
+                        help='caderno das lojas que ja estrearam o Pix de TEF '
+                             f'(padrao: {LOJAS_PIX_TEF_PADRAO})')
     parser.add_argument('--saida', default='.', help='pasta de saida (padrao: atual)')
     parser.add_argument('--mes-anterior', dest='mes_anterior',
                         help='PDF do MESMO periodo do mes anterior, para o voucher D+30')
@@ -1144,7 +1217,8 @@ def main():
                         help='ignora o que ficou gravado de ontem')
     args = parser.parse_args()
 
-    dias, cnpj, madrugada_fonte, madrugadas_fonte = ler_fonte(args.pdf)
+    dias, cnpj, madrugada_fonte, madrugadas_fonte, ptef = ler_fonte(args.pdf)
+    avisar_pix_tef(args.lojas_pix_tef, ptef)
     if not dias:
         raise SystemExit(f'ERRO: nenhum dia encontrado em {args.pdf}. O layout mudou?')
 
@@ -1174,7 +1248,7 @@ def main():
     if args.mes_anterior:
         # o mes anterior pode vir como PDF ou como o xlsx de cupons -- os dois
         # trazem a mesma coisa, e dela so sai o voucher D+30
-        dias_ant, _cnpj_ant, _mad_ant, _mads = ler_fonte(args.mes_anterior)
+        dias_ant, _cnpj_ant, _mad_ant, _mads, _pt = ler_fonte(args.mes_anterior)
         if not dias_ant:
             raise SystemExit(f'ERRO: nenhum dia em {args.mes_anterior}.')
         agrupado_anterior, _ = agrupar(dias_ant, 'fonte do mes anterior')
@@ -1242,7 +1316,9 @@ def main():
     registros = ler_arrasto(args.arrasto)
     gravados = []
     if args.cupons:
-        _dias_c, madrugada_fonte, geral, madrugadas_fonte = ler_cupons(args.cupons)
+        (_dias_c, madrugada_fonte, geral, madrugadas_fonte,
+         ptef) = ler_cupons(args.cupons)
+        avisar_pix_tef(args.lojas_pix_tef, ptef)
         if abs(geral - total) > 0.01:
             print(f'AVISO: o relatorio de cupons soma R$ {brl(geral)} e o PDF '
                   f'R$ {brl(total)} (diferenca de R$ {brl(geral - total)}). '

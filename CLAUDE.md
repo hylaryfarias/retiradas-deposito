@@ -68,6 +68,17 @@ Flags úteis:
    > Como a implantação está correndo, **esperar mais nomes e mais lojas**.
    > Se ela disser que é outra coisa, é tirar a linha do `GRUPOS`.
 
+   > **LOJA NOVA COM PIX DE TEF AGORA GRITA** (pedido dela em 14/10). O aviso de
+   > forma nova só pega **nome** novo — uma loja estreando com um nome já
+   > conhecido passava calada. Agora o script olha a coluna `Filial` do xlsx de
+   > cupons, compara com **`pix_tef_lojas.csv`** e, para cada par (loja, forma)
+   > inédito, imprime `ATENCAO: PIX DE TEF ESTREOU EM LOJA NOVA` com o dia e o
+   > valor, **e grava a estreia**. Avisa uma vez só; o caderno vira o mapa da
+   > implantação sem ninguém manter tabela na mão.
+   >
+   > Só funciona com o **xlsx de cupons** (o PDF não tem filial). Outro caderno:
+   > `--lojas-pix-tef`.
+
    > **Forma nova agora GRITA no console.** `FORMAS_CONHECIDAS` lista tudo o que
    > o Cloudfy já mandou, e qualquer nome fora dela sai como
    > `ATENCAO: FORMA NOVA que o script nao conhece`, com o valor. Antes disso a

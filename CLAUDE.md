@@ -436,10 +436,27 @@ iFood, para a Amanda ver o repasse cheio, o que foi retido e o que sobra:
 ```
 
 **O bloco sai nos dois dias, não só na segunda.** Na quarta o repasse já é
-parcela do total, e o bloco vira a **abertura daquela linha** — fecha com
-`Entra hoje, dd/mm, e já está no total acima.` para ninguém somar duas vezes.
+parcela do total, e o bloco vira a **abertura daquela linha**.
 Ele aparece sempre que houver `--ifood-faturado` ou `--ifood-desconto`; sem
 nada disso o texto sai só com a linha no total, como antes.
+
+> **DECISÃO DELA, 14/10: no TOTAL do dia entra o REPASSE PREVISTO, não o
+> líquido.** O motivo é como a Amanda lê o texto: *"ela olha o que entrou e
+> depois os descontos estão nas previsões"*. Então a linha da quarta leva
+> R$ 407.149,40 (o repasse), e o bloco abaixo continua mostrando retido,
+> empréstimo e a **previsão de recebimento** de R$ 324.085,04.
+>
+> Bate com a mecânica: o retido é segurado antes do crédito e a parcela do
+> empréstimo é debitada **à parte, depois** — nenhum dos dois pertence à linha
+> de entrada do dia.
+>
+> O fecho da quarta mudou junto, para ninguém somar errado:
+> `Entra hoje, dd/mm. No total acima está o repasse de R$ X; os descontos saem
+> à parte.`
+>
+> **A prévia de segunda continua saindo pelo LÍQUIDO.** Ela fica fora do total,
+> então o que interessa ali é o que vai sobrar de fato. No `entrada`, a parcela
+> `ifood` é o repasse e `ifood_liquido` é o que sobra.
 
 Na quarta, passar em `--ifood-valor` o **repasse líquido de antecipação**, e os
 descontos em `--ifood-desconto` — assim o bloco mostra a conta inteira e a

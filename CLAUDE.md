@@ -917,6 +917,16 @@ em padrão BR e vencimento `dd/mm/aaaa`.
 > Tratar tudo como boleto jogava 42% do valor de outubro um dia para a frente.
 > Coluna ausente ou vazia = `BOLETO`, então as tabelas antigas continuam valendo.
 
+> **NÃO DAR BAIXA, NÃO COBRAR, NÃO PERGUNTAR SE PAGOU.** Decisão dela, 19/10:
+> *"quem cuida se pagou ou não sou eu"*. Esta tabela é **só a programação** —
+> o que entra em previsão, e nada mais. Título vencido que ficou para trás é
+> **irrelevante**: ele nunca mais casa com uma data prevista, então não atrapalha
+> número nenhum e **não vira assunto no chat**.
+>
+> O trabalho aqui é um só: **acrescentar o que ela mandar**. Nada de mover para
+> `vendas_a_prazo_pagos.csv`, nada de listar o que está em aberto, nada de
+> perguntar status.
+
 > **iKI e TAON são SEMANAIS, e ela tira o valor na SEGUNDA.**
 > Decisão dela, 13/10. **Cobrar os dois valores toda segunda** para entrar na
 > programação da semana — é tarefa recorrente minha, não dela lembrar.

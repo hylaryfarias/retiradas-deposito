@@ -605,14 +605,20 @@ que é o que interessa:
 > 21/10 sair R$ 4.199 alta. O 80,42% de 04/10 fica como ponto fora da curva.
 > Continua sendo a parcela mais frágil da prévia: dizer isso no chat.
 
-**As réguas, agora com os dois pares fechados:**
+**As réguas, agora com três pares fechados:**
 
-| Fator | 21–27/09 | 28/09–04/10 | Usar |
-|---|---:|---:|---|
-| Relatório fechado → repasse | 1,01347 | 1,01573 | **1,0146** (média) |
-| Antecipação / repasse | 0,865% | 0,702% | **0,78%** (média) — varia com quanto foi antecipado |
-| Retido / repasse | 4,32% | 3,83% | **imprevisível**, perguntar sempre |
-| Não liquidados / itens | 66,36% | 80,42% | **66%** (mediana de três, ver abaixo) |
+| Fator | 21–27/09 | 28/09–04/10 | 12–18/10 | Usar |
+|---|---:|---:|---:|---|
+| Relatório fechado → repasse | 1,01347 | 1,01573 | 1,01533 | **1,0148** (média) |
+| Antecipação automática / repasse | 0,865% | 0,702% | 0,863% | **0,81%** (média) |
+| Retido / repasse | 4,32% | 3,83% | 4,23% | **~4,1%** quando ela não tiver o número — mas **perguntar sempre** |
+| Não liquidados / itens | 66,36% | 80,42% | 65,25% | **66%** (mediana de três) |
+
+> **O RETIDO PAROU DE SER IMPREVISÍVEL.** As três últimas semanas ficaram em
+> 3,83% a 4,32% do repasse — bem longe dos 1,88% de 07–13/09. Continua sendo
+> pergunta de toda semana (só o portal tem o número), mas quando ela não tiver,
+> **~4,1% do repasse** é uma estimativa defensável em vez de um chute. Em
+> 12–18/10 ela chutou R$ 18 mil e veio R$ 17.997,73.
 
 > **O quadro da API e o do Portal não dizem a mesma coisa.** A API mostra
 > `Repasse total R$ 424.901,97` com a nota *"antes da antecipação · no Portal:
@@ -719,11 +725,66 @@ A cadeia desta semana, com o relatório fechado:
 | − Retido (estimativa dela) | −R$ 18.000,00 | **o real ainda não veio** |
 | = Previsão de recebimento | R$ 403.709,59 | |
 
-> **Falta o print do portal desta semana** para medir o fator
-> relatório fechado → repasse e a antecipação reais. Sem ele, 1,0146 e 0,78%
-> seguem como médias dos dois pares anteriores. O retido foi **estimado em
-> R$ 18 mil** nas duas últimas semanas (05–11/10 e 12–18/10) — os dois
-> continuam em aberto.
+**E o extrato financeiro fechou tudo no mesmo dia** (ela mandou em 21/10 o
+`financeiro-2026-10-12-a-2026-10-18.xlsx` e o quadro da API). O acerto:
+
+| | Previsto no texto | Real | |
+|---|---:|---:|---:|
+| Repasse no total | R$ 421.709,59 | R$ 421.658,58 | **−R$ 51,01** |
+| Previsão de recebimento | R$ 403.709,59 | R$ 402.536,45 | **+0,29%** |
+
+O retido que ela chutou em R$ 18 mil veio **R$ 17.997,73** — R$ 2,27 de erro.
+
+| | | |
+|---|---:|---|
+| Líquido do relatório fechado | R$ 418.908,72 | |
+| Repasse total | R$ 425.328,75 | **×1,01533**; no Portal R$ 424.204,35 |
+| − Retido | −R$ 17.997,73 | Santander R$ 15.112,39 + Safra R$ 2.885,34 |
+| = Base bruta a receber | R$ 407.331,02 | |
+| − Taxa de antecipação (débito) | −R$ 6.818,94 | R$ 3.670,17 automática + R$ 3.148,77 nos lançamentos |
+| + Desconto por exclusividade | +R$ 2.024,37 | o iFood devolve parte da taxa |
+| **= Valor líquido a receber** | **R$ 402.536,45** | R$ 217.390,07 já caiu, R$ 185.146,38 a receber |
+
+> **A ANTECIPAÇÃO TEM DUAS METADES, e só uma conta para a régua.** Os
+> R$ 3.148,77 dos lançamentos são o `ANTICIPATION_FEE` da aba `Composição`, que
+> **entra no repasse** — já estão descontados dentro dos R$ 425.328,75. Só a
+> **antecipação automática** (R$ 3.670,17) é debitada à parte, e ela vale
+> **0,863% do repasse** — exatamente os 0,865% medidos em 21–27/09. Usar os
+> 1,603% do total seria contar o mesmo desconto duas vezes.
+
+> **O REPASSE CAI PICADO, em mais de uma data.** Nesta semana R$ 217.390,07 já
+> tinham caído e R$ 185.146,38 ainda viriam. A linha da quarta no texto trata
+> como se tudo caísse no dia — é por isso que o recebido do dia pode vir bem
+> abaixo da previsão sem nada estar errado. As colunas `Pago deste repasse` e
+> `A receber deste repasse` da aba `Por loja` mostram a quebra.
+
+#### Como ler o `financeiro-aaaa-mm-dd-a-aaaa-mm-dd.xlsx`
+
+Três abas, `openpyxl` + `reset_dimensions()`:
+
+| Aba | O que tem |
+|---|---|
+| `Por loja` | uma linha por loja (54) **mais uma linha `TOTAL (54 loja(s) somada(s))`** com `Conta iFood Pago` vazia |
+| `Retido por banco` | retido por loja **mais duas linhas `TOTAL DA REDE`**, uma por banco |
+| `Composição` | os lançamentos do repasse por loja, com a coluna `Entra no repasse` (sim/não) |
+
+> **ARMADILHA: as duas primeiras abas trazem a linha de total junto com o
+> detalhe.** Somar tudo dá exatamente o **dobro** — foi o que aconteceu na
+> primeira leitura (repasse de R$ 848.408,70 em vez de R$ 424.204,35). Filtrar
+> `Conta iFood Pago` vazia na `Por loja` e `TOTAL DA REDE` na `Retido por banco`.
+
+Colunas da `Por loja` que importam: `Repasse` · `Retido` ·
+`Taxa de antecipação (débito)` · `Desconto por exclusividade (crédito)` ·
+`Líquido do repasse` · `Apurado no período` · `Pago deste repasse` ·
+`A receber deste repasse`.
+
+Na `Composição`, o `STORE_SUBSIDY` (−R$ 91.345,17 nesta semana) vem marcado
+**`não` entra no repasse** — é o incentivo que a loja banca, igual ao
+`INCENTIVO PROMOCIONAL DA LOJA` do relatório de pedidos.
+
+> **Não houve parcela do empréstimo em 12–18/10** — nada no extrato financeiro
+> nem no quadro da API. O `Valor líquido a receber` de R$ 402.536,45 é o que
+> sobra de fato.
 
 > **Puxar na quarta funcionou de novo.** Duas semanas seguidas em que o
 > relatório de quarta veio 100% liquidado. Vale manter o pedido fixo: prévia na

@@ -490,6 +490,11 @@ nada disso o texto sai só com a linha no total, como antes.
 > Em 21/10 isso trocou os R$ 425.328,75 por **R$ 407.331,02** na linha do iFood.
 > Antes dessa correção o retido entrava no total como se tivesse caído.
 
+> **E o rótulo da última linha do bloco mudou** (pedido dela no mesmo dia): na
+> quarta ela é `Líquido de recebimento`, porque o número já é o que sobra de
+> fato. Na **prévia de segunda** continua `Previsão de recebimento` — ali ainda
+> é estimativa.
+
 Na quarta, passar em `--ifood-valor` o **repasse líquido de antecipação**, e os
 descontos em `--ifood-desconto` — assim o bloco mostra a conta inteira e a
 linha do total já sai abatida:

@@ -1141,7 +1141,10 @@ def montar_texto(dias_usados, total, entrada, dia_previsto):
                 # valor com ~ no comando sai com ~ no texto: e estimativa
                 til = '~' if len(linha) > 2 and linha[2] else ''
                 partes.append(f'· {rotulo}: −R$ {til}{brl(valor)}')
-        partes.append(f'· Previsão de recebimento: *R$ {brl(valor_ifood)}*')
+        # na quarta o numero ja e o liquido que sobra; na segunda ainda e previa
+        rotulo_sobra = ('Líquido de recebimento' if ja_no_total
+                        else 'Previsão de recebimento')
+        partes.append(f'· {rotulo_sobra}: *R$ {brl(valor_ifood)}*')
         if ja_no_total:
             # nao e parcela nova: e a abertura da linha que ja entrou no total.
             # O total leva o que ENTRA NA CONTA (repasse menos retido); so os

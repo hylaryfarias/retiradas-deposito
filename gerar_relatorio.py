@@ -936,7 +936,7 @@ def ler_ifood_descontos(entradas):
 def calcular_entrada(agrupado, agrupado_anterior, titulos, dia_previsto,
                      ifood=None, override=None, liquido=True,
                      ifood_manual=None, ifood_entra=True, arrasto=None,
-                     pix=None, ifood_descontos=None):
+                     pix=None, ifood_descontos=None, ifood_retidos=None):
     """Monta as parcelas da entrada prevista.
 
     vendas   -> credito + debito do periodo atual (cartao, D+1)
@@ -979,11 +979,20 @@ def calcular_entrada(agrupado, agrupado_anterior, titulos, dia_previsto,
     # que ficam abertos no bloco do iFood logo abaixo. O retido e segurado
     # antes do credito e a parcela do emprestimo e debitada a parte, depois --
     # por isso os dois nao pertencem a linha de entrada.
+    # O RETIDO e segurado antes do credito: aquele dinheiro nunca chega na
+    # conta, entao sai do total do dia (decisao dela, 21/10: "no total la de
+    # cima tem que ser o bruto que entra na conta de repasse mesmo"). Ja os
+    # DESCONTOS (antecipacao, parcela do emprestimo) sao debitados depois do
+    # credito, entao passam pela conta e continuam dentro do total.
     ifood_descontos = ifood_descontos or []
+    ifood_retidos = ifood_retidos or []
     ifood_bruto_repasse = ifood_valor
-    ifood_liquido = ifood_valor
-    if ifood_valor is not None and ifood_descontos:
-        ifood_liquido = ifood_valor - sum(d[1] for d in ifood_descontos)
+    ifood_na_conta = ifood_valor
+    if ifood_valor is not None and ifood_retidos:
+        ifood_na_conta = ifood_valor - sum(r[1] for r in ifood_retidos)
+    ifood_liquido = ifood_na_conta
+    if ifood_na_conta is not None and ifood_descontos:
+        ifood_liquido = ifood_na_conta - sum(d[1] for d in ifood_descontos)
     # arrasto: vendas depois do corte da meia-noite do dia anterior, que
     # liquidam junto com hoje
     detalhe_arrasto = []
@@ -1012,10 +1021,11 @@ def calcular_entrada(agrupado, agrupado_anterior, titulos, dia_previsto,
                     * (1 - (TAXA_VOUCHER if liquido else 0.0))
                     if agrupado_anterior is not None else None),
         'taxa_voucher': TAXA_VOUCHER if liquido else 0.0,
-        'ifood': ifood_valor,                  # o que entra no total do dia
+        'ifood': ifood_na_conta,               # o que entra no total do dia
         'ifood_repasse_bruto': ifood_bruto_repasse,
         'ifood_liquido': ifood_liquido,        # o que sobra depois dos descontos
         'ifood_descontos': ifood_descontos,
+        'ifood_retidos': ifood_retidos,
         'a_prazo': sum(t['valor'] for t in vencendo) if vencendo else None,
         'titulos_a_prazo': vencendo,
         'vencimento_a_prazo': ', '.join(sorted({t['vencimento'] for t in vencendo})),
@@ -1115,28 +1125,31 @@ def montar_texto(dias_usados, total, entrada, dia_previsto):
     if ja_no_total and entrada.get('ifood') is not None:
         # na quarta o total leva o repasse cheio; aqui sai o que sobra
         valor_ifood = entrada.get('ifood_liquido')
-    tem_memoria = entrada.get('ifood_faturado') or entrada.get('ifood_descontos')
+    tem_memoria = (entrada.get('ifood_faturado') or entrada.get('ifood_descontos')
+                   or entrada.get('ifood_retidos'))
     if valor_ifood is not None and tem_memoria:
         janela = entrada['janela_ifood']
         partes += ['', f'🛵 *IFOOD — SEMANA {janela[0]:%d/%m} A {janela[1]:%d/%m}*', '']
         if entrada.get('ifood_faturado'):
             partes.append(f'· Faturamento: R$ {brl(entrada["ifood_faturado"])}')
+        retidos = entrada.get('ifood_retidos') or []
         descontos = entrada.get('ifood_descontos') or []
-        if descontos:
+        if retidos or descontos:
             partes.append(f'· Repasse previsto: R$ {brl(entrada["ifood_repasse_bruto"])}')
-            for desconto in descontos:
-                rotulo, valor = desconto[0], desconto[1]
+            for linha in list(retidos) + list(descontos):
+                rotulo, valor = linha[0], linha[1]
                 # valor com ~ no comando sai com ~ no texto: e estimativa
-                til = '~' if len(desconto) > 2 and desconto[2] else ''
+                til = '~' if len(linha) > 2 and linha[2] else ''
                 partes.append(f'· {rotulo}: −R$ {til}{brl(valor)}')
         partes.append(f'· Previsão de recebimento: *R$ {brl(valor_ifood)}*')
         if ja_no_total:
             # nao e parcela nova: e a abertura da linha que ja entrou no total.
-            # O total leva o REPASSE; os descontos saem a parte, depois.
+            # O total leva o que ENTRA NA CONTA (repasse menos retido); so os
+            # descontos debitados depois do credito e que saem a parte.
             if descontos:
                 partes.append(f'· Entra hoje, {entrada["data_repasse"]:%d/%m}. '
-                              f'No total acima está o repasse de '
-                              f'R$ {brl(entrada["ifood_repasse_bruto"])}; '
+                              f'No total acima está o que entra na conta, '
+                              f'R$ {brl(entrada["ifood"])}; '
                               f'os descontos saem à parte.')
             else:
                 partes.append(f'· Entra hoje, {entrada["data_repasse"]:%d/%m}, '
@@ -1173,11 +1186,18 @@ def main():
                         help='liquido do relatorio de pedidos, ANTES da antecipacao: '
                              'o script aplica os 1,59% sozinho. Use este em vez de '
                              '--ifood-valor quando o numero vier do relatorio.')
+    parser.add_argument('--ifood-retido', dest='ifood_retidos', action='append',
+                        default=[], metavar='[ROTULO=]VALOR',
+                        help='o que o iFood SEGURA antes de creditar (dividas de '
+                             'banco: Santander, Safra). Esse dinheiro nunca entra na '
+                             'conta, entao SAI DO TOTAL do dia -- a linha do total '
+                             'leva repasse menos retido. Pode repetir.')
     parser.add_argument('--ifood-desconto', dest='ifood_descontos', action='append',
                         default=[], metavar='[ROTULO=]VALOR',
-                        help='o que o iFood RETEM do repasse antes de creditar '
-                             '(ex.: --ifood-desconto "Parcela 18/22 do emprestimo='
-                             '40758.73"). Pode repetir; sai como linha propria no texto')
+                        help='o que e debitado DEPOIS do credito (parcela do '
+                             'emprestimo, taxa de antecipacao). Entra na conta e sai '
+                             'a parte, entao continua dentro do total do dia e sai '
+                             'como linha propria no texto. Pode repetir.')
     parser.add_argument('--ifood-faturado', dest='ifood_faturado', type=float,
                         help='faturamento bruto da semana do iFood, para mostrar junto da previa')
     parser.add_argument('--a-prazo', dest='a_prazo', default=A_PRAZO_PADRAO,
@@ -1444,7 +1464,8 @@ def main():
                                liquido=not args.bruto, ifood_manual=ifood_manual,
                                ifood_entra=not eh_segunda, arrasto=arrasto,
                                pix=pix,
-                               ifood_descontos=ler_ifood_descontos(args.ifood_descontos))
+                               ifood_descontos=ler_ifood_descontos(args.ifood_descontos),
+                               ifood_retidos=ler_ifood_descontos(args.ifood_retidos))
     entrada['origem_arrasto'] = origem_arrasto
     entrada['janela_ifood'] = janela
     entrada['antecipacao_aplicada'] = bool(antecipado)
@@ -1531,8 +1552,9 @@ def main():
     if entrada['ifood_previa'] is not None:
         print(f'  PREVIA iFood (NAO entra hoje)    {brl(entrada["ifood_bruto"] or 0):>10} '
               f'{brl(entrada["taxa_ifood"] * 100)+"%":>7} {brl(entrada["ifood_previa"]):>14}')
-        for desconto in entrada.get('ifood_descontos') or []:
-            print(f'    (-) {desconto[0]:<22} {"":>14} {"":>7} {brl(-desconto[1]):>14}')
+        for linha in (list(entrada.get('ifood_retidos') or [])
+                      + list(entrada.get('ifood_descontos') or [])):
+            print(f'    (-) {linha[0]:<22} {"":>14} {"":>7} {brl(-linha[1]):>14}')
         print(f'    semana {janela[0]:%d/%m} a {janela[1]:%d/%m}, '
               f'cai na quarta {entrada["data_repasse"]:%d/%m}')
     elif entrada['ifood'] is None:
@@ -1548,8 +1570,17 @@ def main():
             if rotulo.endswith('(-1,59% antecip.)'):
                 continue
             print(f'    {rotulo:<26} {"":>14} {"":>7} {brl(valor):>14}')
-        print(f'  {"= repasse iFood (vai no total)":<28} {"":>14} {"":>7} '
-              f'{brl(entrada["ifood"]):>14}')
+        retidos = entrada.get('ifood_retidos') or []
+        if retidos:
+            print(f'  {"= repasse iFood":<28} {"":>14} {"":>7} '
+                  f'{brl(entrada["ifood_repasse_bruto"]):>14}')
+            for linha in retidos:
+                print(f'    (-) {linha[0]:<22} {"":>14} {"":>7} {brl(-linha[1]):>14}')
+            print(f'  {"= entra na conta (vai no total)":<28} {"":>14} {"":>7} '
+                  f'{brl(entrada["ifood"]):>14}')
+        else:
+            print(f'  {"= repasse iFood (vai no total)":<28} {"":>14} {"":>7} '
+                  f'{brl(entrada["ifood"]):>14}')
         for desconto in entrada.get('ifood_descontos') or []:
             print(f'    (-) {desconto[0]:<22} {"":>14} {"":>7} {brl(-desconto[1]):>14}')
         if entrada.get('ifood_descontos'):

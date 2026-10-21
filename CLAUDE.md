@@ -469,6 +469,27 @@ nada disso o texto sai só com a linha no total, como antes.
 > então o que interessa ali é o que vai sobrar de fato. No `entrada`, a parcela
 > `ifood` é o repasse e `ifood_liquido` é o que sobra.
 
+> **CORREÇÃO DELA, 21/10: o RETIDO sai do total; os outros descontos ficam.**
+> *"no total lá de cima tem que ser o bruto que entra na conta de repasse mesmo.
+> 425 é antes do retido."* O retido é segurado **antes** do crédito — aquele
+> dinheiro nunca chega na conta, então não pode estar na linha de entrada do
+> dia. Já a taxa de antecipação e a parcela do empréstimo são debitadas
+> **depois** do crédito: passam pela conta e continuam dentro do total.
+>
+> Por isso o script tem **duas flags**, e a diferença é o momento:
+>
+> | Flag | O que é | No total do dia |
+> |---|---|---|
+> | `--ifood-retido` | segurado antes do crédito (dívidas Santander, Safra) | **sai** |
+> | `--ifood-desconto` | debitado depois (antecipação, parcela do empréstimo) | **fica** |
+>
+> A linha do total passa a ser `repasse − retido` (`entrada['ifood']`), o bloco
+> mostra a conta inteira e o fecho virou
+> `No total acima está o que entra na conta, R$ X; os descontos saem à parte.`
+>
+> Em 21/10 isso trocou os R$ 425.328,75 por **R$ 407.331,02** na linha do iFood.
+> Antes dessa correção o retido entrava no total como se tivesse caído.
+
 Na quarta, passar em `--ifood-valor` o **repasse líquido de antecipação**, e os
 descontos em `--ifood-desconto` — assim o bloco mostra a conta inteira e a
 linha do total já sai abatida:
@@ -476,10 +497,14 @@ linha do total já sai abatida:
 ```bash
 python3 gerar_relatorio.py cupons.xlsx --mes-anterior cupons_mes_anterior.xlsx \
     --ifood-valor "Semana 21 a 27/09=411789.77" \
+    --ifood-retido "Retido (dívidas Santander/Safra)=16900.01" \
     --ifood-desconto "Parcela 18/22 do empréstimo=40758.73" \
-    --ifood-desconto "Retido (dívidas Santander/Safra)=16900.01" \
     --ifood-faturado 651314.45 --saida saida
 ```
+
+O **repasse** vai em `--ifood-valor`, o que o iFood **segura** em
+`--ifood-retido` (sai do total) e o que é **debitado depois** em
+`--ifood-desconto` (fica no total).
 
 #### A cadeia inteira do repasse (o portal mostra, o relatório não)
 

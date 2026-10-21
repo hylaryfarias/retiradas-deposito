@@ -598,11 +598,12 @@ que é o que interessa:
 | Antecipação: usei 0,857%, foi 0,702% | +R$ 620,37 |
 | **Total** | **+R$ 7.112,32** |
 
-> **A RAZÃO DOS NÃO LIQUIDADOS NÃO É UMA CONSTANTE.** Foi **66,36%** no domingo
-> 27/09 e **80,42%** no domingo 04/10. Com duas medições tão distantes, usar
-> qualquer uma delas como régua fixa erra alguns milhares de reais. Enquanto não
-> houver uma terceira, usar a **média, ~73%**, e dizer no chat que essa é a
-> parcela mais frágil da prévia. Foi o maior componente do erro desta semana.
+> **A RAZÃO DOS NÃO LIQUIDADOS NÃO É UMA CONSTANTE — mas tem um valor típico.**
+> Três medições: **66,36%** (domingo 27/09), **80,42%** (04/10) e **65,25%**
+> (18/10). Duas das três ficaram em ~66%, então a régua é a **mediana, 66%**, e
+> **não** a média de 73% que valia antes — foi usar 73% que fez a prévia de
+> 21/10 sair R$ 4.199 alta. O 80,42% de 04/10 fica como ponto fora da curva.
+> Continua sendo a parcela mais frágil da prévia: dizer isso no chat.
 
 **As réguas, agora com os dois pares fechados:**
 
@@ -611,7 +612,7 @@ que é o que interessa:
 | Relatório fechado → repasse | 1,01347 | 1,01573 | **1,0146** (média) |
 | Antecipação / repasse | 0,865% | 0,702% | **0,78%** (média) — varia com quanto foi antecipado |
 | Retido / repasse | 4,32% | 3,83% | **imprevisível**, perguntar sempre |
-| Não liquidados / itens | 66,36% | 80,42% | **~73%** (média), e avisar que é chute |
+| Não liquidados / itens | 66,36% | 80,42% | **66%** (mediana de três, ver abaixo) |
 
 > **O quadro da API e o do Portal não dizem a mesma coisa.** A API mostra
 > `Repasse total R$ 424.901,97` com a nota *"antes da antecipação · no Portal:
@@ -685,6 +686,49 @@ liquidados — praticamente desapareceu**.
 > fechada, **vale mudar a rotina e puxar sempre na terça** em vez de segunda — a
 > prévia atrasa um dia mas deixa de depender do chute de 66% a 80%. Conferir na
 > semana 12–18/10.
+
+#### A semana 12–18/10: a terceira medição dos não liquidados
+
+Puxada na **segunda 19/10** (com domingo incompleto) e **de novo na quarta
+21/10**, já fechada. É o terceiro par e mata a dúvida da régua:
+
+| | Segunda 19/10 | Quarta 21/10 |
+|---|---:|---:|
+| Pedidos válidos | 12.879 | 12.877 |
+| Líquido | R$ 383.766,38 | **R$ 418.908,72** |
+| Itens | R$ 664.213,58 | R$ 664.044,00 |
+| Sem liquidar | 912 (itens R$ 53.853,92) | **nenhum** |
+
+| | |
+|---|---:|
+| Os 912 pedidos do domingo 18/10 valiam | **R$ 35.142,34** |
+| sobre itens de R$ 53.853,92 | **65,25%** |
+
+Na prévia eu usei a média de 73% e estimei R$ 39.313,36 — **R$ 4.171,02 a
+mais**, o que fez o texto de 21/10 sair R$ 4.198,91 alto (1,0%). Com três
+medições (66,36% · 80,42% · 65,25%), a régua passou a ser a **mediana, 66%**.
+
+A cadeia desta semana, com o relatório fechado:
+
+| | | |
+|---|---:|---|
+| Líquido do relatório fechado | R$ 418.908,72 | 12.877 pedidos, nada zerado |
+| Repasse estimado (×1,0146) | R$ 425.024,79 | |
+| − Antecipação (0,78%) | −R$ 3.315,19 | |
+| **= Antes do retido** | **R$ 421.709,59** | o que foi para o total da quarta |
+| − Retido (estimativa dela) | −R$ 18.000,00 | **o real ainda não veio** |
+| = Previsão de recebimento | R$ 403.709,59 | |
+
+> **Falta o print do portal desta semana** para medir o fator
+> relatório fechado → repasse e a antecipação reais. Sem ele, 1,0146 e 0,78%
+> seguem como médias dos dois pares anteriores. O retido foi **estimado em
+> R$ 18 mil** nas duas últimas semanas (05–11/10 e 12–18/10) — os dois
+> continuam em aberto.
+
+> **Puxar na quarta funcionou de novo.** Duas semanas seguidas em que o
+> relatório de quarta veio 100% liquidado. Vale manter o pedido fixo: prévia na
+> segunda com a régua de 66%, e **sempre** o repuxe de quarta para fechar com
+> número real.
 
 #### Teste de completude do relatório de pedidos (Cloudfy × iFood)
 

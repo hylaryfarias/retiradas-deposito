@@ -1075,6 +1075,28 @@ em padrão BR e vencimento `dd/mm/aaaa`.
 > fechou) — essas não entram, pela regra da linha zerada. O recebimento cai na
 > **sexta seguinte ao fim do consumo** (consumo 05–11/10 → Pix em 16/10).
 
+> **O CONSUMO DE COLABORADORES É MENSAL, e também é minha tarefa cobrar.**
+> Descoberto em 27/10, quando ela mandou o print e os três títulos não estavam
+> na tabela. São **três linhas, uma por entidade**, todas em Pix e com o mesmo
+> vencimento:
+>
+> | Título | Consumo 16/09 a 15/10 |
+> |---|---:|
+> | CONSUMO COLABORADORES RAGGA | R$ 14.243,53 |
+> | CONSUMO COLABORADORES VESPA | R$ 6.965,69 |
+> | CONSUMO COLABORADORES MEL | R$ 3.859,24 |
+> | **Total** | **R$ 25.068,46** |
+>
+> O ciclo é **do dia 16 ao 15** e o recebimento cai por volta do **dia 27**.
+> São R$ 25 mil — a maior parcela de a prazo do mês, e some da previsão se
+> ninguém lembrar. **Pedir os três valores todo dia 16**, junto com a rodada
+> daquele dia.
+>
+> Elas são exatamente as linhas que a regra da linha zerada manda deixar de
+> fora **antes** do fechamento. O erro aqui foi tratar "fica de fora" como
+> "esquece": a linha zerada não entra na previsão, mas **vira pergunta** quando
+> o ciclo fecha.
+
 Estado atual (atualizado em 13/10): **31 títulos, R$ 68.008,92**.
 
 | Entra em | Títulos | Valor | |

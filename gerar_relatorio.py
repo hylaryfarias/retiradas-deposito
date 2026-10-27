@@ -154,11 +154,24 @@ SEGUNDA, QUARTA = 0, 2
 # taxa real de cada transacao -- a taxa real sai do EDI (skill ragga-conciliacao).
 # Aplicadas sobre o bruto de cada forma. Para mudar uma taxa, e aqui.
 # ---------------------------------------------------------------------------
+# Tabela nova do Sicredi (quadro que ela mandou em 27/10/2026, medido venda a
+# venda e IGUAL NAS 17 LOJAS). A tabela e por bandeira; o que entra aqui e a
+# media ponderada pelo mix medido nos extratos de 21 e 22/10:
+#
+#   DEBITO   Master/Visa 0,75% | ELO 1,05% | Cabal 1,10%
+#            mix: Master 58,6% + Visa 33,2% + ELO 8,1%        -> 0,774%
+#   CREDITO  Master/Visa 0,91% | ELO/AMEX 1,35% | Cabal 1,40%
+#            mix: Master 63,9% + Visa 33,2% + ELO 2,8%        -> 0,923% de MDR
+#            + antecipacao automatica 1,46%                   -> 2,383%
+#
+# A renegociacao derrubou as duas: a antecipacao era 1,53-1,54% e o credito
+# com antecipacao era 2,60-2,90%.
 TAXAS = {
-    'TEF - CREDITO': 0.0263,   # 2,63%
-    'TEF - DEBITO': 0.0099,    # 0,99%
+    'TEF - CREDITO': 0.0238,   # 2,38% = 0,923% de MDR + 1,46% de antecipacao
+    'TEF - DEBITO': 0.0077,    # 0,77%
     'PIX MAQUININHA': 0.0000,  # sem taxa
 }
+SICREDI_ANTECIPACAO = 0.0146   # antecipacao automatica, ja dentro do credito
 
 # iFood: taxa EFETIVA MEDIDA sobre o faturado do Cloudfy (PAGAMENTO ONLINE).
 #

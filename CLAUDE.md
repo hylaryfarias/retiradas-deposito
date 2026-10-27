@@ -939,8 +939,8 @@ lá:
 
 | Forma | Taxa |
 |---|---:|
-| Crédito (`TEF - CREDITO`) | 2,63% |
-| Débito (`TEF - DEBITO`) | 0,99% |
+| Crédito (`TEF - CREDITO`) | **2,38%** |
+| Débito (`TEF - DEBITO`) | **0,77%** |
 | Pix maquininha | 0% |
 | Voucher | **6,90%** — a maior das operadoras |
 | iFood (`PAGAMENTO ONLINE`) | **25,064% efetivos** (medido) — só na estimativa por `--ifood`; o valor de `--ifood-valor` já vem líquido |
@@ -978,6 +978,49 @@ Regras de uso:
   operadora for levantada, é trocar uma linha — **não perguntar a cada envio**.
 - **A venda a prazo sai bruta** — é boleto, sem adquirente no meio.
 - `--bruto` desliga tudo e devolve a entrada prevista no bruto, para comparar.
+
+#### TAXA NOVA DO SICREDI (quadro de 27/10/2026)
+
+Ela mandou o quadro da renegociação, **medido venda a venda e igual nas 17
+lojas** — isso fecha a dúvida de tratar loja a loja: não precisa.
+
+| | Mastercard/Visa | ELO | Cabal | AMEX |
+|---|---:|---:|---:|---:|
+| Crédito à vista | **0,91%** | 1,35% | 1,40% | 1,35% |
+| Débito | **0,75%** | 1,05% | 1,10% | — |
+| Pix | **0%** | | | |
+
+| | Agora | Era |
+|---|---:|---:|
+| Antecipação automática | **1,46%** | 1,53% a 1,54% |
+| Crédito com antecipação | **2,37%** | 2,60% a 2,90% |
+
+**A tabela é por bandeira, mas `TAXAS` é um número só por forma.** O que entra
+no script é a **média ponderada pelo mix real**, medido nos extratos de 21 e
+22/10 (as descrições do Sicredi trazem a bandeira: `SICREDI DEBITO MASTER`,
+`SICREDI ANTEC ELO` etc.):
+
+| | Mix medido | Ponderado |
+|---|---|---:|
+| Débito | Master 58,6% · Visa 33,2% · ELO 8,1% | **0,774%** → `0.0077` |
+| Crédito (MDR) | Master 63,9% · Visa 33,2% · ELO 2,8% · AMEX 0,1% | 0,923% |
+| + antecipação automática | | **2,383%** → `0.0238` |
+
+Confere com o próprio quadro: 0,91% + 1,46% = 2,37% é a conta para
+Master/Visa, e a ponderação sobe um fio por causa do ELO.
+
+> **Refazer a ponderação quando o mix mudar.** O mix sai de qualquer extrato
+> do Sicredi, somando por bandeira as entradas cujo `Descrição` começa com
+> `SICREDI`. Cabal não apareceu em nenhum extrato até agora.
+
+**O que a renegociação vale:** num dia de ~R$ 70 mil de cartão, cerca de
+**R$ 230/dia**, ~R$ 7 mil/mês. Na previsão de 27/10 devolveu R$ 163,08.
+
+> **FORA DA TAXA, mas no mesmo quadro: 154 máquinas alugadas, R$ 8.166,00 por
+> mês**, com preço de R$ 39,00 a R$ 129,00 por máquina e **22 delas no preço
+> mais alto**. Migrar essas 22 para o plano de R$ 39,00 economizaria
+> **R$ 1.980,00/mês**. É aluguel, não entra na entrada prevista — mas vale
+> perguntar por que estão no plano caro.
 
 #### Validação contra o Sicredi (semana 08–14/09/2026)
 

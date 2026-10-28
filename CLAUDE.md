@@ -497,26 +497,27 @@ nada disso o texto sai só com a linha no total, como antes.
 > então o que interessa ali é o que vai sobrar de fato. No `entrada`, a parcela
 > `ifood` é o repasse e `ifood_liquido` é o que sobra.
 
-> **CORREÇÃO DELA, 21/10: o RETIDO sai do total; os outros descontos ficam.**
-> *"no total lá de cima tem que ser o bruto que entra na conta de repasse mesmo.
-> 425 é antes do retido."* O retido é segurado **antes** do crédito — aquele
-> dinheiro nunca chega na conta, então não pode estar na linha de entrada do
-> dia. Já a taxa de antecipação e a parcela do empréstimo são debitadas
-> **depois** do crédito: passam pela conta e continuam dentro do total.
+> **REGRA FECHADA, 28/10: no TOTAL vai o REPASSE CHEIO. Ponto.**
+> *"o total também tem que ser o cheio."* Retido, taxa de antecipação e parcela
+> do empréstimo são **todos** descontos que saem à parte, no bloco de baixo —
+> nenhum deles abate a linha de entrada do dia.
 >
-> Por isso o script tem **duas flags**, e a diferença é o momento:
+> **Eu já errei isso uma vez, lendo errado a correção dela de 21/10.** Ela
+> escreveu *"no total lá de cima tem que ser o bruto que entra na conta de
+> repasse mesmo. Lá nas entradas... 425 é antes do retido."* Entendi "o que
+> sobra depois do retido" e passei a mandar `repasse − retido` no total; o que
+> ela queria era o **bruto**, e o "425 é antes do retido" era a informação de
+> que aquele número já é o cheio. Resultado: o texto de 21/10 foi com
+> R$ 407.331,02 onde devia ir R$ 425.328,75 — **R$ 17.997,73 a menos**.
 >
-> | Flag | O que é | No total do dia |
-> |---|---|---|
-> | `--ifood-retido` | segurado antes do crédito (dívidas Santander, Safra) | **sai** |
-> | `--ifood-desconto` | debitado depois (antecipação, parcela do empréstimo) | **fica** |
+> `--ifood-retido` e `--ifood-desconto` continuam existindo, mas agora a
+> diferença é só a **ordem e o rótulo no bloco**: o retido é segurado antes do
+> crédito e aparece primeiro; os descontos vêm depois. Nenhum dos dois mexe no
+> total, que é sempre `entrada['ifood'] = ifood_valor`.
 >
-> A linha do total passa a ser `repasse − retido` (`entrada['ifood']`), o bloco
-> mostra a conta inteira e o fecho virou
-> `No total acima está o que entra na conta, R$ X; os descontos saem à parte.`
->
-> Em 21/10 isso trocou os R$ 425.328,75 por **R$ 407.331,02** na linha do iFood.
-> Antes dessa correção o retido entrava no total como se tivesse caído.
+> O fecho da quarta:
+> `Entra hoje, dd/mm. No total acima está o repasse de R$ X; os descontos saem
+> à parte.`
 
 > **E o rótulo da última linha do bloco mudou** (pedido dela no mesmo dia): na
 > quarta ela é `Líquido de recebimento`, porque o número já é o que sobra de
@@ -535,9 +536,9 @@ python3 gerar_relatorio.py cupons.xlsx --mes-anterior cupons_mes_anterior.xlsx \
     --ifood-faturado 651314.45 --saida saida
 ```
 
-O **repasse** vai em `--ifood-valor`, o que o iFood **segura** em
-`--ifood-retido` (sai do total) e o que é **debitado depois** em
-`--ifood-desconto` (fica no total).
+O **repasse cheio** vai em `--ifood-valor` e é ele que entra no total do dia.
+O que o iFood **segura** vai em `--ifood-retido` e o que é **debitado depois**
+em `--ifood-desconto` — os dois só aparecem no bloco, nessa ordem.
 
 #### A cadeia inteira do repasse (o portal mostra, o relatório não)
 
@@ -680,7 +681,7 @@ que é o que interessa:
 
 | Fator | 21–27/09 | 28/09–04/10 | 12–18/10 | Usar |
 |---|---:|---:|---:|---|
-| Relatório fechado → repasse | 1,01347 | 1,01573 | 1,01533 | **1,0148** (média) |
+| Relatório fechado → repasse | 1,01347 | 1,01573 | 1,01533 | **1,0123** (média de quatro, com 1,00452 em 19–25/10) |
 | Antecipação automática / repasse | 0,865% | 0,702% | 0,863% | **0,81%** (média) |
 | Retido / repasse | 4,32% | 3,83% | 4,23% | **~4,1%** quando ela não tiver o número — mas **perguntar sempre** |
 | Não liquidados / itens | 66,36% | 80,42% | 65,25% | **72%** (média de quatro, com 76,51% em 25/10) |
@@ -885,8 +886,39 @@ prévia: aplicada ao repasse, ela saiu R$ 2.217,11 baixa.
 | − Antecipação (0,81%) | −R$ 3.225,48 | −R$ 3.243,44 |
 | = Líquido de recebimento | R$ 378.655,49 | **R$ 380.763,74** |
 
-> **O retido desta semana ainda é estimativa** (4,1% do repasse). Falta o
-> extrato financeiro ou o quadro da API de 19–25/10.
+**E o quadro da API fechou a semana no mesmo dia.** Aqui a previsão saiu
+**alta**, ao contrário da semana anterior:
+
+| | Mandei | Real | |
+|---|---:|---:|---:|
+| Repasse | R$ 400.424,59 | **R$ 396.367,98** | −R$ 4.056,61 |
+| Líquido de recebimento | R$ 380.763,74 | **R$ 376.064,61** | −R$ 4.699,13 (−1,23%) |
+
+| | | |
+|---|---:|---|
+| Líquido do relatório fechado | R$ 394.584,74 | |
+| Repasse total | R$ 396.367,98 | **×1,00452**; no Portal R$ 395.484,58 |
+| − Retido | −R$ 15.937,82 | **4,02%**; R$ 13.550,47 Santander + R$ 2.387,35 **sem informado** |
+| = Base bruta a receber | R$ 380.430,16 | |
+| − Taxa de antecipação (débito) | −R$ 6.389,92 | R$ 3.482,15 automática (**0,879%**) + R$ 2.907,77 nos lançamentos |
+| + Desconto por exclusividade | +R$ 2.024,37 | |
+| **= Valor líquido a receber** | **R$ 376.064,61** | R$ 152.340,01 já caiu, R$ 223.724,60 a receber |
+
+> **O FATOR RELATÓRIO→REPASSE TAMBÉM É RUÍDO.** Quatro medições: 1,01347 ·
+> 1,01573 · 1,01533 · **1,00452**. As três primeiras ficaram coladas em ~1,015
+> e a quarta despencou para 1,0045 — e foi daí que veio praticamente todo o
+> erro de R$ 4.056,61 desta semana (o retido e a antecipação quase se
+> anularam, +R$ 479,59 e −R$ 238,71).
+>
+> Mesma lição da régua dos não liquidados: **três pontos juntos não são padrão**.
+> Usar a **média das quatro, 1,0123**, e não reajustar a cada semana.
+
+> **Duas coisas novas neste quadro, para perguntar no portal:**
+> 1. O retido ganhou uma linha **`sem informado`** de R$ 2.387,35 — antes era
+>    sempre Santander + Safra.
+> 2. O **desconto por exclusividade veio R$ 2.024,37, idêntico ao da semana
+>    anterior** até os centavos. Num número que depende do volume antecipado,
+>    duas semanas iguais é estranho: pode ser valor fixo ou campo travado.
 
 #### Teste de completude do relatório de pedidos (Cloudfy × iFood)
 

@@ -1108,20 +1108,22 @@ def calcular_entrada(agrupado, agrupado_anterior, titulos, dia_previsto,
     # que ficam abertos no bloco do iFood logo abaixo. O retido e segurado
     # antes do credito e a parcela do emprestimo e debitada a parte, depois --
     # por isso os dois nao pertencem a linha de entrada.
-    # O RETIDO e segurado antes do credito: aquele dinheiro nunca chega na
-    # conta, entao sai do total do dia (decisao dela, 21/10: "no total la de
-    # cima tem que ser o bruto que entra na conta de repasse mesmo"). Ja os
-    # DESCONTOS (antecipacao, parcela do emprestimo) sao debitados depois do
-    # credito, entao passam pela conta e continuam dentro do total.
+    # O TOTAL DO DIA LEVA O REPASSE CHEIO (ela, 28/10: "o total tambem tem que
+    # ser o cheio"). Retido, antecipacao e parcela do emprestimo sao TODOS
+    # descontos que saem a parte, no bloco de baixo -- nenhum deles abate a
+    # linha de entrada do dia. A Amanda le o que entrou e depois os descontos.
+    #
+    # --ifood-retido e --ifood-desconto continuam separados so pela ORDEM e
+    # pelo rotulo no bloco: o retido e segurado antes do credito e aparece
+    # primeiro; os descontos sao debitados depois e vem em seguida.
     ifood_descontos = ifood_descontos or []
     ifood_retidos = ifood_retidos or []
     ifood_bruto_repasse = ifood_valor
     ifood_na_conta = ifood_valor
-    if ifood_valor is not None and ifood_retidos:
-        ifood_na_conta = ifood_valor - sum(r[1] for r in ifood_retidos)
-    ifood_liquido = ifood_na_conta
-    if ifood_na_conta is not None and ifood_descontos:
-        ifood_liquido = ifood_na_conta - sum(d[1] for d in ifood_descontos)
+    ifood_liquido = ifood_valor
+    if ifood_valor is not None:
+        ifood_liquido = ifood_valor - sum(r[1] for r in ifood_retidos) \
+                                    - sum(d[1] for d in ifood_descontos)
     # arrasto: vendas depois do corte da meia-noite do dia anterior, que
     # liquidam junto com hoje
     detalhe_arrasto = []
@@ -1278,10 +1280,10 @@ def montar_texto(dias_usados, total, entrada, dia_previsto):
             # nao e parcela nova: e a abertura da linha que ja entrou no total.
             # O total leva o que ENTRA NA CONTA (repasse menos retido); so os
             # descontos debitados depois do credito e que saem a parte.
-            if descontos:
+            if retidos or descontos:
                 partes.append(f'· Entra hoje, {entrada["data_repasse"]:%d/%m}. '
-                              f'No total acima está o que entra na conta, '
-                              f'R$ {brl(entrada["ifood"])}; '
+                              f'No total acima está o repasse de '
+                              f'R$ {brl(entrada["ifood_repasse_bruto"])}; '
                               f'os descontos saem à parte.')
             else:
                 partes.append(f'· Entra hoje, {entrada["data_repasse"]:%d/%m}, '
@@ -1329,15 +1331,14 @@ def main():
     parser.add_argument('--ifood-retido', dest='ifood_retidos', action='append',
                         default=[], metavar='[ROTULO=]VALOR',
                         help='o que o iFood SEGURA antes de creditar (dividas de '
-                             'banco: Santander, Safra). Esse dinheiro nunca entra na '
-                             'conta, entao SAI DO TOTAL do dia -- a linha do total '
-                             'leva repasse menos retido. Pode repetir.')
+                             'banco: Santander, Safra). Sai a parte no bloco, ANTES '
+                             'dos descontos -- o total do dia leva o repasse cheio. '
+                             'Pode repetir.')
     parser.add_argument('--ifood-desconto', dest='ifood_descontos', action='append',
                         default=[], metavar='[ROTULO=]VALOR',
                         help='o que e debitado DEPOIS do credito (parcela do '
-                             'emprestimo, taxa de antecipacao). Entra na conta e sai '
-                             'a parte, entao continua dentro do total do dia e sai '
-                             'como linha propria no texto. Pode repetir.')
+                             'emprestimo, taxa de antecipacao). Sai a parte no bloco, '
+                             'depois do retido. Pode repetir.')
     parser.add_argument('--ifood-faturado', dest='ifood_faturado', type=float,
                         help='faturamento bruto da semana do iFood, para mostrar junto da previa')
     parser.add_argument('--a-prazo', dest='a_prazo', default=A_PRAZO_PADRAO,
@@ -1741,20 +1742,13 @@ def main():
             if rotulo.endswith('(-1,59% antecip.)'):
                 continue
             print(f'    {rotulo:<26} {"":>14} {"":>7} {brl(valor):>14}')
-        retidos = entrada.get('ifood_retidos') or []
-        if retidos:
-            print(f'  {"= repasse iFood":<28} {"":>14} {"":>7} '
-                  f'{brl(entrada["ifood_repasse_bruto"]):>14}')
-            for linha in retidos:
-                print(f'    (-) {linha[0]:<22} {"":>14} {"":>7} {brl(-linha[1]):>14}')
-            print(f'  {"= entra na conta (vai no total)":<28} {"":>14} {"":>7} '
-                  f'{brl(entrada["ifood"]):>14}')
-        else:
-            print(f'  {"= repasse iFood (vai no total)":<28} {"":>14} {"":>7} '
-                  f'{brl(entrada["ifood"]):>14}')
-        for desconto in entrada.get('ifood_descontos') or []:
-            print(f'    (-) {desconto[0]:<22} {"":>14} {"":>7} {brl(-desconto[1]):>14}')
-        if entrada.get('ifood_descontos'):
+        print(f'  {"= repasse iFood (vai no total)":<28} {"":>14} {"":>7} '
+              f'{brl(entrada["ifood"]):>14}')
+        abatidos = (list(entrada.get('ifood_retidos') or [])
+                    + list(entrada.get('ifood_descontos') or []))
+        for linha in abatidos:
+            print(f'    (-) {linha[0]:<22} {"":>14} {"":>7} {brl(-linha[1]):>14}')
+        if abatidos:
             print(f'    {"= sobra depois dos descontos":<26} {"":>14} {"":>7} '
                   f'{brl(entrada["ifood_liquido"]):>14}')
         if janela is not None:

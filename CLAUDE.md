@@ -497,27 +497,29 @@ nada disso o texto sai só com a linha no total, como antes.
 > então o que interessa ali é o que vai sobrar de fato. No `entrada`, a parcela
 > `ifood` é o repasse e `ifood_liquido` é o que sobra.
 
-> **REGRA FECHADA, 28/10: no TOTAL vai o REPASSE CHEIO. Ponto.**
-> *"o total também tem que ser o cheio."* Retido, taxa de antecipação e parcela
-> do empréstimo são **todos** descontos que saem à parte, no bloco de baixo —
-> nenhum deles abate a linha de entrada do dia.
+> **REGRA FECHADA: o RETIDO sai do total; os outros descontos ficam.**
+> Correção dela em 21/10: *"no total lá de cima tem que ser o bruto que entra
+> na conta de repasse mesmo. Lá nas entradas... 425 é antes do retido."*
+> O retido é segurado **antes** do crédito — aquele dinheiro nunca chega na
+> conta, então não pertence à linha de entrada do dia. Já a taxa de antecipação
+> e a parcela do empréstimo são debitadas **depois** do crédito: passam pela
+> conta e continuam dentro do total.
 >
-> **Eu já errei isso uma vez, lendo errado a correção dela de 21/10.** Ela
-> escreveu *"no total lá de cima tem que ser o bruto que entra na conta de
-> repasse mesmo. Lá nas entradas... 425 é antes do retido."* Entendi "o que
-> sobra depois do retido" e passei a mandar `repasse − retido` no total; o que
-> ela queria era o **bruto**, e o "425 é antes do retido" era a informação de
-> que aquele número já é o cheio. Resultado: o texto de 21/10 foi com
-> R$ 407.331,02 onde devia ir R$ 425.328,75 — **R$ 17.997,73 a menos**.
+> | Flag | O que é | No total do dia |
+> |---|---|---|
+> | `--ifood-retido` | segurado antes do crédito (dívidas Santander, Safra) | **sai** |
+> | `--ifood-desconto` | debitado depois (antecipação, parcela do empréstimo) | **fica** |
 >
-> `--ifood-retido` e `--ifood-desconto` continuam existindo, mas agora a
-> diferença é só a **ordem e o rótulo no bloco**: o retido é segurado antes do
-> crédito e aparece primeiro; os descontos vêm depois. Nenhum dos dois mexe no
-> total, que é sempre `entrada['ifood'] = ifood_valor`.
+> A linha do total é `repasse − retido` (`entrada['ifood']`), o bloco mostra a
+> conta inteira e o fecho é
+> `Entra hoje, dd/mm. No total acima está o que entra na conta, R$ X; os
+> descontos saem à parte.`
 >
-> O fecho da quarta:
-> `Entra hoje, dd/mm. No total acima está o repasse de R$ X; os descontos saem
-> à parte.`
+> **ISSO JÁ FOI ATRÁS E VOLTOU — não mexer de novo.** Em 28/10 ela escreveu
+> *"o total também tem que ser o cheio"*, eu troquei tudo, e minutos depois
+> ela voltou: *"desculpa, o texto tem que ser sem o retido mesmo, vc tava
+> certo"*. A regra de 21/10 vale. Só mudar se ela pedir com essas palavras de
+> novo **e** confirmar depois.
 
 > **E o rótulo da última linha do bloco mudou** (pedido dela no mesmo dia): na
 > quarta ela é `Líquido de recebimento`, porque o número já é o que sobra de
@@ -536,9 +538,9 @@ python3 gerar_relatorio.py cupons.xlsx --mes-anterior cupons_mes_anterior.xlsx \
     --ifood-faturado 651314.45 --saida saida
 ```
 
-O **repasse cheio** vai em `--ifood-valor` e é ele que entra no total do dia.
-O que o iFood **segura** vai em `--ifood-retido` e o que é **debitado depois**
-em `--ifood-desconto` — os dois só aparecem no bloco, nessa ordem.
+O **repasse** vai em `--ifood-valor`, o que o iFood **segura** em
+`--ifood-retido` (sai do total) e o que é **debitado depois** em
+`--ifood-desconto` (fica no total).
 
 #### A cadeia inteira do repasse (o portal mostra, o relatório não)
 

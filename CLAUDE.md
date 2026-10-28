@@ -656,12 +656,25 @@ que é o que interessa:
 | Antecipação: usei 0,857%, foi 0,702% | +R$ 620,37 |
 | **Total** | **+R$ 7.112,32** |
 
-> **A RAZÃO DOS NÃO LIQUIDADOS NÃO É UMA CONSTANTE — mas tem um valor típico.**
-> Três medições: **66,36%** (domingo 27/09), **80,42%** (04/10) e **65,25%**
-> (18/10). Duas das três ficaram em ~66%, então a régua é a **mediana, 66%**, e
-> **não** a média de 73% que valia antes — foi usar 73% que fez a prévia de
-> 21/10 sair R$ 4.199 alta. O 80,42% de 04/10 fica como ponto fora da curva.
-> Continua sendo a parcela mais frágil da prévia: dizer isso no chat.
+> **A RAZÃO DOS NÃO LIQUIDADOS É RUÍDO, NÃO PADRÃO — usar 72% e parar de
+> reajustar.** Quatro medições: **66,36%** (27/09), **80,42%** (04/10),
+> **65,25%** (18/10) e **76,51%** (25/10). Duas em ~66% e duas em ~78%, sem
+> mediana estável.
+>
+> Em 21/10 eu troquei a média de 73% pela "mediana de 66%" por ver padrão em
+> três pontos — e a quarta medição desmentiu na semana seguinte: a prévia de
+> 26/10 saiu **R$ 2.184,78 baixa** justamente por causa dos 66%. Antes disso,
+> a de 19/10 tinha saído R$ 4.171 alta com 73%. **A régua erra para os dois
+> lados e nenhum ajuste conserta**: cada medição nova move o número e a régua
+> fica perseguindo barulho.
+>
+> Então: **média das quatro, 72%**, e não mexer mais sem uma explicação de
+> *por que* a razão varia. Continua sendo a parcela mais frágil da prévia —
+> dizer isso no chat toda segunda.
+>
+> **O que resolve não é a régua, é o dia de puxar.** Nas duas vezes em que o
+> relatório foi puxado na terça (13/10 e 28/10) ele veio praticamente fechado,
+> e a estimativa deixa de existir.
 
 **As réguas, agora com três pares fechados:**
 
@@ -670,7 +683,7 @@ que é o que interessa:
 | Relatório fechado → repasse | 1,01347 | 1,01573 | 1,01533 | **1,0148** (média) |
 | Antecipação automática / repasse | 0,865% | 0,702% | 0,863% | **0,81%** (média) |
 | Retido / repasse | 4,32% | 3,83% | 4,23% | **~4,1%** quando ela não tiver o número — mas **perguntar sempre** |
-| Não liquidados / itens | 66,36% | 80,42% | 65,25% | **66%** (mediana de três) |
+| Não liquidados / itens | 66,36% | 80,42% | 65,25% | **72%** (média de quatro, com 76,51% em 25/10) |
 
 > **O RETIDO PAROU DE SER IMPREVISÍVEL.** As três últimas semanas ficaram em
 > 3,83% a 4,32% do repasse — bem longe dos 1,88% de 07–13/09. Continua sendo
@@ -844,10 +857,36 @@ Na `Composição`, o `STORE_SUBSIDY` (−R$ 91.345,17 nesta semana) vem marcado
 > nem no quadro da API. O `Valor líquido a receber` de R$ 402.536,45 é o que
 > sobra de fato.
 
-> **Puxar na quarta funcionou de novo.** Duas semanas seguidas em que o
-> relatório de quarta veio 100% liquidado. Vale manter o pedido fixo: prévia na
-> segunda com a régua de 66%, e **sempre** o repuxe de quarta para fechar com
+> **Puxar na quarta funcionou de novo.** Três semanas seguidas em que o
+> relatório de quarta veio 100% liquidado. Manter o pedido fixo: prévia na
+> segunda com a régua de 72%, e **sempre** o repuxe de quarta para fechar com
 > número real.
+
+#### A semana 19–25/10: quarta medição, e a régua volta para a média
+
+Puxada na segunda 26/10 (361 pedidos de domingo sem liquidar, R$ 20.778,10 de
+itens) e de novo na quarta 28/10, fechada: **11.961 pedidos, nenhum zerado**.
+
+| | |
+|---|---:|
+| Líquido na segunda | R$ 378.686,41 |
+| Líquido na quarta | **R$ 394.584,74** |
+| Os 361 pedidos valiam | **R$ 15.898,33** |
+| sobre itens de R$ 20.778,10 | **76,51%** |
+
+Com 66% estimei R$ 13.713,55 — **R$ 2.184,78 a menos**. Foi o único erro da
+prévia: aplicada ao repasse, ela saiu R$ 2.217,11 baixa.
+
+| | Prévia de segunda | Com o fechado |
+|---|---:|---:|
+| Repasse | R$ 398.207,48 | **R$ 400.424,59** |
+| − Retido (estimado, 4,1%) | −R$ 16.326,51 | −R$ 16.417,41 |
+| = Entra na conta (vai no total) | R$ 381.880,97 | **R$ 384.007,18** |
+| − Antecipação (0,81%) | −R$ 3.225,48 | −R$ 3.243,44 |
+| = Líquido de recebimento | R$ 378.655,49 | **R$ 380.763,74** |
+
+> **O retido desta semana ainda é estimativa** (4,1% do repasse). Falta o
+> extrato financeiro ou o quadro da API de 19–25/10.
 
 #### Teste de completude do relatório de pedidos (Cloudfy × iFood)
 

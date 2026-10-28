@@ -11,6 +11,7 @@ Uso:
 """
 
 import argparse
+import calendar
 import csv as csvmod
 import datetime
 import json
@@ -50,6 +51,18 @@ GRUPOS = OrderedDict([
 # estreou; quem nao estiver nele sai como ATENCAO no console e e gravado.
 FORMAS_PIX_TEF = ('PIX - TEF', 'TEF - PIX')
 LOJAS_PIX_TEF_PADRAO = 'pix_tef_lojas.csv'
+
+# Caderno de TODO dia que ja passou pelo script, ja agrupado por GRUPOS.
+# Existe para o voucher D+30 nao depender dela reenviar o relatorio de um mes
+# atras: ela ja mandou aquele dia uma vez, e isso basta. Ver FILIAIS_MINIMAS.
+HISTORICO_VENDAS_PADRAO = 'historico_vendas.csv'
+
+# Um relatorio de cupons com poucas filiais e um arquivo FILTRADO POR LOJA, nao
+# o dia inteiro -- aconteceu em 28/10/2026, quando o 27/09 veio so com a ROBS
+# (132 cupons, R$ 6.658,66 contra os ~R$ 215 mil de um domingo). Gravar aquilo
+# no historico envenenaria o voucher D+30 de um mes inteiro depois, sem ninguem
+# perceber. Abaixo disso o script avisa e NAO grava.
+FILIAIS_MINIMAS = 10
 
 FORMAS_CONHECIDAS = {
     'TEF - CREDITO', 'TEF - DEBITO', 'CARTAO CREDITO', 'CARTAO DEBITO',
@@ -536,6 +549,109 @@ def ler_pos_meia_noite_args(entradas, agrupado):
             raise SystemExit(f'ERRO: --pos-meia-noite de {forma} (R$ {brl(valor)}) '
                              f'e maior que a venda do dia (R$ {brl(agrupado.get(forma, 0.0))}).')
     return porforma
+
+
+def um_mes_antes(data_br):
+    """'27/10/2026' -> '27/09/2026'. Mes curto cai no ultimo dia dele."""
+    d = datetime.datetime.strptime(data_br, '%d/%m/%Y').date()
+    ano, mes = (d.year - 1, 12) if d.month == 1 else (d.year, d.month - 1)
+    ultimo = calendar.monthrange(ano, mes)[1]
+    return d.replace(year=ano, month=mes, day=min(d.day, ultimo)).strftime('%d/%m/%Y')
+
+
+def ler_historico_vendas(caminho):
+    """{'dd/mm/aaaa': {forma: valor}} do caderno de dias ja vistos."""
+    historico = OrderedDict()
+    if not os.path.exists(caminho):
+        return historico
+    with open(caminho, encoding='utf-8') as arquivo:
+        for linha in csvmod.DictReader(arquivo, delimiter=';'):
+            data = (linha.get('DATA') or '').strip()
+            forma = (linha.get('FORMA') or '').strip()
+            if not data or not forma:
+                continue
+            try:
+                valor = to_float(linha.get('VALOR') or '0')
+            except Exception:
+                continue
+            historico.setdefault(data, OrderedDict())[forma] = valor
+    return historico
+
+
+def gravar_historico_vendas(caminho, dias, filiais=None):
+    """Grava (ou regrava) cada dia do periodo no caderno, ja agrupado."""
+    historico = ler_historico_vendas(caminho)
+    filiais = filiais or {}
+    quantas = {}
+    if os.path.exists(caminho):
+        with open(caminho, encoding='utf-8') as arquivo:
+            for linha in csvmod.DictReader(arquivo, delimiter=';'):
+                data = (linha.get('DATA') or '').strip()
+                if data:
+                    quantas[data] = (linha.get('FILIAIS') or '').strip()
+    novos = []
+    for data, formas in dias.items():
+        n = filiais.get(data)
+        if n is not None and n < FILIAIS_MINIMAS:
+            print(f'ATENCAO: {data} veio com {n} filial(is) -- parece relatorio '
+                  f'FILTRADO POR LOJA, nao o dia inteiro. Nao gravei no historico.',
+                  file=sys.stderr)
+            continue
+        if data not in historico:
+            novos.append(data)
+        historico[data] = aplicar_grupos(formas)
+        quantas[data] = '' if n is None else str(n)
+    def chave(data):
+        return datetime.datetime.strptime(data, '%d/%m/%Y').date()
+    with open(caminho, 'w', encoding='utf-8', newline='') as arquivo:
+        escritor = csvmod.writer(arquivo, delimiter=';')
+        escritor.writerow(['DATA', 'FORMA', 'VALOR', 'FILIAIS'])
+        for data in sorted(historico, key=chave):
+            formas = historico[data]
+            for forma in sorted(formas, key=lambda f: -formas[f]):
+                escritor.writerow([data, forma, brl(formas[forma]),
+                                   quantas.get(data, '')])
+    return novos
+
+
+def contar_filiais(caminho):
+    """{'dd/mm/aaaa': quantas filiais} do xlsx de cupons. PDF nao tem filial."""
+    if not caminho.lower().endswith(('.xlsx', '.xls')):
+        return {}
+    try:
+        import openpyxl
+    except ImportError:
+        return {}
+    livro = openpyxl.load_workbook(caminho, read_only=True, data_only=True)
+    aba = livro[livro.sheetnames[0]]
+    try:
+        aba.reset_dimensions()
+    except AttributeError:
+        pass
+    linhas = aba.iter_rows(values_only=True)
+    cabecalho = [str(c or '').strip().lower() for c in next(linhas)]
+
+    def coluna(*nomes):
+        for i, titulo in enumerate(cabecalho):
+            if any(titulo.startswith(n) for n in nomes):
+                return i
+        return None
+
+    i_data, i_filial = coluna('data'), coluna('filial', 'loja')
+    if i_data is None or i_filial is None:
+        return {}
+    lojas = {}
+    for linha in linhas:
+        if not linha or len(linha) <= max(i_data, i_filial):
+            continue
+        if linha[i_data] is None or linha[i_filial] is None:
+            continue
+        bruto = linha[i_data]
+        data = (bruto.strftime('%d/%m/%Y') if hasattr(bruto, 'strftime')
+                else str(bruto).strip())
+        lojas.setdefault(data, set()).add(str(linha[i_filial]).strip())
+    livro.close()
+    return {data: len(nomes) for data, nomes in lojas.items()}
 
 
 def ler_lojas_pix_tef(caminho):
@@ -1188,7 +1304,15 @@ def main():
                              f'(padrao: {LOJAS_PIX_TEF_PADRAO})')
     parser.add_argument('--saida', default='.', help='pasta de saida (padrao: atual)')
     parser.add_argument('--mes-anterior', dest='mes_anterior',
-                        help='PDF do MESMO periodo do mes anterior, para o voucher D+30')
+                        help='PDF do MESMO periodo do mes anterior, para o voucher D+30. '
+                             'Sem ele, o script procura esses dias no historico_vendas.csv')
+    parser.add_argument('--historico-vendas', dest='historico_vendas',
+                        default=HISTORICO_VENDAS_PADRAO,
+                        help='caderno dos dias ja vistos, de onde sai o voucher D+30 '
+                             f'quando falta --mes-anterior (padrao: {HISTORICO_VENDAS_PADRAO})')
+    parser.add_argument('--sem-historico-vendas', dest='sem_historico_vendas',
+                        action='store_true',
+                        help='nao grava nem le o historico_vendas.csv nesta rodada')
     parser.add_argument('--ifood', action='append', default=[], metavar='PDF',
                         help='PDF(s) cobrindo a semana seg-dom do repasse do iFood; '
                              'pode repetir a flag. So vale quando a data prevista e quarta')
@@ -1258,6 +1382,10 @@ def main():
     if not dias:
         raise SystemExit(f'ERRO: nenhum dia encontrado em {args.pdf}. O layout mudou?')
 
+    # o historico guarda TODO dia do arquivo, mesmo os que --dia deixa de fora:
+    # ela mandou aquele dia, entao ele nao precisa ser pedido de novo
+    dias_do_arquivo = OrderedDict(dias)
+
     if args.dia:
         if args.dia not in dias:
             raise SystemExit(f'ERRO: {args.dia} nao esta no PDF. '
@@ -1280,6 +1408,14 @@ def main():
         with open(os.path.join(args.saida, 'vendas_card.html'), 'w') as arquivo:
             arquivo.write(html)
 
+    # O caderno dos dias: ela ja mandou cada um deles uma vez, e isso basta --
+    # o voucher D+30 deixa de depender de reenviar o relatorio de um mes atras.
+    if not args.sem_historico_vendas:
+        filiais = contar_filiais(args.pdf)
+        novos = gravar_historico_vendas(args.historico_vendas, dias_do_arquivo, filiais)
+        if novos:
+            print(f'historico_vendas.csv: gravado(s) {", ".join(novos)}')
+
     agrupado_anterior = None
     if args.mes_anterior:
         # o mes anterior pode vir como PDF ou como o xlsx de cupons -- os dois
@@ -1289,6 +1425,25 @@ def main():
             raise SystemExit(f'ERRO: nenhum dia em {args.mes_anterior}.')
         agrupado_anterior, _ = agrupar(dias_ant, 'fonte do mes anterior')
         dias_ant_usados = list(dias_ant)
+    elif not args.sem_historico_vendas:
+        historico = ler_historico_vendas(args.historico_vendas)
+        alvos = [um_mes_antes(d) for d in dias_usados]
+        achados = [d for d in alvos if d in historico]
+        if achados:
+            agrupado_anterior = OrderedDict()
+            for data in achados:
+                for forma, valor in historico[data].items():
+                    agrupado_anterior[forma] = agrupado_anterior.get(forma, 0.0) + valor
+            dias_ant_usados = achados
+            print(f'voucher D+30 do historico: {", ".join(achados)}')
+            faltam = [d for d in alvos if d not in historico]
+            if faltam:
+                print(f'AVISO: nao tenho no historico {", ".join(faltam)} -- o voucher '
+                      f'D+30 saiu so com os dias que tenho.', file=sys.stderr)
+        else:
+            print(f'AVISO: sem --mes-anterior e nenhum de {", ".join(alvos)} esta no '
+                  f'{args.historico_vendas}: o voucher D+30 fica de fora.',
+                  file=sys.stderr)
         if len(dias_ant_usados) != len(dias_usados):
             print(f'AVISO: o periodo atual tem {len(dias_usados)} dia(s) e o do mes '
                   f'anterior {len(dias_ant_usados)}. O voucher D+30 fica desproporcional.',

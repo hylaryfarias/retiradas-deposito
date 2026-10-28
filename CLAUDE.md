@@ -21,6 +21,33 @@ python3 gerar_relatorio.py <pdf-do-periodo> --mes-anterior <pdf-de-um-mes-atras>
 Ela manda **dois** PDFs: o do período atual e o do **mesmo intervalo do mês
 anterior** (ex.: 04-07/09 + 04-07/08). O segundo serve só para o voucher D+30.
 
+> **O SEGUNDO ARQUIVO JÁ NÃO É OBRIGATÓRIO — tem o `historico_vendas.csv`.**
+> Bronca dela em 28/10: *"eu já mando esses relatórios faz mais de um mês, vc
+> precisa ir gravando isso"*. Estava certa: eu pedia de volta um dia que já
+> tinha passado por mim, porque não guardava nada.
+>
+> Agora **toda rodada grava no `historico_vendas.csv`** cada dia do arquivo, já
+> agrupado por `GRUPOS` (`DATA;FORMA;VALOR;FILIAIS`) — inclusive os dias que
+> `--dia` deixa de fora, porque ela mandou aquele dia e ele não precisa ser
+> pedido outra vez. Rodar o mesmo dia duas vezes **regrava**, não duplica.
+>
+> Quando falta `--mes-anterior`, o script calcula a data de um mês atrás de
+> cada dia do período (`um_mes_antes()`, que trata mês curto: 31/03 → 28/02) e
+> monta o voucher D+30 com o que achar no caderno, dizendo no console quais
+> dias usou e quais faltam. Flags: `--historico-vendas outro.csv` e
+> `--sem-historico-vendas`.
+>
+> Semeado em 28/10 com **39 dias** (08–26/09 e 08–27/10), tudo o que ela já
+> tinha mandado em xlsx de cupons. Setembro tem buraco em 27–30/09 e outubro
+> em 01–07/10 — esses dias nunca vieram como cupons.
+
+> **ARMADILHA: relatório filtrado por loja.** O 27/09 chegou em 28/10 com
+> **uma filial só** (ROBS, 132 cupons, R$ 6.658,66 contra os ~R$ 215 mil de um
+> domingo) — o filtro de filial tinha ficado marcado no Cloudfy. Gravar aquilo
+> envenenaria o voucher D+30 de um mês inteiro depois, sem ninguém perceber.
+> Por isso o script conta as filiais do xlsx e, abaixo de `FILIAIS_MINIMAS`
+> (10), **avisa e não grava**. O dia normal tem 16 ou 17.
+
 Isso entrega os três arquivos em `saida/`:
 
 | Arquivo | O que é |
@@ -37,7 +64,8 @@ Flags úteis:
 - `--dia 04/09/2026` — usa só aquele dia. **Sem a flag, todos os dias do PDF
   são somados num bloco único** (foi o que ela pediu: "em um dia só").
 - `--mes-anterior <pdf>` — PDF do mesmo intervalo do mês anterior, de onde sai
-  o voucher D+30. Sem ele, a parcela de voucher não entra.
+  o voucher D+30. **Sem ele, o script procura esses dias no
+  `historico_vendas.csv`** (ver abaixo) e só desiste se não tiver nenhum.
 - `--dia-previsto dd/mm/aaaa` — força a data da entrada prevista (o padrão é o
   dia seguinte ao último dia do relatório, já tratando virada de mês).
 - `--a-prazo outro.csv` — outra tabela de recebíveis (padrão: `vendas_a_prazo.csv`).

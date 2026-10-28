@@ -951,6 +951,42 @@ Separado do retido: é empréstimo do **próprio iFood**, abatido do crédito. N
 semana 07–13/09 estava zerado; na semana 21–27/09 entrou a **parcela 18/22, de
 R$ 40.758,73**. Vai em `--ifood-desconto`, com rótulo próprio.
 
+**A PARCELA É QUEBRADA EM TRÊS CNPJs, com datas diferentes** (ela mandou o
+calendário em 28/10). As três somam exatamente os R$ 40.758,73 da parcela
+cheia:
+
+| Conta | Dia base | Valor |
+|---|---:|---:|
+| BIG FOME **0001-09** | **28** | R$ 13.419,37 |
+| BIG FOME **0003-70** | **29** | R$ 8.469,59 |
+| BIG FOME **0005-32** | **29** | R$ 18.869,77 |
+| **Total** | | **R$ 40.758,73** |
+
+**A regra da data:** *a partir do dia base, cai na próxima quarta — ou no
+próprio dia, se o dia base já for quarta.* Como o repasse do iFood também cai
+na quarta, é ele que supre o desconto (*"conforme caixa disponível vai
+descontando, o repasse da semana supre"*).
+
+Datas calculadas:
+
+| Competência | 0001-09 (dia 28) | 0003-70 e 0005-32 (dia 29) |
+|---|---|---|
+| **10/2026** | **28/10** (28 é quarta) | **04/11** (29 é quinta) |
+| 11/2026 | 02/12 (28 é sábado) | 02/12 (29 é domingo) |
+| 12/2026 | 30/12 (28 é segunda) | 30/12 (29 é terça) |
+| 01/2027 | 03/02 (28 é quinta) | 03/02 (29 é sexta) |
+
+Repare que **em quase todo mês as três caem na mesma quarta** — outubro é a
+exceção, porque o dia 28 caiu exatamente numa quarta e separou o 0001-09 das
+outras duas.
+
+> **"CONFORME CAIXA DISPONÍVEL" SIGNIFICA QUE PODE SAIR PICADO.** O valor
+> programado é o teto, não a certeza: em 13/10 ela avisou que *"tinha
+> 87.404,25 pra cair e caiu somente 22.339,89, então precisa abater e vai cair
+> o restante amanhã"*. Quando isso acontecer, lançar o que saiu de verdade e
+> levar o resto para a quarta seguinte — **perguntar a ela, não assumir que
+> saiu inteiro**.
+
 #### A previsão vem saindo ~2% acima do que entra
 
 Medido na semana 14–20/09, o único par previsão × recebido fechado até agora:

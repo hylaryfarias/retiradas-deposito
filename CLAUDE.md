@@ -66,6 +66,13 @@ Flags úteis:
 - `--mes-anterior <pdf>` — PDF do mesmo intervalo do mês anterior, de onde sai
   o voucher D+30. **Sem ele, o script procura esses dias no
   `historico_vendas.csv`** (ver abaixo) e só desiste se não tiver nenhum.
+
+  > **O par é o MESMO DIA DO RELATÓRIO, não o dia previsto.** Relatório de
+  > 28/10 → voucher de **28/09**, mesmo que a entrada prevista seja 29/10.
+  > Em 29/10 ela mandou o 29/09 por engano e eu levantei a dúvida — podia ser
+  > que D+30 contasse a partir do dia previsto. **Ela respondeu que foi erro
+  > dela** (*"não, mandei errado"*): a convenção do dia do relatório vale, e
+  > `um_mes_antes()` está certo. **Não levantar isso de novo.**
 - `--dia-previsto dd/mm/aaaa` — força a data da entrada prevista (o padrão é o
   dia seguinte ao último dia do relatório, já tratando virada de mês).
 - `--a-prazo outro.csv` — outra tabela de recebíveis (padrão: `vendas_a_prazo.csv`).

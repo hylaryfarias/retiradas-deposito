@@ -1430,6 +1430,14 @@ def main():
             raise SystemExit(f'ERRO: nenhum dia em {args.mes_anterior}.')
         agrupado_anterior, _ = agrupar(dias_ant, 'fonte do mes anterior')
         dias_ant_usados = list(dias_ant)
+        # o arquivo do mes anterior tambem ja passou por mim: gravar, senao o
+        # caderno perde justamente os dias que ela manda como par do voucher
+        if not args.sem_historico_vendas:
+            novos_ant = gravar_historico_vendas(
+                args.historico_vendas, dias_ant, contar_filiais(args.mes_anterior))
+            if novos_ant:
+                print(f'historico_vendas.csv: gravado(s) {", ".join(novos_ant)} '
+                      f'(do --mes-anterior)')
     elif not args.sem_historico_vendas:
         historico = ler_historico_vendas(args.historico_vendas)
         alvos = [um_mes_antes(d) for d in dias_usados]

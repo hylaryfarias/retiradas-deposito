@@ -28,8 +28,13 @@ anterior** (ex.: 04-07/09 + 04-07/08). O segundo serve só para o voucher D+30.
 >
 > Agora **toda rodada grava no `historico_vendas.csv`** cada dia do arquivo, já
 > agrupado por `GRUPOS` (`DATA;FORMA;VALOR;FILIAIS`) — inclusive os dias que
-> `--dia` deixa de fora, porque ela mandou aquele dia e ele não precisa ser
-> pedido outra vez. Rodar o mesmo dia duas vezes **regrava**, não duplica.
+> `--dia` deixa de fora e **os do `--mes-anterior`**, porque ela mandou aquele
+> dia e ele não precisa ser pedido outra vez. Rodar o mesmo dia duas vezes
+> **regrava**, não duplica.
+>
+> O `--mes-anterior` ficou de fora na primeira versão: em 29/10 o 28/09 passou
+> pelo script e **não entrou no caderno**, que é justamente o dia que ela
+> manda como par do voucher. Corrigido no mesmo dia.
 >
 > Quando falta `--mes-anterior`, o script calcula a data de um mês atrás de
 > cada dia do período (`um_mes_antes()`, que trata mês curto: 31/03 → 28/02) e
@@ -37,9 +42,8 @@ anterior** (ex.: 04-07/09 + 04-07/08). O segundo serve só para o voucher D+30.
 > dias usou e quais faltam. Flags: `--historico-vendas outro.csv` e
 > `--sem-historico-vendas`.
 >
-> Semeado em 28/10 com **39 dias** (08–26/09 e 08–27/10), tudo o que ela já
-> tinha mandado em xlsx de cupons. Setembro tem buraco em 27–30/09 e outubro
-> em 01–07/10 — esses dias nunca vieram como cupons.
+> Semeado em 28/10 com 39 dias e já em **42** (08–29/09 e 08–28/10).
+> Falta **30/09 e 01–07/10** — esses dias nunca vieram como cupons.
 
 > **ARMADILHA: relatório filtrado por loja.** O 27/09 chegou em 28/10 com
 > **uma filial só** (ROBS, 132 cupons, R$ 6.658,66 contra os ~R$ 215 mil de um

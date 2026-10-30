@@ -63,6 +63,28 @@ Isso entrega os três arquivos em `saida/`:
 Depois: mandar o PNG e o texto no chat, com a tabela também em markdown na
 resposta, e o fechamento (soma dos dias) conferido.
 
+> **NUNCA AFIRMAR SUPERLATIVO SEM RODAR A CONSULTA.** "Melhor dia", "maior
+> venda", "recorde", "o mais fraco", "acima da média" — **nada disso sai no
+> chat sem antes somar o `historico_vendas.csv`**. Ela repassa o que eu escrevo
+> para a diretoria.
+>
+> Em 29/10 eu disse que a venda de R$ 197.097,55 tinha sido *"o melhor dia de
+> semana do mês"*, com a faixa *"os outros ficaram entre R$ 160 e R$ 191 mil"*.
+> **Era falso**: no mês a quinta 08/10 fez R$ 218.045,26 e a 15/10 fez
+> R$ 200.546,72. O dia ficou em **12º de 22** em outubro e **21º de 44** no
+> caderno. Eu tinha o arquivo na mão e afirmei de cabeça, a partir dos últimos
+> dias que tinha processado. A reação dela foi *"e se eu tivesse mandado isso
+> pra diretoria?"* — e ela estava certa.
+>
+> A consulta é barata, três linhas de Python sobre o caderno. **Rodar sempre,
+> e dizer o recorte** (do mês? do histórico? só das quintas?), porque o mesmo
+> número muda de leitura conforme o corte: 29/10 é a 5ª melhor quinta de 7,
+> mas o 21º dia de 44.
+>
+> Vale para o **comparativo de dias da semana** também: comparar sexta com
+> sexta, sábado com sábado. Misturar dia útil com fim de semana não diz nada —
+> sábado faz R$ 296 a 320 mil e quarta faz R$ 164 a 175 mil.
+
 Flags úteis:
 
 - `--dia 04/09/2026` — usa só aquele dia. **Sem a flag, todos os dias do PDF

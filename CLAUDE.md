@@ -99,6 +99,20 @@ Flags úteis:
   > que D+30 contasse a partir do dia previsto. **Ela respondeu que foi erro
   > dela** (*"não, mandei errado"*): a convenção do dia do relatório vale, e
   > `um_mes_antes()` está certo. **Não levantar isso de novo.**
+
+  > **O PAR É O ESPELHO DO PERÍODO, e no mês curto ele tem um dia a menos.**
+  > Ela confirmou em 03/11: *"eu tenho que tirar no mesmo período que eu tiro o
+  > crédito e débito"*. O espelho de **30/10 a 02/11 é 30/09 a 02/10** — três
+  > dias para quatro de venda, porque **não existe 31/09**. O bloco sai com um
+  > dia de voucher a menos e o script avisa; em troca o 31/10 nunca é reclamado
+  > por ninguém (novembro não tem dia 31), então na conta do mês se anula.
+  >
+  > **NÃO deslocar o alvo repetido para o dia seguinte.** Em 03/11 eu fiz isso —
+  > mandei o par de 31/10 andar de 30/09 para 01/10 — e com isso pedi a ela o
+  > **03/10**, que é o par de 03/11, o bloco do dia seguinte. Ela cortou na hora:
+  > *"mas 03/10 eu mando amanhã, pq tenho que mandar hoje?"*. Deslocar empurra a
+  > fila inteira e rouba do relatório seguinte o par dele. `alvos_do_voucher()`
+  > mapeia dia a dia e **só tira a repetição**, sem andar com nada.
 - `--dia-previsto dd/mm/aaaa` — força a data da entrada prevista (o padrão é o
   dia seguinte ao último dia do relatório, já tratando virada de mês).
 - `--a-prazo outro.csv` — outra tabela de recebíveis (padrão: `vendas_a_prazo.csv`).

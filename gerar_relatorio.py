@@ -559,6 +559,26 @@ def um_mes_antes(data_br):
     return d.replace(year=ano, month=mes, day=min(d.day, ultimo)).strftime('%d/%m/%Y')
 
 
+def alvos_do_voucher(dias):
+    """Os dias de onde sai o voucher D+30: um mes antes de cada dia do periodo.
+
+    A virada de mes colide: 30/10 e 31/10 caem os dois em 30/09, porque
+    setembro nao tem dia 31. Quando o alvo repete, ele anda para o dia
+    seguinte, para o bloco ter um dia de voucher para cada dia de venda --
+    o bloco 30/10 a 02/11 sai de 30/09, 01/10, 02/10 e 03/10. Num bloco que
+    nao cruza fim de mes nada muda.
+    """
+    alvos, vistos = [], set()
+    for d in dias:
+        alvo = datetime.datetime.strptime(um_mes_antes(d), '%d/%m/%Y').date()
+        while alvo.strftime('%d/%m/%Y') in vistos:
+            alvo += datetime.timedelta(days=1)
+        rotulo = alvo.strftime('%d/%m/%Y')
+        alvos.append(rotulo)
+        vistos.add(rotulo)
+    return alvos
+
+
 def ler_historico_vendas(caminho):
     """{'dd/mm/aaaa': {forma: valor}} do caderno de dias ja vistos."""
     historico = OrderedDict()
@@ -1422,6 +1442,7 @@ def main():
             print(f'historico_vendas.csv: gravado(s) {", ".join(novos)}')
 
     agrupado_anterior = None
+    dias_ant_usados = []
     if args.mes_anterior:
         # o mes anterior pode vir como PDF ou como o xlsx de cupons -- os dois
         # trazem a mesma coisa, e dela so sai o voucher D+30
@@ -1440,7 +1461,7 @@ def main():
                       f'(do --mes-anterior)')
     elif not args.sem_historico_vendas:
         historico = ler_historico_vendas(args.historico_vendas)
-        alvos = [um_mes_antes(d) for d in dias_usados]
+        alvos = alvos_do_voucher(dias_usados)
         achados = [d for d in alvos if d in historico]
         if achados:
             agrupado_anterior = OrderedDict()
@@ -1457,7 +1478,7 @@ def main():
             print(f'AVISO: sem --mes-anterior e nenhum de {", ".join(alvos)} esta no '
                   f'{args.historico_vendas}: o voucher D+30 fica de fora.',
                   file=sys.stderr)
-        if len(dias_ant_usados) != len(dias_usados):
+        if dias_ant_usados and len(dias_ant_usados) != len(dias_usados):
             print(f'AVISO: o periodo atual tem {len(dias_usados)} dia(s) e o do mes '
                   f'anterior {len(dias_ant_usados)}. O voucher D+30 fica desproporcional.',
                   file=sys.stderr)

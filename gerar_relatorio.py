@@ -560,22 +560,23 @@ def um_mes_antes(data_br):
 
 
 def alvos_do_voucher(dias):
-    """Os dias de onde sai o voucher D+30: um mes antes de cada dia do periodo.
+    """Os dias de onde sai o voucher D+30: o MESMO DIA do mes anterior.
 
-    A virada de mes colide: 30/10 e 31/10 caem os dois em 30/09, porque
-    setembro nao tem dia 31. Quando o alvo repete, ele anda para o dia
-    seguinte, para o bloco ter um dia de voucher para cada dia de venda --
-    o bloco 30/10 a 02/11 sai de 30/09, 01/10, 02/10 e 03/10. Num bloco que
-    nao cruza fim de mes nada muda.
+    E o espelho do periodo, que e como ela exporta na mao: o par de
+    30/10 a 02/11 e 30/09 a 02/10. Mes curto encolhe o espelho -- 30/10 e
+    31/10 caem os dois em 30/09, porque setembro nao tem dia 31, entao o
+    bloco de quatro dias sai com tres de voucher. O alvo repetido entra UMA
+    vez, igual ao arquivo que ela manda, e o aviso de desproporcao avisa.
+
+    NAO deslocar o alvo repetido para o dia seguinte: isso empurra a fila e
+    rouba do relatorio seguinte o par dele. Em 03/11 eu fiz isso e pedi a
+    ela o 03/10, que e o par de 03/11, nao deste bloco.
     """
-    alvos, vistos = [], set()
+    alvos = []
     for d in dias:
-        alvo = datetime.datetime.strptime(um_mes_antes(d), '%d/%m/%Y').date()
-        while alvo.strftime('%d/%m/%Y') in vistos:
-            alvo += datetime.timedelta(days=1)
-        rotulo = alvo.strftime('%d/%m/%Y')
-        alvos.append(rotulo)
-        vistos.add(rotulo)
+        alvo = um_mes_antes(d)
+        if alvo not in alvos:
+            alvos.append(alvo)
     return alvos
 
 
@@ -1478,7 +1479,16 @@ def main():
             print(f'AVISO: sem --mes-anterior e nenhum de {", ".join(alvos)} esta no '
                   f'{args.historico_vendas}: o voucher D+30 fica de fora.',
                   file=sys.stderr)
-        if dias_ant_usados and len(dias_ant_usados) != len(dias_usados):
+
+    # vale para os dois caminhos -- o arquivo que ela manda tambem pode vir com
+    # periodo torto, e antes disso so o caminho do caderno era conferido
+    if dias_ant_usados and len(dias_ant_usados) != len(dias_usados):
+        if len(alvos_do_voucher(dias_usados)) == len(dias_ant_usados):
+            print(f'AVISO: o periodo atual tem {len(dias_usados)} dia(s) e o espelho do '
+                  f'mes anterior {len(dias_ant_usados)} -- e a virada de mes curto '
+                  f'(nao existe 31/09). O voucher D+30 sai com um dia a menos.',
+                  file=sys.stderr)
+        else:
             print(f'AVISO: o periodo atual tem {len(dias_usados)} dia(s) e o do mes '
                   f'anterior {len(dias_ant_usados)}. O voucher D+30 fica desproporcional.',
                   file=sys.stderr)

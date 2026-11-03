@@ -722,9 +722,11 @@ que é o que interessa:
 > *por que* a razão varia. Continua sendo a parcela mais frágil da prévia —
 > dizer isso no chat toda segunda.
 >
-> **O que resolve não é a régua, é o dia de puxar.** Nas duas vezes em que o
-> relatório foi puxado na terça (13/10 e 28/10) ele veio praticamente fechado,
-> e a estimativa deixa de existir.
+> **O que resolve não é a régua, é o dia de puxar.** Nas três vezes em que o
+> relatório foi puxado na terça (13/10, 28/10 e 03/11) ele veio praticamente
+> fechado — 1, 0 e 7 pedidos sem liquidar — e a estimativa deixa de existir.
+> Em 03/11 os 7 zerados valiam R$ 268,84 de itens, ou seja R$ 193,56 de
+> estimativa num repasse de R$ 372 mil.
 
 **As réguas, agora com três pares fechados:**
 

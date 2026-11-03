@@ -151,7 +151,7 @@ APELIDOS_FORMA = {
 IFOOD_FORMA = 'PAGAMENTO ONLINE'
 
 # datetime.date.weekday(): segunda=0 ... domingo=6
-SEGUNDA, QUARTA = 0, 2
+SEGUNDA, TERCA, QUARTA = 0, 1, 2
 
 # A semana do iFood fecha no DOMINGO e o repasse cai na QUARTA. Logo:
 #   - na SEGUNDA ja da para CALCULAR o valor (a semana fechou ontem), mas ele
@@ -321,13 +321,32 @@ def janela_ifood(dia_previsto):
     dias devolve None. Segunda e a quarta seguinte apontam para a mesma semana.
     """
     data = datetime.datetime.strptime(dia_previsto, '%d/%m/%Y').date()
-    if data.weekday() == SEGUNDA:      # semana fechou ontem
-        domingo = data - datetime.timedelta(days=1)
-    elif data.weekday() == QUARTA:     # dia do repasse
+    if data.weekday() == QUARTA:       # dia do repasse
         domingo = data - datetime.timedelta(days=3)
+    elif eh_previa_ifood(data):        # semana fechou, o dinheiro vem na quarta
+        domingo = data - datetime.timedelta(days=data.weekday() + 1)
     else:
         return None
     return domingo - datetime.timedelta(days=6), domingo
+
+
+def eh_previa_ifood(data):
+    """A previa do iFood sai na segunda -- ou na terca, se a segunda for feriado.
+
+    Em 02/11 (Finados) nao saiu texto nenhum, e a previa da semana 26/10 a
+    01/11 ficaria sem dia: a quarta ja e o repasse, nao a previa. Ela cobrou
+    em 03/11 (*"cade o texto de hoje com o ifood de amanha?"*). Entao a previa
+    escorrega junto com o resto, igual a liquidacao.
+    """
+    if data.weekday() == SEGUNDA:
+        return True
+    ontem = data - datetime.timedelta(days=1)
+    return data.weekday() == TERCA and ontem.weekday() == SEGUNDA and dia_parado(ontem)
+
+
+def proxima_quarta(data):
+    """A quarta em que o repasse cai, a partir de um dia de previa."""
+    return data + datetime.timedelta(days=(QUARTA - data.weekday()) % 7)
 
 
 def somar_ifood(pdfs, janela):
@@ -1530,10 +1549,9 @@ def main():
                   f'{", ".join(f"{d:%d/%m}" for d in ifood_faltando)}. '
                   f'O repasse esta SUBESTIMADO.', file=sys.stderr)
     elif janela is not None:
-        dia_semana = datetime.datetime.strptime(dia_previsto, '%d/%m/%Y').date().weekday()
-        if dia_semana == SEGUNDA:
-            print(f'AVISO: {dia_previsto} e segunda: a semana do iFood '
-                  f'({janela[0]:%d/%m} a {janela[1]:%d/%m}) fechou ontem. Passe os PDFs '
+        if eh_previa_ifood(datetime.datetime.strptime(dia_previsto, '%d/%m/%Y').date()):
+            print(f'AVISO: {dia_previsto} abre a previa: a semana do iFood '
+                  f'({janela[0]:%d/%m} a {janela[1]:%d/%m}) ja fechou. Passe os PDFs '
                   f'em --ifood para estimar o faturado com taxa.', file=sys.stderr)
         else:
             print(f'AVISO: {dia_previsto} e quarta: o repasse do iFood '
@@ -1673,11 +1691,11 @@ def main():
                               f' -- nesse caso rodar com --pix-hoje {alternativa:.2f}',
                               file=sys.stderr)
                         pix['alerta'] = (ontem, fatia_ontem, faixa, alternativa)
-    eh_segunda = data_prevista.weekday() == SEGUNDA
+    eh_previa = eh_previa_ifood(data_prevista)
     entrada = calcular_entrada(agrupado_previsao, agrupado_anterior, titulos,
                                dia_previsto, ifood, override,
                                liquido=not args.bruto, ifood_manual=ifood_manual,
-                               ifood_entra=not eh_segunda, arrasto=arrasto,
+                               ifood_entra=not eh_previa, arrasto=arrasto,
                                pix=pix,
                                ifood_descontos=ler_ifood_descontos(args.ifood_descontos),
                                ifood_retidos=ler_ifood_descontos(args.ifood_retidos))
@@ -1686,8 +1704,7 @@ def main():
     entrada['antecipacao_aplicada'] = bool(antecipado)
     # na segunda o repasse cai na quarta seguinte; na quarta ele cai no
     # proprio dia previsto, e o bloco do iFood so abre a conta da linha
-    entrada['data_repasse'] = (data_prevista + datetime.timedelta(days=2)
-                               if eh_segunda else
+    entrada['data_repasse'] = (proxima_quarta(data_prevista) if eh_previa else
                                (data_prevista if janela is not None else None))
     entrada['ifood_faturado'] = args.ifood_faturado
 

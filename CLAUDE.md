@@ -389,6 +389,18 @@ quarta 16/09 apontam ambas para a semana 07/09 a 13/09.
 Nos outros dias da semana não há janela, e os PDFs de `--ifood` são ignorados
 com aviso.
 
+> **FERIADO NA SEGUNDA EMPURRA A PRÉVIA PARA A TERÇA.** Em 02/11 (Finados) não
+> saiu texto nenhum, e a prévia da semana 26/10 a 01/11 ficaria sem dia: a
+> quarta já é o repasse, não a prévia. Ela cobrou em 03/11 — *"cade o texto de
+> hoje com o ifood de amanha?"*. A prévia escorrega junto com a liquidação, e
+> `eh_previa_ifood()` trata terça com segunda parada igual a segunda. Continua
+> **fora do total**, com `Previsão de recebimento` e `Entra na quarta, dd/mm`.
+
+> **O RETIDO SÓ EXISTE NA QUARTA** — confirmado por ela em 03/11: *"o retido é
+> estimado, só temos na quarta"*. Então na prévia ele vai com `~` no
+> `--ifood-retido` (sai com `~` no texto, que é como ela marca estimativa), em
+> ~4,1% do repasse, e na quarta é substituído pelo número do portal.
+
 ### O relatório de pedidos do iFood (fonte certa da prévia)
 
 A Hylary exporta toda segunda o `relatorio-pedidos_*.xlsx` do iFood, cobrindo

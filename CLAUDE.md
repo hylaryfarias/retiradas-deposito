@@ -742,12 +742,19 @@ que é o que interessa:
 
 **As réguas, agora com três pares fechados:**
 
-| Fator | 21–27/09 | 28/09–04/10 | 12–18/10 | Usar |
-|---|---:|---:|---:|---|
-| Relatório fechado → repasse | 1,01347 | 1,01573 | 1,01533 | **1,0123** (média de quatro, com 1,00452 em 19–25/10) |
-| Antecipação automática / repasse | 0,865% | 0,702% | 0,863% | **0,81%** (média) |
-| Retido / repasse | 4,32% | 3,83% | 4,23% | **~4,1%** quando ela não tiver o número — mas **perguntar sempre** |
-| Não liquidados / itens | 66,36% | 80,42% | 65,25% | **72%** (média de quatro, com 76,51% em 25/10) |
+| Fator | 21–27/09 | 28/09–04/10 | 12–18/10 | 19–25/10 | 26/10–01/11 | Usar |
+|---|---:|---:|---:|---:|---:|---|
+| Relatório fechado → repasse | 1,01347 | 1,01573 | 1,01533 | 1,00452 | 1,01034 | **1,0119** (média de cinco) |
+| Antecipação automática / repasse | 0,865% | 0,702% | 0,863% | 0,879% | 0,560% | **0,77%** (média de cinco) |
+| Retido / repasse | 4,32% | 3,83% | 4,23% | 4,02% | 4,11% | **~4,1%** — mas **perguntar sempre** |
+| Não liquidados / itens | 66,36% | 80,42% | 65,25% | 76,51% | — | **72%** (média de quatro) |
+
+> **A MÉDIA ABSORVE O PONTO NOVO; O ESTIMADOR NÃO MUDA.** Reajustar a régua a
+> cada semana foi o erro de 21/10 — mas aquilo era **trocar de estimador**
+> (média → mediana → média) atrás de um padrão que não existe. Somar uma
+> medição nova à mesma média é outra coisa, e mexe pouco: de 1,0123 para
+> 1,0119 são ~R$ 150 num repasse de R$ 372 mil. **O que não se faz é mudar a
+> forma de calcular.**
 
 > **O RETIDO PAROU DE SER IMPREVISÍVEL.** As três últimas semanas ficaram em
 > 3,83% a 4,32% do repasse — bem longe dos 1,88% de 07–13/09. Continua sendo
@@ -982,6 +989,50 @@ prévia: aplicada ao repasse, ela saiu R$ 2.217,11 baixa.
 > 2. O **desconto por exclusividade veio R$ 2.024,37, idêntico ao da semana
 >    anterior** até os centavos. Num número que depende do volume antecipado,
 >    duas semanas iguais é estranho: pode ser valor fixo ou campo travado.
+
+#### A semana 26/10–01/11: a melhor previsão até agora
+
+Segunda 02/11 foi Finados, então o relatório foi puxado na **terça 03/11** e
+veio praticamente fechado: 11.622 pedidos válidos e **7 sem liquidar**
+(R$ 268,84 de itens, ou R$ 193,56 de estimativa). O quadro da API chegou na
+quarta 04/11, no mesmo dia do repasse.
+
+| | Mandei | Real | |
+|---|---:|---:|---:|
+| Repasse | R$ 372.614,58 | **R$ 371.891,64** | −R$ 722,94 (−0,19%) |
+| Retido (estimei 4,1%) | R$ 15.277,20 | **R$ 15.271,31** | **−R$ 5,89** |
+| Entra na conta (o total do dia) | R$ 357.337,38 | **R$ 356.620,33** | −R$ 717,05 (−0,20%) |
+| Líquido de recebimento | R$ 326.979,84 | **R$ 326.249,63** | −R$ 730,21 (−0,22%) |
+
+| | | |
+|---|---:|---|
+| Líquido do relatório fechado | R$ 368.087,10 | 11.622 pedidos, 7 zerados |
+| Repasse total | R$ 371.891,64 | **×1,01034**; no Portal R$ 370.944,26 |
+| − Retido | −R$ 15.271,31 | **4,11%**; R$ 12.852,65 Santander + R$ 2.418,66 Safra |
+| = Base bruta a receber | R$ 356.620,33 | |
+| − Taxa de antecipação (débito) | −R$ 5.055,71 | R$ 2.083,96 automática (**0,560%**) + R$ 2.971,75 nos lançamentos |
+| + Desconto por exclusividade | +R$ 2.024,37 | |
+| **= Valor líquido a receber** | **R$ 353.588,99** | R$ 102.850,05 já caiu, R$ 250.738,94 a receber |
+| − Parcela de 10/2026 do empréstimo | −R$ 27.339,36 | 0003-70 R$ 8.469,59 + 0005-32 R$ 18.869,77 |
+| **= o que sobra de fato** | **R$ 326.249,63** | |
+
+**O retido de 4,1% acertou por R$ 5,89.** Foi a quinta semana seguida entre
+3,83% e 4,32%, e a segunda vez que a estimativa bate quase na unha (em
+12–18/10 ela chutou R$ 18 mil e veio R$ 17.997,73). Continua sendo pergunta de
+toda quarta — ela confirmou em 03/11 que *"o retido é estimado, só temos na
+quarta"* — mas os 4,1% deixaram de ser chute.
+
+> **A ANTECIPAÇÃO AUTOMÁTICA DESPENCOU: 0,560%.** As quatro anteriores ficaram
+> entre 0,702% e 0,879%. É a mesma história do fator relatório→repasse: o
+> número oscila e a média é o que se usa. Como ela entra depois do total do
+> dia, errar nela não mexe na linha que vai para a diretoria — mexe só no
+> `Líquido de recebimento`, e aqui valeu R$ 934,22.
+
+> **O DESCONTO POR EXCLUSIVIDADE VEIO R$ 2.024,37 PELA TERCEIRA SEMANA
+> SEGUIDA.** 12–18/10, 19–25/10 e 26/10–01/11, idêntico até os centavos, em
+> semanas com volume antecipado bem diferente. Já não dá para chamar de
+> coincidência: ou é **valor fixo de contrato**, ou é campo travado no quadro.
+> **Perguntar no portal.**
 
 #### Teste de completude do relatório de pedidos (Cloudfy × iFood)
 

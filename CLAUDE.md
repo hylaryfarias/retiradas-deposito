@@ -1549,6 +1549,65 @@ o total do texto (R$ 128.115,36). Não é para caçar essa diferença.
 A trava do `--total-informado` continua valendo para os envios de verdade: se
 a soma não fechar com o total que ela passar, avisar antes de mandar.
 
+# Afinar a previsão — o caderno de previsto × realizado
+
+**Pedido dela em 04/11:** *"vamos precisar tentar afinar um pouco mais a
+previsão. vou compartilhando o realizado, pra gente ver onde que pode estar
+furando"* — e, no mesmo dia, *"fica uns dias avaliando e daqui 7 dias a gente
+movimenta alguma mudança"*.
+
+**Então: NÃO mexer em modelo nem em taxa até ~11/11.** O trabalho até lá é
+juntar dado e medir. Dois cadernos:
+
+| Arquivo | Quem escreve | O que tem |
+|---|---|---|
+| `historico_previsao.csv` | o script, toda rodada | `DATA;PARCELA;PREVISTO`, uma linha por forma, com os mesmos números do texto |
+| `historico_realizado.csv` | eu, quando ela manda o fechamento | `DATA;PARCELA;REALIZADO` |
+
+As parcelas usam os nomes do fechamento de caixa dela (`credito`, `debito`,
+`pix`, `voucher`, `ifood`, `a_prazo`, `total`), para casar direto. Rodar o
+mesmo dia duas vezes regrava. Flags: `--historico-previsao` e
+`--sem-historico-previsao`.
+
+## O que o primeiro dia (03/11) mostrou
+
+Previsto R$ 590.325,07 × realizado R$ 582.791,60 — **1,28% abaixo**. Mas o
+total esconde dois erros grandes em sentidos opostos:
+
+| Forma | Previsto | Realizado | |
+|---|---:|---:|---:|
+| Crédito | 225.460,81 | 222.239,75 | −1,43% |
+| Débito | 223.259,23 | 218.678,26 | −2,05% |
+| **Pix** | 103.900,12 | 92.930,52 | **−10,56%** |
+| **Voucher** | 37.704,90 | 48.393,07 | **+28,35%** |
+
+**Pix e voucher erraram pelo MESMO motivo: o bloco único não vale para eles.**
+O bloco foi desenhado para o cartão, que é D+1 — e o cartão de fato ficou
+dentro de 2%. Pix e voucher têm calendário próprio:
+
+- **Pix é D+0.** O Pix de sexta 30/10 caiu na própria sexta, não na terça. E o
+  Pix da própria terça 03/11 caiu em 03/11. Testando contra o caderno:
+  **31/10 + 01/11 + 02/11 + 03/11 = R$ 91.424,83** contra R$ 92.930,52
+  realizados — **R$ 1.505,69 de diferença (1,6%)**, contra os R$ 10.465,08
+  (11,3%) do bloco que eu usei. É exatamente o modelo `--pix-d0`, que ela
+  desligou em 30/09.
+- **Voucher é D+30 com fim de semana.** 30/09 + 30 dias = 30/10, sexta, e caiu
+  na sexta. O que caiu na terça foi o D+30 de **01/10, 02/10, 03/10 e 04/10**
+  (sábado 31/10, domingo 01/11 e o feriado 02/11 acumulando). 01/10+02/10+03/10
+  dá R$ 42.501,47 líquidos; falta R$ 5.891,60, que implica um voucher de
+  ~R$ 6.328 em 04/10 — plausível para um domingo. **Falta o 04/10 no caderno
+  para fechar essa conta.**
+
+**Crédito e débito ficaram dentro da faixa**, mas a dedução implícita foi
+**3,78% no crédito e 2,81% no débito**, contra os 2,38% e 0,77% parametrizados.
+Débito a 2,8% não é taxa — nenhuma bandeira cobra isso. Tem cara de volume ou
+prazo (parcelado, estorno, parte liquidando depois), não de alíquota. **Medir
+nos próximos dias antes de mexer em `TAXAS`.**
+
+> **UMA AMOSTRA SÓ, e um bloco de quatro dias emendado em feriado** — o pior
+> caso possível para o modelo de bloco. Um dia normal pode não mostrar nada
+> disso. É por isso que ela pediu uma semana.
+
 # Retiradas para depósito (sangria)
 
 Ela exporta o `Relatriodesangriassuprimentos_*.xlsx` do PDV quando precisa

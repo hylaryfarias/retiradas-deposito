@@ -56,6 +56,13 @@ LOJAS_PIX_TEF_PADRAO = 'pix_tef_lojas.csv'
 # Existe para o voucher D+30 nao depender dela reenviar o relatorio de um mes
 # atras: ela ja mandou aquele dia uma vez, e isso basta. Ver FILIAIS_MINIMAS.
 HISTORICO_VENDAS_PADRAO = 'historico_vendas.csv'
+# O caderno de PREVISOES, para medir onde a previsao fura quando ela manda o
+# realizado. Pedido dela em 04/11: *"vamos precisar tentar afinar um pouco
+# mais a previsao. vou compartilhando o realizado, pra gente ver onde que pode
+# estar furando"* -- e, no mesmo dia, *"fica uns dias avaliando e daqui 7 dias
+# a gente movimenta alguma mudanca"*. Sem gravar, daqui a uma semana eu estaria
+# reconstruindo previsao de cabeca, que e exatamente o erro de 29/10.
+HISTORICO_PREVISAO_PADRAO = 'historico_previsao.csv'
 
 # Um relatorio de cupons com poucas filiais e um arquivo FILTRADO POR LOJA, nao
 # o dia inteiro -- aconteceu em 28/10/2026, quando o 27/09 veio so com a ROBS
@@ -108,6 +115,10 @@ ROTULO_TEXTO = {
     'TEF - DEBITO':   'débito',
     'PIX MAQUININHA': 'Pix',
 }
+
+# os mesmos nomes do fechamento de caixa que ela manda, para casar direto
+SLUG_FORMA = {'TEF - CREDITO': 'credito', 'TEF - DEBITO': 'debito',
+              FORMA_PIX: 'pix'}
 
 # ---------------------------------------------------------------------------
 # Corte da meia-noite.
@@ -1229,6 +1240,47 @@ def rotulo_dias_pix(dias):
     return 'de ' + ', '.join(nomes[:-1]) + ' e ' + nomes[-1]
 
 
+def previsto_por_forma(entrada):
+    """Quanto cada forma deve entrar, como o texto mostra: cartao e Pix do
+    periodo mais o arrasto da madrugada, somados na propria forma."""
+    por_forma = OrderedDict()
+    for forma, _bruto, _taxa, liq in entrada['detalhe_vendas']:
+        por_forma[forma] = por_forma.get(forma, 0.0) + liq
+    for forma, _bruto, _taxa, liq in entrada.get('detalhe_arrasto') or []:
+        por_forma[forma] = por_forma.get(forma, 0.0) + liq
+    if entrada.get('pix'):
+        por_forma[FORMA_PIX] = por_forma.get(FORMA_PIX, 0.0) + entrada['pix']
+    return por_forma
+
+
+def gravar_previsao(caminho, dia_previsto, entrada):
+    """Grava (ou regrava) a previsao do dia, parcela a parcela.
+
+    Uma linha por forma, com os mesmos numeros que vao no texto, para casar
+    direto com o fechamento de caixa que ela manda depois.
+    """
+    linhas, vistos = [], False
+    if os.path.exists(caminho):
+        with open(caminho, newline='', encoding='utf-8') as arquivo:
+            leitor = csvmod.reader(arquivo, delimiter=";")
+            next(leitor, None)
+            linhas = [l for l in leitor if l and l[0] != dia_previsto]
+            vistos = True
+    novas = []
+    for forma, liq in previsto_por_forma(entrada).items():
+        if liq:
+            novas.append([dia_previsto, SLUG_FORMA.get(forma, forma), f'{liq:.2f}'])
+    for parcela in ('voucher', 'ifood', 'a_prazo'):
+        if entrada.get(parcela):
+            novas.append([dia_previsto, parcela, f'{entrada[parcela]:.2f}'])
+    novas.append([dia_previsto, 'total', f'{entrada["total"]:.2f}'])
+    with open(caminho, 'w', newline='', encoding='utf-8') as arquivo:
+        escritor = csvmod.writer(arquivo, delimiter=";")
+        escritor.writerow(['DATA', 'PARCELA', 'PREVISTO'])
+        escritor.writerows(linhas + novas)
+    return len(novas), vistos
+
+
 def montar_texto(dias_usados, total, entrada, dia_previsto):
     """Texto pronto para colar no WhatsApp.
 
@@ -1250,14 +1302,7 @@ def montar_texto(dias_usados, total, entrada, dia_previsto):
 
     # a madrugada do dia anterior entra somada a forma dela: em linha separada
     # confunde quem le na ponta. A memoria de calculo fica no console.
-    por_forma = OrderedDict()
-    for forma, _bruto, _taxa, liq in entrada['detalhe_vendas']:
-        por_forma[forma] = por_forma.get(forma, 0.0) + liq
-    for forma, _bruto, _taxa, liq in entrada.get('detalhe_arrasto') or []:
-        por_forma[forma] = por_forma.get(forma, 0.0) + liq
-    # o Pix e do proprio dia previsto, nao do dia do relatorio
-    if entrada.get('pix'):
-        por_forma[FORMA_PIX] = por_forma.get(FORMA_PIX, 0.0) + entrada['pix']
+    por_forma = previsto_por_forma(entrada)
     for forma, liq in por_forma.items():
         if not liq:
             continue
@@ -1358,6 +1403,11 @@ def main():
     parser.add_argument('--sem-historico-vendas', dest='sem_historico_vendas',
                         action='store_true',
                         help='nao grava nem le o historico_vendas.csv nesta rodada')
+    parser.add_argument('--historico-previsao', default=HISTORICO_PREVISAO_PADRAO,
+                        help=f'caderno de previsoes, para medir o furo depois '
+                             f'(padrao: {HISTORICO_PREVISAO_PADRAO})')
+    parser.add_argument('--sem-historico-previsao', action='store_true',
+                        help='nao grava a previsao do dia no caderno')
     parser.add_argument('--ifood', action='append', default=[], metavar='PDF',
                         help='PDF(s) cobrindo a semana seg-dom do repasse do iFood; '
                              'pode repetir a flag. So vale quando a data prevista e quarta')
@@ -1707,6 +1757,10 @@ def main():
     entrada['data_repasse'] = (proxima_quarta(data_prevista) if eh_previa else
                                (data_prevista if janela is not None else None))
     entrada['ifood_faturado'] = args.ifood_faturado
+
+    if not args.sem_historico_previsao:
+        quantas, _ = gravar_previsao(args.historico_previsao, dia_previsto, entrada)
+        print(f'historico_previsao.csv: {quantas} parcela(s) de {dia_previsto}')
 
     txt = os.path.join(args.saida, 'texto_whatsapp.txt')
     with open(txt, 'w') as arquivo:

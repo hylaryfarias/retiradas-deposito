@@ -1206,7 +1206,13 @@ def calcular_entrada(agrupado, agrupado_anterior, titulos, dia_previsto,
                     * (1 - (TAXA_VOUCHER if liquido else 0.0))
                     if agrupado_anterior is not None else None),
         'taxa_voucher': TAXA_VOUCHER if liquido else 0.0,
-        'ifood': ifood_na_conta,               # o que entra no total do dia
+        # DECISAO DELA, 05/11: no total do dia entra o LIQUIDO do iFood, nao o
+        # que entra na conta. *"para o ifood, nos proximos vc coloca o ifood
+        # liquido na linha das entradas tabom. Dai embaixo vc faz o bloco do
+        # ifood destacando cada entrada e saida dele, como ja faz. No dessa
+        # semana por exemplo, os 326 entraria ali no entrada prevista"*
+        'ifood': ifood_liquido,                # o que entra no total do dia
+        'ifood_na_conta': ifood_na_conta,      # repasse menos retido
         'ifood_repasse_bruto': ifood_bruto_repasse,
         'ifood_liquido': ifood_liquido,        # o que sobra depois dos descontos
         'ifood_descontos': ifood_descontos,
@@ -1366,13 +1372,13 @@ def montar_texto(dias_usados, total, entrada, dia_previsto):
         partes.append(f'· {rotulo_sobra}: *R$ {brl(valor_ifood)}*')
         if ja_no_total:
             # nao e parcela nova: e a abertura da linha que ja entrou no total.
-            # O total leva o que ENTRA NA CONTA (repasse menos retido); so os
-            # descontos debitados depois do credito e que saem a parte.
+            # O total leva o LIQUIDO, ja abatido de tudo -- o bloco acima e a
+            # memoria de calculo dele.
             if retidos or descontos:
                 partes.append(f'· Entra hoje, {entrada["data_repasse"]:%d/%m}. '
-                              f'No total acima está o que entra na conta, '
+                              f'No total acima está o líquido, '
                               f'R$ {brl(entrada["ifood"])}; '
-                              f'os descontos saem à parte.')
+                              f'o bloco acima abre a conta.')
             else:
                 partes.append(f'· Entra hoje, {entrada["data_repasse"]:%d/%m}, '
                               f'e já está no total acima.')
@@ -1857,21 +1863,20 @@ def main():
                 continue
             print(f'    {rotulo:<26} {"":>14} {"":>7} {brl(valor):>14}')
         retidos = entrada.get('ifood_retidos') or []
-        if retidos:
+        descontos = entrada.get('ifood_descontos') or []
+        if retidos or descontos:
             print(f'  {"= repasse iFood":<28} {"":>14} {"":>7} '
                   f'{brl(entrada["ifood_repasse_bruto"]):>14}')
-            for linha in retidos:
-                print(f'    (-) {linha[0]:<22} {"":>14} {"":>7} {brl(-linha[1]):>14}')
-            print(f'  {"= entra na conta (vai no total)":<28} {"":>14} {"":>7} '
-                  f'{brl(entrada["ifood"]):>14}')
-        else:
-            print(f'  {"= repasse iFood (vai no total)":<28} {"":>14} {"":>7} '
-                  f'{brl(entrada["ifood"]):>14}')
-        for desconto in entrada.get('ifood_descontos') or []:
+        for linha in retidos:
+            print(f'    (-) {linha[0]:<22} {"":>14} {"":>7} {brl(-linha[1]):>14}')
+        if retidos and descontos:
+            print(f'  {"= entra na conta":<28} {"":>14} {"":>7} '
+                  f'{brl(entrada["ifood_na_conta"]):>14}')
+        for desconto in descontos:
             print(f'    (-) {desconto[0]:<22} {"":>14} {"":>7} {brl(-desconto[1]):>14}')
-        if entrada.get('ifood_descontos'):
-            print(f'    {"= sobra depois dos descontos":<26} {"":>14} {"":>7} '
-                  f'{brl(entrada["ifood_liquido"]):>14}')
+        rotulo_total = ('= liquido do iFood (vai no total)' if retidos or descontos
+                        else '= repasse iFood (vai no total)')
+        print(f'  {rotulo_total:<28} {"":>14} {"":>7} {brl(entrada["ifood"]):>14}')
         if janela is not None:
             print(f'    referente a {janela[0]:%d/%m} a {janela[1]:%d/%m}')
     else:

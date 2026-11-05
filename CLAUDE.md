@@ -538,8 +538,9 @@ parcela do total, e o bloco vira a **abertura daquela linha**.
 Ele aparece sempre que houver `--ifood-faturado` ou `--ifood-desconto`; sem
 nada disso o texto sai só com a linha no total, como antes.
 
-> **DECISÃO DELA, 14/10: no TOTAL do dia entra o REPASSE PREVISTO, não o
-> líquido.** O motivo é como a Amanda lê o texto: *"ela olha o que entrou e
+> **DECISÃO DELA, 14/10 — SUPERADA PELA DE 05/11, abaixo. Fica só como
+> histórico.** Na época: no TOTAL do dia entra o REPASSE PREVISTO, não o
+> líquido. O motivo é como a Amanda lê o texto: *"ela olha o que entrou e
 > depois os descontos estão nas previsões"*. Então a linha da quarta leva
 > R$ 407.149,40 (o repasse), e o bloco abaixo continua mostrando retido,
 > empréstimo e a **previsão de recebimento** de R$ 324.085,04.
@@ -556,29 +557,34 @@ nada disso o texto sai só com a linha no total, como antes.
 > então o que interessa ali é o que vai sobrar de fato. No `entrada`, a parcela
 > `ifood` é o repasse e `ifood_liquido` é o que sobra.
 
-> **REGRA FECHADA: o RETIDO sai do total; os outros descontos ficam.**
-> Correção dela em 21/10: *"no total lá de cima tem que ser o bruto que entra
-> na conta de repasse mesmo. Lá nas entradas... 425 é antes do retido."*
-> O retido é segurado **antes** do crédito — aquele dinheiro nunca chega na
-> conta, então não pertence à linha de entrada do dia. Já a taxa de antecipação
-> e a parcela do empréstimo são debitadas **depois** do crédito: passam pela
-> conta e continuam dentro do total.
+> **REGRA DE 05/11: no total do dia entra o LÍQUIDO do iFood.** Pedido dela:
+> *"para o iFood, nos próximos vc coloca o iFood líquido na linha das entradas
+> tabom. Daí embaixo vc faz o bloco do iFood destacando cada entrada e saída
+> dele, como já faz. No dessa semana por exemplo, os 326 entraria ali no
+> entrada prevista"*. Eu levantei que com isso a linha deixa de ser "o que
+> entra na conta" e passa a ser "o que sobra depois dos descontos do iFood",
+> com a parcela do empréstimo saindo do total também, e ela confirmou:
+> *"isso mesmo"*.
+>
+> Então `entrada['ifood']` é o **líquido** (repasse − retido − descontos), e
+> `entrada['ifood_na_conta']` guarda o repasse − retido, que agora só aparece
+> como linha intermediária no console. O fecho virou
+> `Entra hoje, dd/mm. No total acima está o líquido, R$ X; o bloco acima abre a
+> conta.`
 >
 > | Flag | O que é | No total do dia |
 > |---|---|---|
 > | `--ifood-retido` | segurado antes do crédito (dívidas Santander, Safra) | **sai** |
-> | `--ifood-desconto` | debitado depois (antecipação, parcela do empréstimo) | **fica** |
+> | `--ifood-desconto` | debitado depois (antecipação, parcela do empréstimo) | **sai** |
 >
-> A linha do total é `repasse − retido` (`entrada['ifood']`), o bloco mostra a
-> conta inteira e o fecho é
-> `Entra hoje, dd/mm. No total acima está o que entra na conta, R$ X; os
-> descontos saem à parte.`
->
-> **ISSO JÁ FOI ATRÁS E VOLTOU — não mexer de novo.** Em 28/10 ela escreveu
-> *"o total também tem que ser o cheio"*, eu troquei tudo, e minutos depois
-> ela voltou: *"desculpa, o texto tem que ser sem o retido mesmo, vc tava
-> certo"*. A regra de 21/10 vale. Só mudar se ela pedir com essas palavras de
-> novo **e** confirmar depois.
+> **O HISTÓRICO DESSA LINHA, para eu não ficar indo e voltando.** São quatro
+> posições, nesta ordem: 14/10 o repasse cheio; **21/10** repasse − retido
+> (*"no total lá de cima tem que ser o bruto que entra na conta de repasse
+> mesmo"*); 28/10 ela pediu o cheio de novo e voltou atrás em minutos
+> (*"desculpa, o texto tem que ser sem o retido mesmo, vc tava certo"*);
+> **05/11** o líquido, confirmado. A diferença desta para as outras é que ela
+> pediu com o número na mão e confirmou depois de eu apontar a consequência.
+> **Mudar de novo só com pedido explícito e confirmação, do mesmo jeito.**
 
 > **E o rótulo da última linha do bloco mudou** (pedido dela no mesmo dia): na
 > quarta ela é `Líquido de recebimento`, porque o número já é o que sobra de

@@ -1591,12 +1591,29 @@ dentro de 2%. Pix e voucher têm calendário próprio:
   realizados — **R$ 1.505,69 de diferença (1,6%)**, contra os R$ 10.465,08
   (11,3%) do bloco que eu usei. É exatamente o modelo `--pix-d0`, que ela
   desligou em 30/09.
-- **Voucher é D+30 com fim de semana.** 30/09 + 30 dias = 30/10, sexta, e caiu
-  na sexta. O que caiu na terça foi o D+30 de **01/10, 02/10, 03/10 e 04/10**
-  (sábado 31/10, domingo 01/11 e o feriado 02/11 acumulando). 01/10+02/10+03/10
-  dá R$ 42.501,47 líquidos; falta R$ 5.891,60, que implica um voucher de
-  ~R$ 6.328 em 04/10 — plausível para um domingo. **Falta o 04/10 no caderno
-  para fechar essa conta.**
+- **Voucher é D+30 com fim de semana — CONFIRMADO em 05/11.** 30/09 + 30 dias
+  = 30/10, sexta, e caiu na sexta. O que caiu na terça foi o D+30 de **01/10,
+  02/10, 03/10 e 04/10** (sábado 31/10, domingo 01/11 e o feriado 02/11
+  acumulando). Com o 04/10 na mão:
+
+  | | |
+  |---|---:|
+  | 01/10 + 02/10 + 03/10 + 04/10, bruto | R$ 52.918,38 |
+  | −6,90% | R$ 49.267,01 |
+  | **Realizado em 03/11** | **R$ 48.393,07** |
+  | diferença | +R$ 873,94 (**1,81%**) |
+
+  Contra os 28,35% de erro do que eu mandei. **A regra do voucher é a data de
+  liquidação, não o espelho do período.**
+
+  > **E sobra uma taxa implícita de 8,55%**, acima dos 6,90% de `TAXA_VOUCHER`.
+  > Pode ser a taxa real das operadoras, pode ser um pedaço que caiu noutro
+  > dia. **Uma amostra só — não mexer em `TAXA_VOUCHER` por causa disso.**
+
+  > **CONSEQUÊNCIA PARA O DIA SEGUINTE:** 05/10 + 30 = 04/11 e 06/10 + 30 =
+  > 05/11. Ou seja, o voucher de 05/11 deveria sair de **06/10**, e não do
+  > 04/10 que `um_mes_antes()` aponta — o 04/10 já caiu em 03/11. Faltam
+  > **05/10, 06/10 e 07/10** no caderno para medir isso.
 
 **Crédito e débito ficaram dentro da faixa**, mas a dedução implícita foi
 **3,78% no crédito e 2,81% no débito**, contra os 2,38% e 0,77% parametrizados.

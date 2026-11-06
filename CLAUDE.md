@@ -1631,6 +1631,52 @@ nos próximos dias antes de mexer em `TAXAS`.**
 > caso possível para o modelo de bloco. Um dia normal pode não mostrar nada
 > disso. É por isso que ela pediu uma semana.
 
+## O segundo dia (04/11): um dia normal, e o retrato muda
+
+Previsto R$ 452.149,84 × realizado R$ 460.355,19 — **1,93% acima**, para o
+outro lado do dia anterior.
+
+| Forma | Previsto | Realizado | |
+|---|---:|---:|---:|
+| iFood | 356.620,33 | 357.062,33 | **+0,12%** |
+| Crédito | 32.256,75 | 35.587,38 | **+10,33%** |
+| Débito | 34.084,86 | 32.332,77 | −5,14% |
+| Pix | 15.635,91 | 16.545,49 | +5,82% |
+| Voucher | 13.551,99 | 15.920,64 | +17,48% |
+
+**A DESCOBERTA DO DIA: a soma de crédito + débito é MUITO mais estável que
+cada perna.** Dois dias, o mesmo padrão:
+
+| Dia | Crédito | Débito | **Soma** |
+|---|---:|---:|---:|
+| 03/11 | −1,43% | −2,05% | **−1,74%** |
+| 04/11 | +10,33% | −5,14% | **+2,38%** |
+
+Em 04/11 as duas pernas erraram 10% e 5% em sentidos opostos e a soma ficou em
+2,4%. **Isso não é taxa — é classificação.** Alguma coisa que o Cloudfy conta
+como débito o banco credita como crédito, ou vice-versa (parcelado é o
+suspeito óbvio). Mexer em `TAXAS` não conserta: o dinheiro está lá, só na
+linha errada.
+
+> **A hipótese das taxas de 3,78% e 2,81% de 03/11 cai por terra com isso.**
+> Era dedução implícita calculada perna a perna, e a perna não é confiável.
+> **Medir sempre crédito + débito junto.**
+
+**O iFood com número real acertou por R$ 442,00 (0,12%)** — e o empréstimo
+saiu inteiro, R$ 27.339,36 nas saídas do dia.
+
+**O voucher continua sem explicação.** Nem o 04/10 que eu usei (R$ 6.765,54)
+nem o 05/10 do D+30 (R$ 9.405,10) chegam perto dos R$ 15.920,64 realizados —
+o realizado é maior que o **bruto** vendido em qualquer um dos dois dias
+sozinho. Se for D+30 de 05/10 **mais** 06/10, o 06/10 teria de valer ~R$ 7.000
+brutos, o que é plausível para uma terça. **Faltam 06/10 e 07/10 no caderno
+para fechar isso.**
+
+> **Ponta solta: o `Líquido disponível` dela não bate com a minha conta.** Ela
+> informou R$ 329.342,10; pelos próprios números do fechamento
+> (357.062,33 − 27.339,36 empréstimo − 3.574,98 antecipação + 811,40 desconto)
+> dá **R$ 326.959,39**, R$ 2.382,71 a menos. **Perguntar como ela compõe.**
+
 # Retiradas para depósito (sangria)
 
 Ela exporta o `Relatriodesangriassuprimentos_*.xlsx` do PDV quando precisa

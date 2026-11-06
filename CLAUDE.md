@@ -1672,10 +1672,21 @@ sozinho. Se for D+30 de 05/10 **mais** 06/10, o 06/10 teria de valer ~R$ 7.000
 brutos, o que é plausível para uma terça. **Faltam 06/10 e 07/10 no caderno
 para fechar isso.**
 
-> **Ponta solta: o `Líquido disponível` dela não bate com a minha conta.** Ela
-> informou R$ 329.342,10; pelos próprios números do fechamento
+> **NÃO PERSEGUIR A DIFERENÇA DO `Líquido disponível`.** Em 04/11 ela informou
+> R$ 329.342,10 e pelos próprios números do fechamento
 > (357.062,33 − 27.339,36 empréstimo − 3.574,98 antecipação + 811,40 desconto)
-> dá **R$ 326.959,39**, R$ 2.382,71 a menos. **Perguntar como ela compõe.**
+> dá R$ 326.959,39 — R$ 2.382,71 a menos. Perguntei, e ela explicou:
+> *"o repasse ficou líquido com outros dias que estão fora"*.
+>
+> Ou seja, **é o repasse caindo picado** — o mesmo que já estava medido em
+> 12–18/10, quando R$ 217.390,07 caíram no dia e R$ 185.146,38 ficaram para
+> depois. O que credita numa quarta é a semana fechada **mais rabicho de
+> outras**, então a conta do dia nunca vai fechar ao centavo contra a cadeia
+> de uma semana só.
+>
+> **Consequência prática: diferença pequena na linha do iFood é respingo de
+> outro período, não erro de régua.** Não recalibrar nada em cima dela, e não
+> voltar a levantar essa conta no chat.
 
 # Retiradas para depósito (sangria)
 

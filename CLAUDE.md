@@ -1672,6 +1672,54 @@ sozinho. Se for D+30 de 05/10 **mais** 06/10, o 06/10 teria de valer ~R$ 7.000
 brutos, o que é plausível para uma terça. **Faltam 06/10 e 07/10 no caderno
 para fechar isso.**
 
+## O terceiro dia (05/11): o Pix fecha a questão
+
+Previsto R$ 90.626,17 × realizado R$ 104.281,43 — **15,07% acima**, e dessa vez
+dá para apontar o dedo em duas linhas.
+
+| Forma | Previsto | Realizado | |
+|---|---:|---:|---:|
+| Crédito | 35.089,12 | 34.524,31 | −1,61% |
+| Débito | 32.374,42 | 31.807,85 | −1,75% |
+| **Pix** | 16.397,09 | 23.119,62 | **+41,00%** |
+| **Voucher** | 6.765,54 | 11.729,65 | **+73,37%** |
+
+**A soma do cartão fechou em −1,68%** — terceiro dia dentro de 2,4%:
+
+| Dia | Crédito | Débito | **Soma** |
+|---|---:|---:|---:|
+| 03/11 | −1,43% | −2,05% | **−1,74%** |
+| 04/11 | +10,33% | −5,14% | **+2,38%** |
+| 05/11 | −1,61% | −1,75% | **−1,68%** |
+
+**O PIX: TRÊS DE TRÊS PARA O D+0.** Em 05/11 o modelo de hoje (Pix da véspera)
+errou **+41,00%**, e o Pix vendido no próprio dia erra **+1,93%**:
+
+| Dia previsto | Modelo de hoje (Pix da véspera) | Pix vendido no próprio dia (D+0) |
+|---|---:|---:|
+| 03/11 (bloco) | +11,3% | **+1,6%** |
+| 04/11 | +5,82% | **+5,31%** |
+| 05/11 | **+41,00%** | **+1,93%** |
+
+O 05/11 é o caso limpo: o Pix saltou de R$ 15.710,84 na quarta para
+R$ 22.682,77 na quinta, 44% em um dia, e um modelo que olha para ontem não
+tem como acompanhar isso.
+
+> **A RESSALVA QUE IMPORTA: esse teste usa o Pix REAL do dia**, que de manhã
+> ainda não foi vendido. Ligar o `--pix-d0` troca o erro de calendário pelo
+> erro do estimador, medido em **~2% em dia normal** e 23,7% no sábado atípico.
+> Pelos três dias, ainda assim compensa — mas o ganho é menor que a tabela
+> acima sugere.
+
+**O voucher ficou pior, não melhor.** Realizado R$ 11.729,65 implica
+**R$ 12.598,98 brutos** num dia só — e o D+30 de 05/11 seria o 06/10, uma
+terça. As terças do caderno vendem R$ 4.400 a R$ 7.300 de voucher, e o maior
+voucher de um dia em todo o caderno é R$ 15.968,30 (sexta 02/10). **Não cabe
+em um dia:** mais de um dia caiu junto, o que casa com a transição de 30 para
+15 dias do Decreto 12.712/2025 (ver adiante) ou com pagamento em lote semanal.
+
+> **Faltam 06/10 e 07/10 no caderno — é o que falta para parar de deduzir.**
+
 > **NÃO PERSEGUIR A DIFERENÇA DO `Líquido disponível`.** Em 04/11 ela informou
 > R$ 329.342,10 e pelos próprios números do fechamento
 > (357.062,33 − 27.339,36 empréstimo − 3.574,98 antecipação + 811,40 desconto)

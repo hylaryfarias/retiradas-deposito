@@ -1718,7 +1718,48 @@ voucher de um dia em todo o caderno é R$ 15.968,30 (sexta 02/10). **Não cabe
 em um dia:** mais de um dia caiu junto, o que casa com a transição de 30 para
 15 dias do Decreto 12.712/2025 (ver adiante) ou com pagamento em lote semanal.
 
-> **Faltam 06/10 e 07/10 no caderno — é o que falta para parar de deduzir.**
+## O VOUCHER, com o caderno completo (09/11): nenhuma taxa explica
+
+Em 09/11 chegaram **06/10, 07/10 e 08/10** e o buraco de outubro fechou —
+**62 dias**, 08/09 a 08/11 sem falha. Com isso dá para mapear dia a dia quem
+liquida quando, pela regra D+30 com fim de semana e feriado:
+
+| Data | Venda que liquida nela | Bruto vendido | Realizado |
+|---|---|---:|---:|
+| 03/11 | 01, 02, 03 e 04/10 | R$ 52.918,38 | R$ 48.393,07 |
+| 04/11 | 05/10 | R$ 10.102,15 | R$ 15.920,64 |
+| 05/11 | 06/10 | R$ 8.292,30 | R$ 11.729,65 |
+| **Soma** | | **R$ 71.312,83** | **R$ 76.043,36** |
+
+**O realizado é 6,63% MAIOR que o BRUTO vendido nos dias que liquidam ali.**
+Nenhuma taxa explica isso — taxa só tira. Ou cai mais dia do que o D+30
+prevê (a transição de 30 para 15 dias do Decreto 12.712/2025), ou a operadora
+paga em lote, sem casar com a data da venda.
+
+**O que isso já custou:** nesses três dias eu previ R$ 58.022,43 e entraram
+R$ 76.043,36 — **R$ 18.020,93 a menos, 23,70% abaixo**. É o maior erro
+sistemático do modelo inteiro, bem maior que o do Pix.
+
+**Duas coisas estão erradas ao mesmo tempo**, e por isso nenhum ajuste de uma
+só fecha:
+
+1. **A `TAXA_VOUCHER` de 6,90% está alta demais.** O teto legal virou 3,6%, e
+   o realizado passando do bruto confirma que a dedução de hoje é muito menor.
+2. **A janela de dias não é só D+30.** Está chegando dinheiro de dia que a
+   regra não aponta.
+
+> **NÃO AJUSTAR UM SEM O OUTRO, e não ajustar por tentativa.** Eu já tentei
+> encaixar 05/10, 05/10+06/10, 06/10 e 07/10 em 04 e 05/11: nenhum fecha, e
+> ficar procurando a combinação que bate é o mesmo ajuste circular que já deu
+> errado na taxa do iFood. **O que resolve é o extrato de uma operadora com a
+> data da venda ao lado da data do crédito** — uma só já serve.
+
+> **A interoperabilidade (07/11) ainda não apareceu na venda.** A fatia do
+> voucher em 07/11 foi 2,82% e em 08/11 2,61%, dentro da faixa normal de
+> sábado (2,15% a 4,51%) e domingo (1,76% a 4,35%). Dois dias é pouco, mas por
+> enquanto não há efeito de volume para contar.
+
+
 
 > **NÃO PERSEGUIR A DIFERENÇA DO `Líquido disponível`.** Em 04/11 ela informou
 > R$ 329.342,10 e pelos próprios números do fechamento

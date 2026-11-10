@@ -886,6 +886,57 @@ def proximo_util(data):
     return data
 
 
+# ---------------------------------------------------------------------------
+# O VOUCHER: DE D+30 PARA D+15, COM DATA DE CORTE
+#
+# O Decreto 12.712/2025 encurtou o repasse do vale de 30 para 15 dias corridos,
+# e a virada apareceu no realizado antes de qualquer aviso. Medido contra o
+# caderno (63 dias, 08/09 a 09/11) e o historico_realizado.csv:
+#
+#   03/11  fecha com a perna de 30 dias SOZINHA        +1,81%
+#   04/11  so fecha com as DUAS pernas                 +1,76%
+#   05/11  so fecha com as DUAS pernas                 +1,05%
+#   06/11  nao fecha com nenhuma das duas             -46,62%
+#
+# O unico parametro do modelo e a data de corte -- venda ate VOUCHER_CORTE paga
+# em 30 dias, dai em diante em 15 -- e o erro tem um minimo unico e agudo em
+# 19/10/2026: um dia para tras ou para frente e o ajuste desmonta.
+#
+# A consequencia e automatica e nao exige segunda mudanca: a ultima venda de
+# 30 dias (19/10) cai em 18/11, entao de 19/11 em diante so existe a perna de
+# 15 dias. O periodo de fluxo dobrado e 03/11 a 18/11.
+#
+# O QUE CONTINUA EM ABERTO: a taxa. Com TAXA_VOUCHER = 6,90% o modelo fecha os
+# tres dias em ~1,7%, mas o teto legal do decreto e 3,6% -- se ele ja valer, o
+# ajuste e coincidencia de dois erros que se anulam. So o extrato de uma
+# operadora com a data da venda ao lado da data do credito resolve, e por isso
+# a taxa NAO foi mexida junto.
+VOUCHER_PRAZO = 30
+VOUCHER_PRAZO_NOVO = 15
+VOUCHER_CORTE = datetime.date(2026, 10, 19)
+
+
+def liquida_voucher_em(venda, corte=VOUCHER_CORTE):
+    """Quando cai o voucher vendido em `venda`. Dia parado acumula."""
+    prazo = VOUCHER_PRAZO if venda <= corte else VOUCHER_PRAZO_NOVO
+    return proximo_util(venda + datetime.timedelta(days=prazo))
+
+
+def vendas_do_voucher(dia_previsto, corte=VOUCHER_CORTE):
+    """Os dias de venda cujo voucher liquida em `dia_previsto` ('dd/mm/aaaa').
+
+    Varre o calendario, nao o caderno: assim os dias que FALTAM no caderno
+    aparecem como aviso em vez de sumirem calados da previsao.
+    """
+    alvo = datetime.datetime.strptime(dia_previsto, '%d/%m/%Y').date()
+    dias = []
+    for atras in range(VOUCHER_PRAZO_NOVO - 5, VOUCHER_PRAZO + 11):
+        venda = alvo - datetime.timedelta(days=atras)
+        if liquida_voucher_em(venda, corte) == alvo:
+            dias.append(venda)
+    return [d.strftime('%d/%m/%Y') for d in sorted(dias)]
+
+
 def entrada_do_titulo(vencimento, forma='BOLETO'):
     """Quando o dinheiro de um titulo a prazo cai, pela forma de pagamento.
 
@@ -1324,7 +1375,7 @@ def montar_texto(dias_usados, total, entrada, dia_previsto):
 
     if entrada['voucher'] is not None:
         partes.append(f'· R$ {brl(entrada["voucher"])} de recebimento de períodos '
-                      f'anteriores (Voucher D+30);')
+                      f'anteriores (Voucher);')
 
     if entrada['ifood'] is not None:
         janela = entrada['janela_ifood']
@@ -1402,6 +1453,13 @@ def main():
     parser.add_argument('--mes-anterior', dest='mes_anterior',
                         help='PDF do MESMO periodo do mes anterior, para o voucher D+30. '
                              'Sem ele, o script procura esses dias no historico_vendas.csv')
+    parser.add_argument('--voucher-espelho', dest='voucher_espelho',
+                        action='store_true',
+                        help='volta ao modelo antigo do voucher: o espelho do periodo '
+                             'um mes atras (D+30 para tudo)')
+    parser.add_argument('--voucher-corte', dest='voucher_corte',
+                        help='dd/mm/aaaa: venda ate essa data liquida em D+30, depois '
+                             f'em D+15 (padrao: {VOUCHER_CORTE:%d/%m/%Y})')
     parser.add_argument('--historico-vendas', dest='historico_vendas',
                         default=HISTORICO_VENDAS_PADRAO,
                         help='caderno dos dias ja vistos, de onde sai o voucher D+30 '
@@ -1517,16 +1575,26 @@ def main():
         if novos:
             print(f'historico_vendas.csv: gravado(s) {", ".join(novos)}')
 
+    if args.dia_previsto:
+        dia_previsto = args.dia_previsto
+    else:  # dia seguinte ao ultimo do relatorio, respeitando virada de mes
+        ultimo = datetime.datetime.strptime(dias_usados[-1], '%d/%m/%Y').date()
+        dia_previsto = (ultimo + datetime.timedelta(days=1)).strftime('%d/%m/%Y')
+
+    # O VOUCHER sai do caderno pela DATA DE LIQUIDACAO, nao pelo espelho do
+    # periodo: com o prazo encurtando de 30 para 15 dias, o espelho deixou de
+    # apontar para os dias certos. `--voucher-espelho` volta ao modelo antigo.
+    corte_voucher = (datetime.datetime.strptime(args.voucher_corte, '%d/%m/%Y').date()
+                     if args.voucher_corte else VOUCHER_CORTE)
     agrupado_anterior = None
     dias_ant_usados = []
+    rotulo_voucher = 'D+30' if args.voucher_espelho else 'D+30/D+15'
     if args.mes_anterior:
         # o mes anterior pode vir como PDF ou como o xlsx de cupons -- os dois
-        # trazem a mesma coisa, e dela so sai o voucher D+30
+        # trazem a mesma coisa, e dela so sai o voucher
         dias_ant, _cnpj_ant, _mad_ant, _mads, _pt = ler_fonte(args.mes_anterior)
         if not dias_ant:
             raise SystemExit(f'ERRO: nenhum dia em {args.mes_anterior}.')
-        agrupado_anterior, _ = agrupar(dias_ant, 'fonte do mes anterior')
-        dias_ant_usados = list(dias_ant)
         # o arquivo do mes anterior tambem ja passou por mim: gravar, senao o
         # caderno perde justamente os dias que ela manda como par do voucher
         if not args.sem_historico_vendas:
@@ -1535,9 +1603,18 @@ def main():
             if novos_ant:
                 print(f'historico_vendas.csv: gravado(s) {", ".join(novos_ant)} '
                       f'(do --mes-anterior)')
-    elif not args.sem_historico_vendas:
+        if args.voucher_espelho:
+            agrupado_anterior, _ = agrupar(dias_ant, 'fonte do mes anterior')
+            dias_ant_usados = list(dias_ant)
+        else:
+            print('--mes-anterior nao e mais a fonte do voucher (o caderno resolve '
+                  'pela data de liquidacao); o arquivo entrou no caderno.')
+    if agrupado_anterior is None and not args.sem_historico_vendas:
         historico = ler_historico_vendas(args.historico_vendas)
-        alvos = alvos_do_voucher(dias_usados)
+        if args.voucher_espelho:
+            alvos = alvos_do_voucher(dias_usados)
+        else:
+            alvos = vendas_do_voucher(dia_previsto, corte_voucher)
         achados = [d for d in alvos if d in historico]
         if achados:
             agrupado_anterior = OrderedDict()
@@ -1545,19 +1622,20 @@ def main():
                 for forma, valor in historico[data].items():
                     agrupado_anterior[forma] = agrupado_anterior.get(forma, 0.0) + valor
             dias_ant_usados = achados
-            print(f'voucher D+30 do historico: {", ".join(achados)}')
+            print(f'voucher {rotulo_voucher} do historico: {", ".join(achados)}')
             faltam = [d for d in alvos if d not in historico]
             if faltam:
                 print(f'AVISO: nao tenho no historico {", ".join(faltam)} -- o voucher '
-                      f'D+30 saiu so com os dias que tenho.', file=sys.stderr)
+                      f'saiu so com os dias que tenho.', file=sys.stderr)
         else:
-            print(f'AVISO: sem --mes-anterior e nenhum de {", ".join(alvos)} esta no '
-                  f'{args.historico_vendas}: o voucher D+30 fica de fora.',
+            print(f'AVISO: nenhum de {", ".join(alvos)} esta no '
+                  f'{args.historico_vendas}: o voucher fica de fora.',
                   file=sys.stderr)
 
-    # vale para os dois caminhos -- o arquivo que ela manda tambem pode vir com
-    # periodo torto, e antes disso so o caminho do caderno era conferido
-    if dias_ant_usados and len(dias_ant_usados) != len(dias_usados):
+    # so o modelo do espelho tem periodo para ficar torto -- no modelo pela data
+    # de liquidacao o numero de dias muda de proposito (feriado acumula)
+    if (args.voucher_espelho and dias_ant_usados
+            and len(dias_ant_usados) != len(dias_usados)):
         if len(alvos_do_voucher(dias_usados)) == len(dias_ant_usados):
             print(f'AVISO: o periodo atual tem {len(dias_usados)} dia(s) e o espelho do '
                   f'mes anterior {len(dias_ant_usados)} -- e a virada de mes curto '
@@ -1568,11 +1646,6 @@ def main():
                   f'anterior {len(dias_ant_usados)}. O voucher D+30 fica desproporcional.',
                   file=sys.stderr)
 
-    if args.dia_previsto:
-        dia_previsto = args.dia_previsto
-    else:  # dia seguinte ao ultimo do relatorio, respeitando virada de mes
-        ultimo = datetime.datetime.strptime(dias_usados[-1], '%d/%m/%Y').date()
-        dia_previsto = (ultimo + datetime.timedelta(days=1)).strftime('%d/%m/%Y')
 
     janela = janela_ifood(dia_previsto)
     ifood_manual = ler_ifood_manual(args.ifood_valores)
@@ -1831,14 +1904,14 @@ def main():
               f'{brl(entrada["taxa_pix"] * 100)+"%":>7} {brl(entrada["pix"]):>14}')
 
     if agrupado_anterior is None:
-        print('  voucher D+30                 FALTA --mes-anterior')
+        print('  voucher                      SEM DIA NO CADERNO')
     else:
-        print(f'  voucher D+30 ({dias_ant_usados[0]} a {dias_ant_usados[-1]})')
+        print(f'  voucher {rotulo_voucher} ({dias_ant_usados[0]} a {dias_ant_usados[-1]})')
         bruto_voucher = sum(agrupado_anterior.get(f, 0.0) for f in FORMAS_VOUCHER)
         for forma in FORMAS_VOUCHER:
             if forma in agrupado_anterior:
                 print(f'    {forma:<26} {brl(agrupado_anterior[forma]):>14}')
-        print(f'  {"= voucher D+30":<28} {brl(bruto_voucher):>14} '
+        print(f'  {"= voucher " + rotulo_voucher:<28} {brl(bruto_voucher):>14} '
               f'{brl(entrada["taxa_voucher"] * 100)+"%":>7} {brl(entrada["voucher"]):>14}')
 
     if entrada['ifood_previa'] is not None:

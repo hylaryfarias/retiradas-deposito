@@ -93,6 +93,13 @@ Flags úteis:
   o voucher D+30. **Sem ele, o script procura esses dias no
   `historico_vendas.csv`** (ver abaixo) e só desiste se não tiver nenhum.
 
+  > **SUPERADO EM 10/11: o voucher não sai mais do espelho do período.** Ele
+  > sai do caderno pela **data de liquidação**, com o prazo mudando de 30 para
+  > 15 dias na data de corte (ver *A migração do voucher para D+15*, no fim).
+  > `--mes-anterior` continua aceito e continua alimentando o caderno, mas não
+  > é mais a fonte do voucher. Tudo o que vem a seguir neste bloco descreve o
+  > modelo antigo, que hoje só roda com `--voucher-espelho`.
+
   > **O par é o MESMO DIA DO RELATÓRIO, não o dia previsto.** Relatório de
   > 28/10 → voucher de **28/09**, mesmo que a entrada prevista seja 29/10.
   > Em 29/10 ela mandou o 29/09 por engano e eu levantei a dúvida — podia ser
@@ -1758,6 +1765,68 @@ só fecha:
 > voucher em 07/11 foi 2,82% e em 08/11 2,61%, dentro da faixa normal de
 > sábado (2,15% a 4,51%) e domingo (1,76% a 4,35%). Dois dias é pouco, mas por
 > enquanto não há efeito de volume para contar.
+
+## A MIGRAÇÃO DO VOUCHER PARA D+15 (10/11) — o modelo mudou
+
+Pergunta dela em 10/11: *"vamos mudar os voucher pra 15 dias? como fazemos essa
+migração?"*. A resposta saiu do caderno, e **não é trocar 30 por 15**.
+
+**O que o realizado mostra.** Com um único parâmetro — uma **data de corte**,
+antes dela a venda paga em 30 dias, depois em 15 — os quatro dias medidos
+ficam assim:
+
+| Dia | Previsto pelo corte | Realizado | |
+|---|---:|---:|---:|
+| 03/11 | 49.267,01 | 48.393,07 | **+1,81%** |
+| 04/11 | 16.200,22 | 15.920,64 | **+1,76%** |
+| 05/11 | 11.853,13 | 11.729,65 | **+1,05%** |
+| 06/11 | 13.008,53 | 24.369,70 | **−46,62%** |
+
+O corte que minimiza o erro é **19/10/2026**, e o mínimo é **agudo**: em 19/10
+o erro absoluto total é R$ 12.638, em 18/10 sobe para R$ 16.416 e em 20/10 para
+R$ 18.874. Não é um ajuste com graus de liberdade sobrando — é um parâmetro só,
+com um fundo de poço visível.
+
+**Por que as duas pernas convivem.** Encurtar o prazo cria uma janela em que
+chegam os dois fluxos: as vendas antigas completando 30 dias e as novas
+completando 15. Com corte em 19/10, a janela é **03/11 a 18/11** — a última
+venda de 30 dias (19/10) cai em 18/11, e **de 19/11 em diante só existe a perna
+de 15**. Isso é automático: não há segunda mudança a fazer no script.
+
+**O que mudou no código:**
+
+- `liquida_voucher_em(venda)` e `vendas_do_voucher(dia_previsto)`, com
+  `VOUCHER_PRAZO = 30`, `VOUCHER_PRAZO_NOVO = 15` e
+  `VOUCHER_CORTE = 19/10/2026` no topo do script;
+- o voucher passa a sair do **caderno pela data de liquidação**, não mais do
+  espelho do período. `um_mes_antes()` e `alvos_do_voucher()` continuam no
+  arquivo, mas só servem ao modelo antigo;
+- **`--mes-anterior` deixou de ser a fonte do voucher.** Quando vier, o arquivo
+  ainda entra no caderno (e o script diz isso no console), mas o voucher sai do
+  caderno. Com 63 dias contínuos (08/09 a 09/11), ele cobre as duas pernas sem
+  ela mandar nada;
+- `--voucher-espelho` volta ao modelo antigo inteiro, e `--voucher-corte
+  dd/mm/aaaa` move a data de corte.
+
+Medido na rodada de 09/11: o voucher de 10/11 sai de **11/10 (D+30) + 26/10
+(D+15)**, R$ 9.264,15 contra os R$ 8.869,28 do espelho (10/10). Diferença de
+R$ 394,87 — pequena naquele dia porque as duas pernas eram parecidas, mas em
+04 e 05/11 o modelo antigo errou 17% e 73%.
+
+> **O 06/11 CONTINUA SEM EXPLICAÇÃO**, e isso é parte da resposta, não um
+> detalhe. Realizado R$ 24.369,70 contra R$ 13.008,53 das duas pernas somadas.
+> Rodei a varredura de janelas consecutivas que dariam esse valor e ela devolve
+> **mais de dez combinações plausíveis** entre lag 6 e lag 56 — é exatamente o
+> ajuste circular que já deu errado na taxa do iFood. **Não escolher uma.**
+
+> **A TAXA NÃO FOI MEXIDA JUNTO, de propósito.** Com `TAXA_VOUCHER = 6,90%` o
+> modelo do corte fecha os três dias em ~1,7%. Mas o teto legal do Decreto
+> 12.712/2025 é **3,6%** — se ele já estiver valendo, o ajuste é coincidência
+> de dois erros que se anulam (prazo errado para menos, taxa errada para mais).
+> Mexer nos dois ao mesmo tempo é perder a única régua que eu tenho.
+> **O que resolve é o extrato de uma operadora com a data da venda ao lado da
+> data do crédito** — uma só já serve.
+
 
 
 

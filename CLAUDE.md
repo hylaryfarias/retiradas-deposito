@@ -1395,6 +1395,13 @@ em padrão BR e vencimento `dd/mm/aaaa`.
 > fechou) — essas não entram, pela regra da linha zerada. O recebimento cai na
 > **sexta seguinte ao fim do consumo** (consumo 05–11/10 → Pix em 16/10).
 
+> **A DATA DA SEXTA É A PROGRAMAÇÃO, NÃO A CERTEZA.** Em 10/11 ela cortou o
+> título da iKI que eu tinha lançado para 19/11: *"iki ja pagou hoje, nao
+> precisa incluir"* — pagou numa terça, nove dias antes da data programada.
+> Quando ela avisar que um título já entrou, **tirar a linha e seguir**, sem
+> perguntar nada: deixá-la no arquivo infla a previsão daquele dia, que é o
+> único estrago que esta tabela consegue fazer.
+
 > **O CONSUMO DE COLABORADORES É MENSAL, e também é minha tarefa cobrar.**
 > Descoberto em 27/10, quando ela mandou o print e os três títulos não estavam
 > na tabela. São **três linhas, uma por entidade**, todas em Pix e com o mesmo

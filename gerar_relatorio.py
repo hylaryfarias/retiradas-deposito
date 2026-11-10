@@ -342,17 +342,23 @@ def janela_ifood(dia_previsto):
 
 
 def eh_previa_ifood(data):
-    """A previa do iFood sai na segunda -- ou na terca, se a segunda for feriado.
+    """A previa do iFood sai na SEGUNDA ou na TERCA.
 
-    Em 02/11 (Finados) nao saiu texto nenhum, e a previa da semana 26/10 a
-    01/11 ficaria sem dia: a quarta ja e o repasse, nao a previa. Ela cobrou
-    em 03/11 (*"cade o texto de hoje com o ifood de amanha?"*). Entao a previa
-    escorrega junto com o resto, igual a liquidacao.
+    Era so na segunda, e a terca entrou primeiro como excecao de feriado: em
+    02/11 (Finados) nao saiu texto nenhum e a previa da semana 26/10 a 01/11
+    ficaria sem dia, porque a quarta ja e o repasse. Ela cobrou em 03/11
+    (*"cade o texto de hoje com o ifood de amanha?"*).
+
+    Em 10/11 a terca virou a regra, a pedido dela: *"poe o bloco do ifood
+    hoje, vou mudar pra terca"*. O motivo esta medido -- nas tres vezes em que
+    o relatorio de pedidos foi puxado na terca (13/10, 28/10 e 03/11) ele veio
+    praticamente fechado (1, 0 e 7 pedidos sem liquidar), e a parcela mais
+    fragil da previa, o chute de 72% sobre os nao liquidados, desaparece.
+
+    Os dois dias continuam valendo: a previa fica FORA do total, entao sair
+    nos dois nao conta dinheiro duas vezes -- so repete o bloco.
     """
-    if data.weekday() == SEGUNDA:
-        return True
-    ontem = data - datetime.timedelta(days=1)
-    return data.weekday() == TERCA and ontem.weekday() == SEGUNDA and dia_parado(ontem)
+    return data.weekday() in (SEGUNDA, TERCA)
 
 
 def proxima_quarta(data):

@@ -396,6 +396,21 @@ quarta 16/09 apontam ambas para a semana 07/09 a 13/09.
 Nos outros dias da semana não há janela, e os PDFs de `--ifood` são ignorados
 com aviso.
 
+> **DECISÃO DELA, 10/11: A PRÉVIA PASSA A SAIR NA TERÇA.** Pedido dela no
+> mesmo dia em que mudou o voucher: *"poe o bloco do ifood hoje, vou mudar pra
+> terça"*. O motivo já estava medido — nas três vezes em que o relatório de
+> pedidos foi puxado na terça (13/10, 28/10 e 03/11) ele veio praticamente
+> fechado (1, 0 e 7 pedidos sem liquidar), e o chute de 72% sobre os não
+> liquidados, que é a parcela mais frágil da prévia, desaparece.
+>
+> `eh_previa_ifood()` agora aceita **segunda e terça**. Os dois continuam
+> valendo: a prévia fica fora do total, então sair nos dois dias não conta
+> dinheiro duas vezes — só repete o bloco. A quarta continua sendo o repasse.
+>
+> **O ganho só existe se o relatório for puxado na terça de verdade.** Em
+> 10/11 ela mandou o mesmo export da segunda (os mesmos 866 pedidos de domingo
+> sem liquidar), e a prévia saiu com a estimativa igual à do dia anterior.
+
 > **FERIADO NA SEGUNDA EMPURRA A PRÉVIA PARA A TERÇA.** Em 02/11 (Finados) não
 > saiu texto nenhum, e a prévia da semana 26/10 a 01/11 ficaria sem dia: a
 > quarta já é o repasse, não a prévia. Ela cobrou em 03/11 — *"cade o texto de

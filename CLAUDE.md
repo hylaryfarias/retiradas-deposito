@@ -1062,6 +1062,49 @@ quarta"* — mas os 4,1% deixaram de ser chute.
 > coincidência: ou é **valor fixo de contrato**, ou é campo travado no quadro.
 > **Perguntar no portal.**
 
+#### A semana 02–08/11: o RETIDO DE 4,1% FALHOU
+
+O quadro da API chegou na quarta 11/11, no dia do repasse. A previsão do dia
+acertou — mas por **dois erros grandes que se anularam**:
+
+| | Mandei | Real | |
+|---|---:|---:|---:|
+| Repasse | R$ 462.333,69 | **R$ 458.878,75** | −R$ 3.454,94 (−0,75%) |
+| **Retido (estimei 4,1%)** | R$ 18.955,68 | **R$ 11.821,52** | **−R$ 7.134,16 (−37,6%)** |
+| Entra na conta | R$ 443.378,01 | **R$ 447.057,23** | +R$ 3.679,22 (+0,82%) |
+| Líquido de recebimento | R$ 439.818,04 | **R$ 441.796,59** | +R$ 1.978,55 (+0,45%) |
+
+| | | |
+|---|---:|---|
+| Repasse total | R$ 458.878,75 | antes da antecipação; no Portal R$ 457.283,35 |
+| − Retido | −R$ 11.821,52 | **2,58%**; R$ 8.763,53 Santander + R$ 3.057,99 Safra |
+| = Base bruta a receber | R$ 447.057,23 | |
+| − Taxa de antecipação (débito) | −R$ 7.285,01 | R$ 3.665,24 automática (**0,799%**) + R$ 3.619,77 nos lançamentos |
+| + Desconto por exclusividade | +R$ 2.024,37 | |
+| **= Valor líquido a receber** | **R$ 441.796,59** | R$ 192.497,50 já caiu, R$ 249.299,09 a receber |
+
+> **O RETIDO VOLTOU A SER IMPREVISÍVEL — desfazer o que eu escrevi em 04/11.**
+> As cinco semanas anteriores ficaram entre 3,83% e 4,32% e eu registrei que
+> *"o retido parou de ser imprevisível"*. **Esta veio 2,58%**, e os 4,1%
+> erraram R$ 7.134,16. A série agora é 1,88% · 4,46% · 4,32% · 3,83% · 4,23% ·
+> 4,02% · 4,11% · **2,58%** — duas pontas fora da faixa em oito semanas.
+>
+> Os 4,1% continuam sendo o melhor chute quando ela não tiver o número, mas
+> **voltam a ser chute**: na quarta, **pedir o quadro antes de mandar o texto**,
+> e quando ele não vier, dizer no chat que a linha do iFood pode mexer ±R$ 7 mil.
+
+> **O DESCONTO POR EXCLUSIVIDADE VEIO R$ 2.024,37 PELA QUARTA SEMANA SEGUIDA.**
+> 12–18/10, 19–25/10, 26/10–01/11 e 02–08/11, idêntico até os centavos. Não é
+> mais suspeita: é **valor fixo**. Pode entrar na régua como constante.
+
+> **O FATOR RELATÓRIO→REPASSE NÃO FOI MEDIDO nesta semana**, porque o relatório
+> de pedidos **não foi repuxado** — ele ainda tinha 866 pedidos de domingo sem
+> liquidar, estimados a 72%. O repasse veio 0,75% abaixo do que a cadeia deu, e
+> esse erro mistura as duas réguas (72% e 1,0119) sem separar uma da outra.
+> *Se* o fator fosse 1,0119, os não liquidados teriam valido 65,14% — dentro
+> da faixa medida e colado no piso. **Não registrar isso como medição**: só o
+> repuxe de quarta separa os dois.
+
 #### Teste de completude do relatório de pedidos (Cloudfy × iFood)
 
 Para saber se o último dia veio inteiro, **comparar dia a dia de calendário** o

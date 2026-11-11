@@ -1849,6 +1849,58 @@ R$ 394,87 — pequena naquele dia porque as duas pernas eram parecidas, mas em
 > **O que resolve é o extrato de uma operadora com a data da venda ao lado da
 > data do crédito** — uma só já serve.
 
+### O quinto dia (09/11) muda a leitura: o corte acerta no ACUMULADO, erra no DIA
+
+O fechamento de 09/11 chegou em 11/11 e é a primeira **segunda** medida. O
+modelo do corte, que tinha fechado 03, 04 e 05/11 em ~1,5%, estourou:
+
+| Dia | Corte (líq. a 6,90%) | Realizado | |
+|---|---:|---:|---:|
+| 03/11 ter | 49.267,01 | 48.393,07 | +1,81% |
+| 04/11 qua | 16.200,22 | 15.920,64 | +1,76% |
+| 05/11 qui | 11.853,13 | 11.729,65 | +1,05% |
+| **06/11 sex** | 13.008,53 | 24.369,70 | **−46,62%** |
+| **09/11 seg** | 41.987,40 | 29.162,41 | **+43,98%** |
+| **Soma** | **132.316,29** | **129.575,47** | **+2,12%** |
+
+**Os dois erros grandes quase se anulam** — R$ 11.361,17 a menos na sexta e
+R$ 12.824,99 a mais na segunda. Não é um modelo errado: é **dinheiro no dia
+errado**. O que a regra joga para a segunda (fim de semana acumulando pelo
+`proximo_util()`) chega, pelo menos em parte, já na **sexta**.
+
+**No acumulado de cinco dias o corte fecha em +2,12%**, contra **−30,08%** do
+espelho (R$ 90.600,36 previstos contra R$ 129.575,47). Por isso o modelo novo
+fica — mas com a ressalva que importa para quem lê o número do dia:
+
+> **A LINHA DO VOUCHER DE UM DIA PODE ERRAR ±45%, mesmo com o modelo certo.**
+> No dia 09/11 o modelo antigo por acaso errou menos (−20,54% contra +43,98%).
+> Isso não é motivo para voltar atrás: no acumulado o antigo erra 30% e sempre
+> para baixo, enquanto o novo erra ~2% e oscila. Mas **dizer no chat**, quando
+> o dia for sexta ou segunda, que a linha do voucher pode estar deslocada.
+
+> **NÃO SAIR CAÇANDO QUAL DIA MOVER.** O ajuste "tirar R$ 12,2 mil de bruto da
+> segunda e pôr na sexta" tem combinação demais que encaixa — é o mesmo ajuste
+> circular de sempre. O que resolve continua sendo o **extrato da operadora
+> com a data da venda ao lado da data do crédito**.
+
+**O Pix: cinco de cinco para o D+0.**
+
+| Dia previsto | Modelo de hoje | Pix vendido no próprio dia |
+|---|---:|---:|
+| 03/11 | +11,3% | **+1,6%** |
+| 04/11 | +5,82% | **+5,31%** |
+| 05/11 | +41,00% | **+1,93%** |
+| 06/11 | +42,06% | **−7,59%** |
+| 09/11 | +12,74% | **−5,76%** |
+
+Em 09/11 o modelo de hoje errou +12,74% (R$ 87.871,38 contra R$ 77.942,11) e o
+Pix vendido em 07, 08 e 09/11 erra −5,76%. **O D+0 ganha nos cinco dias.**
+
+**E o cartão fechou em +1,03%** — quinto dia dentro de 2,4%, com as duas pernas
+agora juntas (+0,51% crédito, +1,51% débito). A soma crédito + débito é a
+medida confiável, e ela já tem cinco dias de −1,74% a +2,38%.
+
+
 
 
 

@@ -1943,6 +1943,39 @@ Pix vendido em 07, 08 e 09/11 erra −5,76%. **O D+0 ganha nos cinco dias.**
 agora juntas (+0,51% crédito, +1,51% débito). A soma crédito + débito é a
 medida confiável, e ela já tem cinco dias de −1,74% a +2,38%.
 
+### O sexto dia (10/11): a terça do voucher sai BAIXA, e o estorno infla o total
+
+| Forma | Previsto | Realizado | |
+|---|---:|---:|---:|
+| Crédito | 31.958,60 | 33.432,73 | −4,41% |
+| Débito | 37.786,04 | 36.832,58 | +2,59% |
+| **soma do cartão** | **69.744,64** | **70.265,31** | **−0,74%** |
+| Pix | 20.251,47 | 18.886,14 | +7,23% |
+| Voucher (espelho) | 8.869,28 | 11.260,09 | −21,23% |
+
+**Sexto dia do cartão somado dentro de 2,4%** — a série é −1,74% · +2,38% ·
+−1,68% · −0,25% · +1,03% · −0,74%. Essa é a medida que presta.
+
+**O voucher saiu BAIXO numa terça**, que era justamente o dia em que o corte
+vinha acertando. O modelo do corte daria R$ 9.264,15 (**−17,73%**) e o espelho
+deu −21,23% — os dois para baixo. É o terceiro sentido diferente em quatro
+dias (sexta baixo, segunda alto, terça baixo), o que reforça que **o problema é
+a data de liquidação, não a taxa**.
+
+**Pix: o D+0 ganha o sexto dia, mas de pouco** — +4,37% contra +7,23% do modelo
+de hoje. Num dia em que a venda de Pix quase não mexeu, os dois modelos quase
+empatam; o ganho do D+0 aparece é nos dias de salto.
+
+> **ARMADILHA DO FECHAMENTO: estorno entra nas DUAS pontas e infla a
+> comparação.** Em 10/11 um `Royalties R$ 8.500,00` apareceu nas entradas
+> (*"pagamento indevido da Reti - estornado"*) e os mesmos R$ 8.500,00 nas
+> saídas. O dia fecha igual, mas o `Realizado` de R$ 115.622,09 contra um
+> previsto de R$ 98.865,39 vira +16,95% — quando **sem o estorno são
+> R$ 107.122,09, ou +8,35%**. Mesma lição do Evento Carrinho em 06/10:
+> **estorno não é recebimento.** Ao comparar previsto × realizado, tirar o que
+> entrou e saiu no mesmo dia, e dizer isso no chat.
+
+
 
 
 

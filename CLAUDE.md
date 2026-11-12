@@ -1163,6 +1163,21 @@ Repare que **em quase todo mês as três caem na mesma quarta** — outubro é a
 exceção, porque o dia 28 caiu exatamente numa quarta e separou o 0001-09 das
 outras duas.
 
+> **EXISTIA UM SEGUNDO EMPRÉSTIMO, DE ~R$ 80 MIL — E ELE ACABOU EM 11/11.**
+> Ela perguntou em 11/11 *"cade o emprestimo de 80k?"* e eu não tinha nada:
+> a única programação que eu guardava era a do iFood, de R$ 40.758,73. No dia
+> seguinte ela fechou o assunto: *"a de 80k acabou ontem. Não vai ter mais.
+> tudo certo"*.
+>
+> **Não tem efeito na entrada prevista** — ele era saída, paga pela conta, e
+> nunca passou pelo repasse do iFood (que é o único empréstimo que mexe no meu
+> número, porque é descontado antes do crédito). Fica registrado só para eu
+> **não procurar de novo** e para o caso de aparecer um resíduo dele no extrato.
+>
+> **A lição que fica:** quando ela cita um compromisso que eu não tenho, a
+> resposta é dizer exatamente o que eu guardo e pedir a programação — foi o que
+> destravou. Nunca encaixar um número solto num calendário que não é dele.
+
 > **"CONFORME CAIXA DISPONÍVEL" SIGNIFICA QUE PODE SAIR PICADO.** O valor
 > programado é o teto, não a certeza: em 13/10 ela avisou que *"tinha
 > 87.404,25 pra cair e caiu somente 22.339,89, então precisa abater e vai cair

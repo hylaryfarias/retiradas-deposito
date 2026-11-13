@@ -1179,11 +1179,14 @@ outras duas.
 > destravou. Nunca encaixar um número solto num calendário que não é dele.
 
 > **"CONFORME CAIXA DISPONÍVEL" SIGNIFICA QUE PODE SAIR PICADO.** O valor
-> programado é o teto, não a certeza: em 13/10 ela avisou que *"tinha
-> 87.404,25 pra cair e caiu somente 22.339,89, então precisa abater e vai cair
-> o restante amanhã"*. Quando isso acontecer, lançar o que saiu de verdade e
-> levar o resto para a quarta seguinte — **perguntar a ela, não assumir que
-> saiu inteiro**.
+> programado é o teto, não a certeza — está escrito na própria programação que
+> ela mandou. Quando sair parcial, lançar o que saiu de verdade e levar o resto
+> para a quarta seguinte; **perguntar a ela, não assumir que saiu inteiro**.
+>
+> O exemplo que estava aqui (*"tinha 87.404,25 pra cair e caiu somente
+> 22.339,89"*, 13/10) **era do outro empréstimo, o de 80 mil** — o fechamento
+> de 11/11 mostrou esses R$ 87.404,25 saindo como `Empréstimos` no dia em que
+> ele terminou. A parcela do iFood é R$ 40.758,73 e nunca foi 87 mil.
 
 #### A previsão vem saindo ~2% acima do que entra
 
@@ -1980,6 +1983,62 @@ a data de liquidação, não a taxa**.
 **Pix: o D+0 ganha o sexto dia, mas de pouco** — +4,37% contra +7,23% do modelo
 de hoje. Num dia em que a venda de Pix quase não mexeu, os dois modelos quase
 empatam; o ganho do D+0 aparece é nos dias de salto.
+
+### O sétimo dia (11/11): o modelo do corte se sustenta no acumulado
+
+Previsto R$ 542.910,50 × realizado R$ 553.054,98 — **1,87% acima**, e as
+quatro linhas fecharam bem:
+
+| Forma | Previsto | Realizado | |
+|---|---:|---:|---:|
+| iFood (número real do quadro) | 441.796,59 | 444.715,52 | **−0,66%** |
+| Crédito | 35.049,63 | 36.195,40 | −3,17% |
+| Débito | 36.539,71 | 35.611,02 | +2,61% |
+| **soma do cartão** | **71.589,34** | **71.806,42** | **−0,30%** |
+| Pix | 18.387,22 | 21.652,58 | −15,08% |
+| Voucher | 11.137,35 | 13.373,88 | −16,72% |
+
+**O VOUCHER, com sete dias medidos, fecha o acumulado em −0,97%:**
+
+| Dia | Corte (líq. a 6,90%) | Realizado | | Sai de |
+|---|---:|---:|---:|---|
+| 03/11 ter | 49.267,01 | 48.393,07 | +1,81% | 01–04/10 |
+| 04/11 qua | 16.200,22 | 15.920,64 | +1,76% | 05/10 + 20/10 |
+| 05/11 qui | 11.853,13 | 11.729,65 | +1,05% | 06/10 + 21/10 |
+| 06/11 sex | 13.008,53 | 24.369,70 | −46,62% | 07/10 + 22/10 |
+| 09/11 seg | 41.987,40 | 29.162,41 | +43,98% | 08–10/10 + 23–25/10 |
+| 10/11 ter | 9.264,15 | 11.260,09 | −17,73% | 11/10 + 26/10 |
+| 11/11 qua | 11.137,35 | 13.373,88 | −16,72% | 12/10 + 27/10 |
+| **SOMA** | **152.717,79** | **154.209,44** | **−0,97%** | |
+
+**Sete dias, menos de 1% de erro acumulado.** O modelo do corte está certo no
+agregado; o que continua errado é **em que dia** cada pedaço cai. O espelho,
+no mesmo recorte, erraria ~30% e sempre para baixo.
+
+> **A LEITURA DO DIA A DIA, agora com sete pontos:** três dias ~+1,5%, uma
+> sexta −47%, uma segunda +44%, duas terças/quartas −17%. **Não há um padrão
+> de dia da semana** — o que havia parecido "sexta baixo, segunda alto" já não
+> se sustenta com as duas quartas-feiras baixas. Continuar avisando no chat que
+> a linha do voucher de um dia tem ±45% de folga, e **não ajustar nada por
+> causa de um dia**.
+
+**O Pix: sete de sete para o D+0.** Em 11/11 o modelo de hoje errou −15,08% e o
+Pix vendido no próprio dia erra **−2,98%**.
+
+**E o cartão somado: sétimo dia dentro de 2,4%** (−0,30%). A série completa é
+−1,74% · +2,38% · −1,68% · −0,25% · +1,03% · −0,74% · −0,30%.
+
+**O iFood com o número real do quadro acertou por 0,66%** — segunda vez que a
+linha da quarta fecha abaixo de 1% quando o retido vem do portal.
+
+> **OS R$ 87.404,25 ERAM DO EMPRÉSTIMO DE 80K, NÃO DO IFOOD — correção.** O
+> fechamento de 11/11 traz `Empréstimos: R$ 87.404,25` nas saídas, no mesmo dia
+> em que ela disse que o de 80k acabou. É exatamente o número que eu tinha
+> registrado como exemplo do *"conforme caixa disponível"* do empréstimo do
+> iFood, a partir do aviso dela em 13/10. **Estava no bloco errado:** a parcela
+> do iFood é R$ 40.758,73 e nunca foi 87 mil. A regra do "pode sair picado"
+> continua valendo (ela está na programação do iFood, escrita por ela), mas o
+> exemplo é de outro empréstimo — e esse já acabou.
 
 > **ARMADILHA DO FECHAMENTO: estorno entra nas DUAS pontas e infla a
 > comparação.** Em 10/11 um `Royalties R$ 8.500,00` apareceu nas entradas

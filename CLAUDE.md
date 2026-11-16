@@ -411,6 +411,13 @@ com aviso.
 > 10/11 ela mandou o mesmo export da segunda (os mesmos 866 pedidos de domingo
 > sem liquidar), e a prévia saiu com a estimativa igual à do dia anterior.
 
+> **VALENDO DE VERDADE A PARTIR DE 16/11.** Ela confirmou na segunda 16/11:
+> *"vou puxar o ifood amanhã na terça"*. Então a rotina mudou de lado:
+> **não pedir o relatório de pedidos na segunda** — a segunda sai sem bloco do
+> iFood, e a prévia é cobrada e montada na **terça**. A quarta continua sendo
+> o repasse, e o repuxe de quarta continua valendo para fechar a semana com
+> número real.
+
 > **FERIADO NA SEGUNDA EMPURRA A PRÉVIA PARA A TERÇA.** Em 02/11 (Finados) não
 > saiu texto nenhum, e a prévia da semana 26/10 a 01/11 ficaria sem dia: a
 > quarta já é o repasse, não a prévia. Ela cobrou em 03/11 — *"cade o texto de

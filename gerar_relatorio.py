@@ -402,6 +402,7 @@ def ler_a_prazo(caminho):
                     'vencimento': vencimento,
                     'forma': (linha.get('FORMA') or 'BOLETO').strip() or 'BOLETO',
                     'origem': (linha.get('ORIGEM DO CONSUMO') or '').strip(),
+                    'obs': (linha.get('OBS') or '').strip(),
                 })
             except ValueError:
                 print(f'AVISO: valor invalido na linha {numero} de {caminho}: {valor!r}',
@@ -1277,6 +1278,9 @@ def calcular_entrada(agrupado, agrupado_anterior, titulos, dia_previsto,
         'a_prazo': sum(t['valor'] for t in vencendo) if vencendo else None,
         'titulos_a_prazo': vencendo,
         'vencimento_a_prazo': ', '.join(sorted({t['vencimento'] for t in vencendo})),
+        # OBS da tabela: nota curta que acompanha o titulo ("reagendado de terca").
+        # Vai para o texto porque quem le precisa saber por que o dia esta diferente.
+        'obs_a_prazo': ', '.join(sorted({t['obs'] for t in vencendo if t.get('obs')})),
     }
     if override:
         entrada.update({k: v for k, v in override.items() if k in PARCELAS})
@@ -1393,8 +1397,10 @@ def montar_texto(dias_usados, total, entrada, dia_previsto):
     if entrada['a_prazo'] is not None:
         quantos = len(entrada['titulos_a_prazo'])
         venc = entrada.get('vencimento_a_prazo', dia_previsto)
+        obs = entrada.get('obs_a_prazo') or ''
+        nota = f' — {obs}' if obs else ''
         partes.append(f'· R$ {brl(entrada["a_prazo"])} de vendas a prazo com '
-                      f'vencimento em {venc[:5]} ({quantos} títulos);')
+                      f'vencimento em {venc[:5]} ({quantos} títulos){nota};')
 
     partes[-1] = partes[-1].rstrip(';') + '.'  # a ultima linha fecha com ponto
 

@@ -1506,6 +1506,31 @@ em padrão BR e vencimento `dd/mm/aaaa`.
 > Tratar tudo como boleto jogava 42% do valor de outubro um dia para a frente.
 > Coluna ausente ou vazia = `BOLETO`, então as tabelas antigas continuam valendo.
 
+> **A COLUNA `OBS` É A TAG QUE SAI NO TEXTO** (criada em 17/11, a pedido dela:
+> *"Coloca na previsao e uma tag de 'reagendado de terça'"*). É uma nota curta
+> por título; o script junta as notas distintas dos títulos que caem no dia e
+> emenda na linha de a prazo:
+>
+> `· R$ 20.593,55 de vendas a prazo com vencimento em 18/11 (16 títulos) — reagendado de terça;`
+>
+> Serve para quando o dia foge do normal e quem lê precisa saber por quê —
+> sem ela, R$ 20 mil a mais numa quinta não se explicam sozinhos. Coluna
+> ausente ou vazia não muda nada, então as tabelas antigas continuam valendo.
+>
+> **REAGENDAMENTO SE FAZ MUDANDO O `VENCIMENTO`, não forçando a data de
+> entrada.** Em 17/11 ela avisou que o recebimento **das lojas** (os 16 títulos
+> `BG 05 · lojas`) seria pago na quarta 18/11, caindo na quinta 19/11. O certo
+> é pôr `18/11/2026` no vencimento e deixar a regra do boleto fazer o D+1 —
+> assim a conta continua saindo de uma regra só. Os 9 títulos de
+> `empresas parceiras` do mesmo 16/11 **não** foram mexidos: ela falou só das
+> lojas.
+>
+> **Consequência que não se conserta:** a previsão de 17/11 já tinha saído com
+> os R$ 35.048,08 inteiros, então ela ficou **R$ 20.593,55 alta** na linha de
+> a prazo. O `historico_previsao.csv` guarda o que foi mandado e **não é para
+> reescrever** — quando o fechamento de 17/11 chegar, o a prazo vai aparecer
+> curto nesse valor, e isso é reagendamento, não erro de modelo.
+
 > **NÃO DAR BAIXA, NÃO COBRAR, NÃO PERGUNTAR SE PAGOU.** Decisão dela, 19/10:
 > *"quem cuida se pagou ou não sou eu"*. Esta tabela é **só a programação** —
 > o que entra em previsão, e nada mais. Título vencido que ficou para trás é

@@ -2197,8 +2197,21 @@ esses casos quando o valor cai no extrato.** Consequências para mim:
 
 ## O painel
 
-O de:para virou painel, em **https://retiradas-deposito.vercel.app** (código em
-`hylaryfarias/retiradas-deposito`, arquivo `index.html`).
+O de:para virou painel, em **https://retiradas-deposito.vercel.app**, e o
+código é o **`index.html` DESTE repositório** — o mesmo do `gerar_relatorio.py`.
+
+> **É UM REPOSITÓRIO SÓ, renomeado.** O `relatorio-diario` virou
+> `hylaryfarias/retiradas-deposito` no GitHub; o nome antigo continua
+> funcionando por redirecionamento, e o push avisa:
+> *"This repository moved. Please use the new location"*. Por muito tempo
+> estava anotado aqui como se fosse outro repositório, e por isso o painel
+> foi tratado como fora de alcance — **não é**. Dá para editar o
+> `index.html` daqui normalmente.
+>
+> **Mas a publicação depende da branch.** O Vercel sobe da branch principal,
+> e o trabalho daqui sai na `claude/...`. Mudança no painel só vai para o ar
+> depois que a branch for juntada — **dizer isso a ela antes de mexer**, para
+> ninguém ficar esperando o site mudar sozinho.
 
 - **Cada semana é uma aba**, com os próprios arquivos, observações e situação.
   Nada é compartilhado entre abas; o upload vai para a aba que estiver aberta.

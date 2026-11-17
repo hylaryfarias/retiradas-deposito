@@ -1164,6 +1164,19 @@ arquivo**, e o Cloudfy mostra R$ 68.809,92 vendidos nele.
 > ele, o arquivo passaria como "semana fechada, só 866 zerados do último dia" —
 > que é exatamente a cara que ele tem.
 
+> **A CAUSA ERA O PORTAL, e o re-puxe NÃO conserta.** Pedi o arquivo de novo e
+> ele voltou **idêntico** — 10.596 válidos, R$ 538.754,34 de itens,
+> R$ 301.482,38 de líquido, os mesmos 866 zerados de sábado e nenhuma linha de
+> domingo. Em seguida ela mandou o print do próprio portal:
+> *"Estamos com instabilidade no Portal · Algumas funcionalidades podem ficar
+> lentas ou indisponíveis no momento"*.
+>
+> Ou seja: **quando o export vier truncado, conferir se o portal está avisando
+> instabilidade antes de pedir o arquivo de novo** — repuxar o mesmo dia não
+> traz o que o portal não está gerando. O caminho é esperar, ou pedir a janela
+> **um dia maior** (até 16/11, no caso), já que o que falta é sempre o último
+> dia da janela.
+
 **Para estimar um dia inteiro que falta, a razão é outra.** O 72% é
 `líquido ÷ itens` e serve para pedidos não liquidados, onde os itens são
 conhecidos. Quando o dia inteiro some, o que existe é o `PAGAMENTO ONLINE` do

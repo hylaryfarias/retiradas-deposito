@@ -2208,10 +2208,18 @@ código é o **`index.html` DESTE repositório** — o mesmo do `gerar_relatorio
 > foi tratado como fora de alcance — **não é**. Dá para editar o
 > `index.html` daqui normalmente.
 >
-> **Mas a publicação depende da branch.** O Vercel sobe da branch principal,
-> e o trabalho daqui sai na `claude/...`. Mudança no painel só vai para o ar
-> depois que a branch for juntada — **dizer isso a ela antes de mexer**, para
-> ninguém ficar esperando o site mudar sozinho.
+> **E a publicação é automática.** O repositório tem **uma branch só**, a
+> `claude/payment-methods-grouping-8u535o` — não existe `main`. Ou seja, ela
+> é a branch principal, o Vercel sobe dela, e **todo push daqui vai para o ar**.
+> Em 17/11 eu disse a ela o contrário (que precisaria juntar a branch antes) e
+> estava errado: conferi com `list_branches` e só existe essa.
+>
+> **Consequência: cuidado ao mexer no `index.html`.** Não existe rede de
+> proteção entre o commit e o site que a diretoria abre. Testar antes, abrindo
+> o arquivo no navegador ou apontando para um gist de rascunho com `?g=<id>`.
+
+Como outra pessoa assume o painel está em **`PAINEL-COMO-EDITAR.md`**, na raiz
+deste repositório — escrito em 17/11 a pedido dela, para repassar a demanda.
 
 - **Cada semana é uma aba**, com os próprios arquivos, observações e situação.
   Nada é compartilhado entre abas; o upload vai para a aba que estiver aberta.

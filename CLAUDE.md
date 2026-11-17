@@ -1135,6 +1135,59 @@ corte das 02h espalhando volume entre os dias.
 > 11/10 aparecia com 106,10% e parecia faltar R$ 4,8 mil de pedido — **falso
 > alarme**. Para o teste de completude, usar o **dia de calendário puro**.
 
+#### A semana 09–15/11: o relatório veio SEM O DOMINGO
+
+Primeira terça da rotina nova, e o arquivo chegou **truncado**: o nome diz
+`2026-11-09-2026-11-15`, mas **não há uma linha sequer de domingo 15/11**. O
+último dia presente é sábado 14/11 — e com 866 pedidos sem liquidar, que é o
+padrão do último dia da janela, só que um dia antes do esperado.
+
+**Quem pegou foi o teste de completude contra o Cloudfy**, que até então só
+tinha servido para confirmar que não faltava nada:
+
+| Dia | iFood (itens − incentivo) | Cloudfy | Cloudfy/iFood |
+|---|---:|---:|---:|
+| seg 09/11 | 71.931,70 | 70.832,44 | 98,47% |
+| ter 10/11 | 63.594,63 | 63.018,73 | 99,09% |
+| qua 11/11 | 66.393,63 | 64.901,88 | 97,75% |
+| qui 12/11 | 59.188,99 | 56.954,25 | 96,22% |
+| sex 13/11 | 93.251,99 | 96.836,17 | 103,84% |
+| sáb 14/11 | 105.434,80 | 106.007,94 | 100,54% |
+| **dom 15/11** | **—** | **68.809,92** | **sem pedido nenhum** |
+| soma 09–14 | 459.795,74 | 458.551,41 | **99,73%** |
+
+Os seis dias presentes batem em 99,73%. O domingo simplesmente **não está no
+arquivo**, e o Cloudfy mostra R$ 68.809,92 vendidos nele.
+
+> **RODAR O TESTE DE COMPLETUDE EM TODA PRÉVIA, não só quando desconfiar.**
+> Ele custa três linhas e foi o que impediu uma prévia R$ 50 mil baixa. Sem
+> ele, o arquivo passaria como "semana fechada, só 866 zerados do último dia" —
+> que é exatamente a cara que ele tem.
+
+**Para estimar um dia inteiro que falta, a razão é outra.** O 72% é
+`líquido ÷ itens` e serve para pedidos não liquidados, onde os itens são
+conhecidos. Quando o dia inteiro some, o que existe é o `PAGAMENTO ONLINE` do
+Cloudfy, que espelha **itens − incentivo** — então a razão certa é
+`líquido ÷ (itens − incentivo)`, medida nos dias fechados da própria semana:
+**0,7227** em 09–13/11 (contra 0,6170 de `líquido ÷ itens`).
+
+| | |
+|---|---:|
+| Liquidados no arquivo | R$ 301.482,38 |
+| + 866 zerados de sábado, a 72% | R$ 37.479,77 |
+| + **domingo 15/11 inteiro** (68.809,92 × 0,7227) | **R$ 49.731,51** |
+| = líquido fechado estimado | R$ 388.693,67 |
+| repasse (×1,0119) | R$ 393.319,12 |
+| − retido (~4,1%) | −R$ 16.126,08 |
+| = entra na conta | R$ 377.193,04 |
+| − antecipação (~0,77%) | −R$ 3.028,56 |
+| **= previsão de recebimento** | **R$ 374.164,48** |
+
+A razão do domingo é **estimativa nova e não validada** — movê-la de 0,70 a
+0,75 mexe R$ 3,5 mil no repasse. **Com um dia inteiro faltando, o certo é
+pedir o repuxe**, não publicar o número: a prévia ficou no chat e **fora do
+texto do WhatsApp**, e o número real sai na quarta com o quadro do portal.
+
 #### O empréstimo do iFood
 
 Separado do retido: é empréstimo do **próprio iFood**, abatido do crédito. Na

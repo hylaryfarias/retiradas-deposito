@@ -465,7 +465,10 @@
   }
 
   function chaveLoja(s){
-    var t = norm(s);
+    // o Cloudfy escreve a mesma loja como BIGGS 10 e BIGG'S 10, conforme o
+    // cadastro. O apostrofo quebrava o casamento abaixo e a loja virava duas
+    // linhas na tabela -- por isso ele sai antes de qualquer comparacao.
+    var t = norm(s).replace(/['’`]/g, "");
     if(!t) return "";
     var m = t.match(/\b(BIGGS|BG|ISAIAS|IS)\s*0*(\d+)/);
     if(m){
@@ -880,9 +883,15 @@
     return true;
   }
 
-  function chaveExtrato(loja){
-    var k = chaveLoja(loja);
-    return estado.vinculos[k] || k;
+  // O de:para feito na mao so vale se a loja apontada EXISTIR na sangria da
+  // semana. Vinculo orfao (feito quando o Cloudfy escrevia o nome de outro
+  // jeito) deixava de juntar e passava a SEPARAR a loja em duas linhas --
+  // foi o que aconteceu com a BIGGS 10 em 18/11. Ignorado, a loja volta a
+  // casar sozinha pela propria chave.
+  function chaveExtrato(loja, chavesDaSangria){
+    var k = chaveLoja(loja), alvo = estado.vinculos[k];
+    if(alvo && (!chavesDaSangria || chavesDaSangria[alvo])) return alvo;
+    return k;
   }
 
   function apurar(l, temExtrato){
@@ -905,15 +914,16 @@
   }
 
   function agregar(sangList, extList){
-    var lojas = {};
+    var lojas = {}, daSangria = {};
     sangList.forEach(function(r){
       var k = chaveLoja(r.loja);
+      daSangria[k] = 1;
       if(!lojas[k]) lojas[k] = {k:k, nome:r.loja, s:0, b:0};
       lojas[k].s += r.valor;
       if(r.loja) lojas[k].nome = r.loja;
     });
     extList.forEach(function(r){
-      var k = chaveExtrato(r.loja);
+      var k = chaveExtrato(r.loja, daSangria);
       if(!lojas[k]) lojas[k] = {k:k, nome:(r.loja||k), s:0, b:0};
       lojas[k].b += r.valor;
     });
@@ -1148,6 +1158,17 @@
     grupos.sort(function(a, b){
       return (a.chave === "aberto" ? 0 : 1) - (b.chave === "aberto" ? 0 : 1);
     });
+    // Mes passado nasce RECOLHIDO. Cada mes e avaliado UMA vez, na primeira
+    // vez que ele aparece na lateral -- nao na "primeira montagem", porque a
+    // lateral e desenhada antes com o exemplo e depois com o painel do gist,
+    // e um flag unico marcava tudo ja na tela de exemplo.
+    // ... e so com o painel de verdade na tela: com o exemplo, o mes dele
+    // seria marcado como "ja visto" e nunca mais recolheria.
+    if(!estado.amostra) grupos.forEach(function(g){
+      if(g.chave === "aberto" || mesesVistos[g.chave]) return;
+      mesesVistos[g.chave] = 1;
+      if(g.chave !== doAtivo) mesesFechados[g.chave] = 1;
+    });
     if(doAtivo && mesesFechados[doAtivo]) delete mesesFechados[doAtivo];
     grupos.forEach(function(g){
       var aberto = !mesestaFechado(g.chave);
@@ -1256,26 +1277,40 @@
       ? "Sangrias de exemplo · 07 a 14/09/2026" : "";
 
     var chavesSang = {}; sang.forEach(function(r){ chavesSang[chaveLoja(r.loja)] = r.loja; });
-    var pendentes = {};
+    // Tres situacoes para cada loja do extrato:
+    //   - casa sozinha com a sangria  -> nao aparece aqui
+    //   - sem par                     -> aparece para ela ligar
+    //   - JA ligada na mao            -> aparece tambem, para poder desfazer
+    // A terceira existe porque o vinculo e global e vale para todas as semanas:
+    // um de:para feito numa semana continua valendo depois, e se o nome do
+    // Cloudfy mudar ele passa a SEPARAR a loja em vez de juntar. Sem aparecer
+    // aqui, nao havia como desfazer (18/11, a BIGGS 10 em duas linhas).
+    var pendentes = {}, ligados = {};
     ext.forEach(function(r){
       var k = chaveLoja(r.loja);
-      if(estado.vinculos[k] || chavesSang[k]) return;
+      if(estado.vinculos[k]){ ligados[k] = r.loja || k; return; }
+      if(chavesSang[k]) return;
       pendentes[k] = r.loja || k;
     });
-    var ks = Object.keys(pendentes);
-    $("secVinc").hidden = !(ks.length && sang.length);
+    var ks = Object.keys(pendentes), kl = Object.keys(ligados);
+    $("secVinc").hidden = !((ks.length || kl.length) && sang.length);
     var cont = $("listaVinc"); cont.innerHTML = "";
-    ks.forEach(function(k){
+    function caixaVinc(k, nome, alvo){
+      var orfao = alvo && !chavesSang[alvo];
       var div = document.createElement("div");
       div.className = "vinc";
-      var opts = '<option value="">— escolher loja —</option>';
+      var opts = '<option value="">— ' + (alvo ? "desligar (voltar ao automático)" : "escolher loja") + ' —</option>';
       Object.keys(chavesSang).sort().forEach(function(c){
-        opts += '<option value="'+esc(c)+'">'+esc(chavesSang[c])+'</option>';
+        opts += '<option value="'+esc(c)+'"'+(c===alvo?" selected":"")+'>'+esc(chavesSang[c])+'</option>';
       });
-      div.innerHTML = '<span class="tag">sem par</span><strong>'+esc(pendentes[k])+'</strong>'+
+      if(orfao) opts += '<option value="'+esc(alvo)+'" selected>'+esc(alvo)+' (não está nesta semana)</option>';
+      div.innerHTML = '<span class="tag">'+(alvo ? (orfao ? "ligado · ignorado nesta semana" : "ligado") : "sem par")+'</span>'+
+        '<strong>'+esc(nome)+'</strong>'+
         '<span class="muted">&rarr;</span><select class="vinc-sel" data-k="'+esc(k)+'">'+opts+'</select>';
       cont.appendChild(div);
-    });
+    }
+    kl.forEach(function(k){ caixaVinc(k, ligados[k], estado.vinculos[k]); });
+    ks.forEach(function(k){ caixaVinc(k, pendentes[k], ""); });
     cont.querySelectorAll("select").forEach(function(sel){
       sel.addEventListener("change", function(){
         var k = sel.getAttribute("data-k");
@@ -1355,6 +1390,12 @@
   // meses recolhidos no menu lateral: so na memoria, volta tudo aberto ao
   // recarregar. Nao vai para o publicado -- e preferencia de quem olha.
   var mesesFechados = {};
+  // Na PRIMEIRA montagem da lateral os meses passados ja nascem recolhidos:
+  // so o mes da aba aberta (e o "em aberto") ficam expandidos. Pedido dela em
+  // 18/11. Depois disso quem manda e o clique -- e nada disso vai para o
+  // publicado, continua sendo preferencia de quem olha.
+  // cada chave de mes ja avaliada pelo recolhimento automatico
+  var mesesVistos = {};
   function mesestaFechado(chave){ return !!mesesFechados[chave]; }
 
   var vizTravada = false;      // a aba que esta na tela e uma semana trancada?

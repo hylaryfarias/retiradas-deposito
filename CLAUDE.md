@@ -2382,6 +2382,55 @@ deste repositório — escrito em 17/11 a pedido dela, para repassar a demanda.
   Destrancar é um clique no cadeado com confirmação.
 - **Antes de um arquivo entrar por cima de outro**, o painel diz o que vai ser
   substituído (aba, nome do arquivo e quantos lançamentos) e pede confirmação.
+- **Meses passados nascem RECOLHIDOS na lateral** (pedido dela em 18/11). Só o
+  mês da aba aberta e o "em aberto" começam expandidos. Continua sendo
+  preferência de quem olha: não vai para o publicado, e o clique manda depois.
+  Cada mês é avaliado **uma vez, quando aparece pela primeira vez** — um flag
+  único de "primeira montagem" não funciona, porque a lateral é desenhada antes
+  com o exemplo e de novo quando o painel do gist chega.
+
+### A LOJA QUE APARECEU EM DUAS LINHAS (18/11)
+
+Ela mandou o print com a **BIGGS 10 em duas linhas** na semana 10 a 12/11: uma
+com o Cloudfy (R$ 1.000,00, sem extrato) e outra com o extrato (R$ 1.000,00,
+sem Cloudfy). Aconteceu logo depois de ela liberar outra pessoa para editar.
+
+**Eram duas falhas somadas:**
+
+1. **O apóstrofo quebrava a chave da loja.** O Cloudfy escreve a mesma loja
+   como `BIGGS 10 - MARITACAS 88` e como `BIGG'S 10 - MARITACAS` — depende do
+   cadastro, e as duas grafias aparecem no mesmo acervo (a semana de 13/11 tem
+   apóstrofo, a de 10/11 não). O `chaveLoja()` casava
+   `/\b(BIGGS|BG|ISAIAS|IS)\s*0*(\d+)/`, que **não** encontra `BIGG'S`, então
+   a loja caía no fallback e virava a chave `BIGG'S 10`, diferente de
+   `BIGGS 10`. Agora o apóstrofo sai antes de qualquer comparação.
+2. **Um de:para órfão separava em vez de juntar.** O vínculo feito na mão é
+   **global** — vale para todas as semanas, não só para aquela em que foi
+   criado. Alguém ligou o extrato `BIGGS 10` à sangria `BIGG'S 10` numa semana
+   com apóstrofo; quando o nome veio sem apóstrofo, o vínculo passou a
+   **empurrar o extrato para uma chave que não existia** naquela semana.
+
+**As duas correções:**
+
+- `chaveExtrato()` agora recebe as chaves da sangria da semana e **só respeita
+  o vínculo se a loja apontada existir ali**. Vínculo órfão é ignorado e a loja
+  volta a casar sozinha. Isso conserta as semanas antigas sem ninguém mexer,
+  porque `lojasDaSemana()` recalcula o `agregar()` a cada render.
+- O bloco de de:para passou a listar também **o que já está ligado**, com o
+  destino selecionado e a opção `— desligar (voltar ao automático) —`. Antes,
+  `if(estado.vinculos[k] || chavesSang[k]) return;` escondia o que tinha
+  vínculo, e **não havia como desfazer um de:para errado**. O órfão aparece
+  com o selo `ligado · ignorado nesta semana`.
+
+> **A LIÇÃO: vínculo global + nome que muda = loja duplicada.** Sempre que o
+> Cloudfy mudar a grafia de uma loja, qualquer de:para antigo que apontava para
+> a grafia velha vira uma armadilha. A proteção é a de cima (ignorar órfão),
+> mas se aparecer loja repetida de novo, **o primeiro lugar para olhar é a
+> chave embaixo do nome** — ela é a chave de agrupamento, e duas chaves
+> diferentes para a mesma loja é exatamente o sintoma.
+
+> **Conferido no painel publicado** em 18/11, com Playwright: depois da
+> correção a BIGGS 10 sai em **uma linha só** nas três semanas de novembro.
 
 > **Por que isso existe.** O upload sempre foi para a **aba que está aberta**, e
 > a aba aberta pode ser uma semana já fechada (`alvo()` devolve a semana da aba,

@@ -782,7 +782,7 @@ que é o que interessa:
 | Relatório fechado → repasse | 1,01347 | 1,01573 | 1,01533 | 1,00452 | 1,01034 | **1,0119** (média de cinco) |
 | Antecipação automática / repasse | 0,865% | 0,702% | 0,863% | 0,879% | 0,560% | **0,77%** (média de cinco) |
 | Retido / repasse | 4,32% | 3,83% | 4,23% | 4,02% | 4,11% | **~4,1%** — mas **perguntar sempre** |
-| Não liquidados / itens | 66,36% | 80,42% | 65,25% | 76,51% | — | **72%** (média de quatro) |
+| Não liquidados / itens | 66,36% | 80,42% | 65,25% | 76,51% | — | **71%** (média de cinco, com os 65,32% de 14/11) |
 
 > **A MÉDIA ABSORVE O PONTO NOVO; O ESTIMADOR NÃO MUDA.** Reajustar a régua a
 > cada semana foi o erro de 21/10 — mas aquilo era **trocar de estimador**
@@ -1201,6 +1201,37 @@ A razão do domingo é **estimativa nova e não validada** — movê-la de 0,70 
 pedir o repuxe**, não publicar o número: a prévia ficou no chat e **fora do
 texto do WhatsApp**, e o número real sai na quarta com o quadro do portal.
 
+#### O repuxe de quarta 18/11 fechou — e mediu as duas réguas
+
+O portal normalizou e o arquivo veio inteiro: **12.181 pedidos válidos, nenhum
+zerado**, domingo 15/11 presente, líquido **R$ 392.181,19**. O teste de
+completude contra o Cloudfy deu **98,56%** na soma — não falta pedido.
+
+| | Estimei na terça | Real na quarta | |
+|---|---:|---:|---:|
+| Domingo 15/11 inteiro | 49.728,93 | **56.694,78** | −6.965,85 |
+| 866 zerados de sábado | 37.479,77 | **34.004,03** | +3.475,74 |
+
+**Os dois erros foram em sentidos opostos e quase se anularam**, e por isso as
+duas prévias de terça ficaram coladas no número fechado: a do relatório
+(R$ 374.164,48) a **0,9%** e a do Cloudfy (R$ 376.553,59) a **0,26%**.
+
+> **QUINTA MEDIÇÃO DOS NÃO LIQUIDADOS: 65,32%.** A série é 66,36% · 80,42% ·
+> 65,25% · 76,51% · **65,32%**, e a média de cinco passa de 72% para **71%**.
+> Vale a mesma regra de sempre: **a média absorve o ponto, o estimador não
+> muda**. De 72% para 71% são ~R$ 500 num repasse de R$ 390 mil.
+
+> **A RAZÃO DO DIA INTEIRO QUE FALTA ERA 0,7533, não 0,7227 — e agora dá para
+> ver por quê.** O dia que some é sempre o **último da janela**, e é justamente
+> nele que o Cloudfy fica curto por causa do corte das 02h: domingo 15/11 deu
+> **91,42%** do iFood, contra 96% a 104% dos outros seis dias.
+>
+> Ou seja: **estimar um dia inteiro pelo Cloudfy sai sistematicamente baixo**,
+> porque a base já vem incompleta. Não é a razão que está errada — é o
+> denominador. Quem precisar refazer isso, corrigir o Cloudfy do último dia
+> para cima antes de aplicar a razão, ou aceitar que o número é piso.
+> **Melhor ainda: pedir o repuxe**, que foi o que resolveu aqui.
+
 #### O empréstimo do iFood
 
 Separado do retido: é empréstimo do **próprio iFood**, abatido do crédito. Na
@@ -1314,6 +1345,41 @@ de vendas separado dela.
 > faturado do Cloudfy deu R$ 488.726,02 para 07–13/09, contra um líquido real
 > de ~R$ 422 mil. **Erro de R$ 66 mil.** Por isso a prévia de segunda passa a
 > sair do `VALOR LIQUIDO` do relatório de pedidos, não de taxa sobre o Cloudfy.
+
+#### A RÉGUA DE EMERGÊNCIA: Cloudfy → repasse, medida (não de tabela)
+
+Criada em 17/11, quando ela pediu *"uma previa bem por cima, com base nas
+vendas do cloudfy"* porque o relatório de pedidos tinha vindo truncado.
+
+**Não é taxa de tabela — é a razão medida nas semanas que já fecharam com
+número real do portal:**
+
+| Semana | Cloudfy (`PAGAMENTO ONLINE`) | Repasse real | Repasse/Cloudfy | Líquido/Cloudfy |
+|---|---:|---:|---:|---:|
+| 12–18/10 | 556.005,86 | 425.328,75 | 0,7650 | 0,7240 |
+| 19–25/10 | 531.103,94 | 396.367,98 | 0,7463 | 0,7081 |
+| 26/10–01/11 | 501.982,15 | 371.891,64 | 0,7408 | 0,7044 |
+| 02–08/11 | 613.872,26 | 458.878,75 | 0,7475 | 0,7197 |
+| **média** | | | **0,7499** | **0,7140** |
+| amplitude | | | 0,0241 | 0,0196 |
+
+Aplicada à semana 09–15/11 (Cloudfy R$ 527.361,33) deu líquido
+**R$ 376.553,59**, contra os R$ 377.521,65 que o relatório fechado entregou no
+dia seguinte — **0,26% de erro**, melhor que a própria prévia feita pelo
+relatório truncado.
+
+**Para que serve:** quando o relatório de pedidos não vier, vier truncado, ou
+como **segunda opinião** sobre uma prévia que dependeu de estimativa. Dois
+caminhos independentes batendo é o melhor sinal de que o número está bom —
+foi exatamente isso que autorizou a prévia de 17/11.
+
+**O que ela NÃO é:** substituta do relatório fechado. A amplitude da razão nas
+quatro semanas vale uns **±R$ 5 mil** num repasse de R$ 390 mil, e ela embute
+o retido na média, então não separa as peças. Para o número que vai no total
+da quarta, continua valendo o relatório fechado + o quadro do portal.
+
+> **Refazer a média quando fechar mais uma semana**, do mesmo jeito das outras
+> réguas: somar o ponto novo, **não trocar o estimador**.
 
 **O valor NÃO sai do Cloudfy.** O `PAGAMENTO ONLINE` do relatório é a *venda*,
 não o *repasse* — medido em 09/09, a diferença foi de **24,72%**, muito acima

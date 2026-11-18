@@ -2432,6 +2432,22 @@ sem Cloudfy). Aconteceu logo depois de ela liberar outra pessoa para editar.
 > **Conferido no painel publicado** em 18/11, com Playwright: depois da
 > correção a BIGGS 10 sai em **uma linha só** nas três semanas de novembro.
 
+**E o nome da loja agora sai SEMPRE do Cloudfy.** Ela apontou no mesmo dia que
+a **BIGGS 03 aparecia sem o "GOIAS"**. Não era duplicação: aquela linha vinha
+**só do extrato** (crédito que caiu sem sangria na semana), e o `agregar()`
+usava o nome do banco, que é curto. Resultado: o print saía com dois padrões
+de nome, `BIGGS 10 - MARITACAS 88` ao lado de `BIGGS 03`.
+
+`nomesDasLojas()` monta um dicionário `chave → nome` varrendo a sangria de
+**todas as semanas**, e fica com o nome mais completo que já apareceu. Basta a
+loja ter vindo uma vez no Cloudfy para o nome bom valer em todo lugar, inclusive
+nas linhas que só existem no extrato. O dicionário é refeito a cada `render()`.
+
+> Dois efeitos colaterais bons: o nome fica **igual em todas as semanas**
+> (antes a de 13/11 mostrava `BIGG'S 10 - MARITACAS` e a de 10/11
+> `BIGGS 10 - MARITACAS 88`), e loja que nunca passou pela sangria continua
+> aparecendo com o nome do banco, que é o único que existe para ela.
+
 > **Por que isso existe.** O upload sempre foi para a **aba que está aberta**, e
 > a aba aberta pode ser uma semana já fechada (`alvo()` devolve a semana da aba,
 > não o bloco em aberto). Em 30/09 ela subiu o arquivo da semana nova com a aba

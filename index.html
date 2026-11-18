@@ -913,18 +913,43 @@
     for(var i=0;i<cs.length;i++) alturaObs(cs[i]);
   }
 
+  // O NOME QUE APARECE NA TABELA SAI SEMPRE DO CLOUDFY, nunca do extrato.
+  // Quando a loja tem credito no banco mas nao teve sangria naquela semana,
+  // a linha nascia com o nome curto do banco ("BIGGS 03") em vez do nome
+  // completo ("BIGGS 03 - GOIAS"), e o print saia com dois padroes de nome.
+  // O dicionario aprende o nome de TODAS as semanas, entao basta a loja ter
+  // aparecido uma vez na sangria para o nome bom valer em todo lugar.
+  var _nomesLoja = null;
+  function nomesDasLojas(){
+    if(_nomesLoja) return _nomesLoja;
+    _nomesLoja = {};
+    function anotar(lista){
+      (lista || []).forEach(function(r){
+        var k = chaveLoja(r.loja), n = String(r.loja == null ? "" : r.loja).trim();
+        if(!k || !n) return;
+        // o do Cloudfy e o mais descritivo: fica o mais completo que ja veio
+        if(!_nomesLoja[k] || n.length > _nomesLoja[k].length) _nomesLoja[k] = n;
+      });
+    }
+    anotar(estado.sangria); anotar(estado.suprimentos);
+    (estado.semanas || []).forEach(function(sem){
+      anotar(sem.sangria); anotar(sem.suprimentos);
+    });
+    return _nomesLoja;
+  }
+
   function agregar(sangList, extList){
-    var lojas = {}, daSangria = {};
+    var lojas = {}, daSangria = {}, nomes = nomesDasLojas();
     sangList.forEach(function(r){
       var k = chaveLoja(r.loja);
       daSangria[k] = 1;
-      if(!lojas[k]) lojas[k] = {k:k, nome:r.loja, s:0, b:0};
+      if(!lojas[k]) lojas[k] = {k:k, nome:(nomes[k]||r.loja), s:0, b:0};
       lojas[k].s += r.valor;
-      if(r.loja) lojas[k].nome = r.loja;
+      if(r.loja) lojas[k].nome = nomes[k] || r.loja;
     });
     extList.forEach(function(r){
       var k = chaveExtrato(r.loja, daSangria);
-      if(!lojas[k]) lojas[k] = {k:k, nome:(r.loja||k), s:0, b:0};
+      if(!lojas[k]) lojas[k] = {k:k, nome:(nomes[k]||r.loja||k), s:0, b:0};
       lojas[k].b += r.valor;
     });
     return lojas;
@@ -993,6 +1018,7 @@
   }
 
   function render(){
+    _nomesLoja = null;                 // o dicionario de nomes refaz a cada render
     var sang = marcados(juntar(estado.sangria, estado.suprimentos));
     var ext  = estado.extrato.filter(function(r){ return r.marcado; });
     var totS = sang.reduce(function(a,r){ return a+r.valor; }, 0);

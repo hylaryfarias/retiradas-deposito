@@ -779,9 +779,9 @@ que é o que interessa:
 
 | Fator | 21–27/09 | 28/09–04/10 | 12–18/10 | 19–25/10 | 26/10–01/11 | Usar |
 |---|---:|---:|---:|---:|---:|---|
-| Relatório fechado → repasse | 1,01347 | 1,01573 | 1,01533 | 1,00452 | 1,01034 | **1,0113** (média de seis, com 1,00842 de 09–15/11) |
+| Relatório fechado → repasse | 1,01347 | 1,01573 | 1,01533 | 1,00452 | 1,01034 | **1,0102** (média de seis, com 1,00198 de 09–15/11) |
 | Antecipação automática / repasse | 0,865% | 0,702% | 0,863% | 0,879% | 0,560% | **0,77%** (média de cinco) |
-| Retido / repasse | 4,32% | 3,83% | 4,23% | 4,02% | 4,11% | **~4,1%** — 7 de 9 semanas entre 3,83% e 4,46%, mas **perguntar sempre** |
+| Retido / repasse | 4,32% | 3,83% | 4,23% | 4,02% | 4,11% | **~4,1%** — 8 de 9 semanas entre 3,83% e 4,46%, mas **perguntar sempre** |
 | Não liquidados / itens | 66,36% | 80,42% | 65,25% | 76,51% | — | **71%** (média de cinco, com os 65,32% de 14/11) |
 
 > **A MÉDIA ABSORVE O PONTO NOVO; O ESTIMADOR NÃO MUDA.** Reajustar a régua a
@@ -1232,77 +1232,84 @@ duas prévias de terça ficaram coladas no número fechado: a do relatório
 > para cima antes de aplicar a razão, ou aceitar que o número é piso.
 > **Melhor ainda: pedir o repuxe**, que foi o que resolveu aqui.
 
-#### A semana 09–15/11 fechou: o retido de 4,1% volta a acertar
+#### A semana 09–15/11 fechou — e a primeira leitura foi de OUTRO quadro
 
-O quadro do portal chegou na quinta 19/11, um dia depois do repasse.
+O quadro chegou na quinta 19/11. **Vieram dois prints, e o primeiro era de
+outra semana** — ela avisou logo depois: *"mandei errado"*. Os números abaixo
+são do quadro certo, o que traz na lateral `qua 18/11/2026 · semana 09/11 – 15/11`.
 
 | | Mandei (18/11) | Real | |
 |---|---:|---:|---:|
-| Repasse | R$ 396.848,15 | **R$ 395.484,58** | −R$ 1.363,57 (−0,34%) |
-| **Retido (estimei 4,1%)** | R$ 16.270,77 | **R$ 16.399,96** | **+R$ 129,19 (+0,79%)** |
-| Entra na conta | R$ 380.577,37 | **R$ 379.021,46** | −R$ 1.555,91 (−0,41%) |
-| Líquido de recebimento | R$ 377.521,65 | **R$ 376.620,97** | −R$ 900,67 (**−0,24%**) |
+| Repasse (apurado) | R$ 396.848,15 | **R$ 392.959,38** | −R$ 3.888,77 (−0,98%) |
+| Retido (estimei 4,1%) | R$ 16.270,77 | **R$ 17.320,62** | +R$ 1.049,85 (+6,45%) |
+| Entra na conta | R$ 380.577,37 | **R$ 376.028,21** | −R$ 4.549,16 (−1,20%) |
+| Líquido de recebimento | R$ 377.521,65 | **R$ 373.619,10** | −R$ 3.902,54 (**−1,03%**) |
 
 | | | |
 |---|---:|---|
 | Líquido do relatório fechado | R$ 392.181,19 | repuxado na quarta, 12.181 pedidos, nada zerado |
-| Repasse apurado na semana | R$ 395.484,58 | **×1,00842**; o que **cai na conta** é R$ 395.421,42 |
-| − Retido | −R$ 16.399,96 | **4,147%**; R$ 13.637,81 Santander + R$ 2.762,15 Safra |
-| = Base bruta a receber | R$ 379.021,46 | |
-| Caiu na conta | R$ 379.026,15 | R$ 4,69 a mais que a base |
-| − Antecipação (já líquida da exclusividade) | −R$ 2.400,49 | **0,607% do repasse** |
-| − Empréstimo do iFood | −R$ 13.419,37 | ver abaixo |
-| + Subsídio | +R$ 1.207,33 | |
-| − **Bloqueio judicial** | −R$ 1.300,48 | **linha nova** |
-| **= Valor disponível para uso** | **R$ 363.113,14** | |
+| Repasse | R$ 393.348,83 | o que **cai na conta**; apurado na semana R$ 392.959,38 |
+| − Retido | −R$ 17.320,62 | **4,408%**; R$ 14.439,65 Santander + R$ 2.880,97 Safra |
+| = Base bruta a receber | R$ 376.028,21 | |
+| Caiu na conta | R$ 376.028,21 | **fechou exatamente** com a base bruta |
+| − Antecipação (já líquida da exclusividade) | −R$ 2.409,11 | **0,613% do repasse** |
+| **= Valor disponível para uso** | **R$ 373.619,10** | sem empréstimo, sem subsídio, sem bloqueio |
 
-**O RETIDO DE 4,1% ACERTOU POR R$ 129,19.** Depois do tombo de 2,58% em
-02–08/11, a série volta ao normal: 1,88% · 4,46% · 4,32% · 3,83% · 4,23% ·
-4,02% · 4,11% · 2,58% · **4,15%** — **sete de nove entre 3,83% e 4,46%**.
-Continua sendo pergunta de toda quarta, mas os 4,1% seguem sendo o melhor
-chute disponível, e o 2,58% parece ter sido a exceção, não a virada.
+**O retido de 4,1% errou +6,45%** (veio 4,408%). A série fica 1,88% · 4,46% ·
+4,32% · 3,83% · 4,23% · 4,02% · 4,11% · 2,58% · **4,41%** — oito de nove entre
+3,83% e 4,46%, com o 2,58% de 02–08/11 como único ponto fora. Os 4,1% seguem
+valendo como chute, e a faixa prática é **±R$ 1 mil num repasse de R$ 390 mil**
+quando o retido se comporta.
 
-**O fator relatório→repasse teve a sexta medição: 1,00842.** A série é
-1,01347 · 1,01573 · 1,01533 · 1,00452 · 1,01034 · **1,00842**, e a média de
-seis passa de 1,0119 para **1,0113**. A média absorve o ponto, o estimador
-não muda.
+**O fator relatório→repasse teve a sexta medição: 1,00198**, o mais baixo da
+série (1,01347 · 1,01573 · 1,01533 · 1,00452 · 1,01034 · **1,00198**). A média
+de seis cai de 1,0119 para **1,0102**. A média absorve o ponto, o estimador
+não muda — mas repare que **os três últimos pontos ficaram todos abaixo de
+1,011**, então vale olhar se isso vira tendência em vez de ruído.
 
-> **A RÉGUA DE EMERGÊNCIA ACERTOU DE NOVO, e de forma quase assustadora.**
-> Repasse ÷ Cloudfy desta semana: **0,7499** — a média das quatro anteriores
-> era 0,7499. Líquido ÷ Cloudfy: **0,7142** contra média de 0,7140. Com cinco
-> semanas as médias praticamente não se movem (0,7499 e 0,7141), o que torna
-> essa régua um cheque de sanidade muito bom para toda prévia.
+> **AS DUAS PRÉVIAS DE 17/11, conferidas contra o número certo:** a que saiu do
+> **relatório truncado** (R$ 374.164,48) errou **−0,15%**, e a da **régua do
+> Cloudfy** (R$ 376.553,59) errou **−0,78%**. As duas boas, mas ao contrário do
+> que eu disse antes de ver o quadro certo: quem acertou mais foi a do
+> relatório, não a do Cloudfy.
 
-**Três coisas novas neste quadro:**
+> **A RÉGUA DE EMERGÊNCIA, com cinco semanas:** repasse ÷ Cloudfy desta semana
+> **0,7451** (média de cinco: **0,7489**), líquido ÷ Cloudfy **0,7085** (média
+> **0,7129**). A amplitude continua em ~0,024, ou uns ±R$ 6 mil num repasse de
+> R$ 390 mil — **cheque de sanidade, não substituto do relatório fechado**.
 
-1. **`BLOQUEIO JUDICIAL`, R$ 1.300,48** — nunca tinha aparecido. O próprio
-   quadro explica: *"das mesmas dívidas antigas que fazem o iFood reter nas
-   contas, mas sobre dinheiro que já caiu — por isso fora da soma acima"*.
-   Ou seja: **não entra no retido** e não mexe na linha do total; entra depois,
-   junto com empréstimo e subsídio. Acompanhar se vira recorrente.
-2. **`REPASSE` e `APURADO NA SEMANA` são números diferentes**, R$ 395.421,42 e
-   R$ 395.484,58. A diferença de **R$ 63,16** é o *repasse diferido do
-   China – Zona Leste*, que apura numa semana e credita 21 dias depois.
-   **Para a régua, usar o APURADO** — é o que casa com o export da API, e é o
-   que o próprio quadro manda usar.
-3. **A antecipação vem LÍQUIDA do desconto por exclusividade** neste quadro
-   (R$ 2.400,49, saindo por diferença), enquanto nas semanas anteriores ela
-   vinha aberta em `automática` + `lançamentos` com a exclusividade como
-   crédito à parte. **Os dois números não são comparáveis**, e por isso a régua
-   de 0,77% fica como está: somar 0,607% a uma série que media outra coisa
-   seria misturar. Se o efeito líquido for o que importa (e é — é ele que sai
-   do total do dia), as duas medições que eu tenho são 1,146% em 02–08/11 e
-   0,607% aqui, longe demais para virar régua. **Pedir o quadro aberto na
-   próxima quarta** para decidir qual das duas leituras vale.
+> **ARMADILHA NOVA: o quadro do portal NÃO DIZ a semana no recorte que ela
+> manda.** O print do painel só mostra o período na **lateral**; o bloco dos
+> cinco números não tem rótulo nenhum. Em 19/11 chegou primeiro um quadro de
+> outra semana (repasse R$ 395.421,42, retido R$ 16.399,96, com empréstimo de
+> R$ 13.419,37, subsídio de R$ 1.207,33 e uma linha de **bloqueio judicial**
+> de R$ 1.300,48) e eu registrei como se fosse esta — inclusive levantei no
+> chat uma pergunta sobre o empréstimo ter caído fora do calendário, que não
+> existia.
+>
+> **Antes de medir, conferir se o print mostra a semana.** Quando não mostrar,
+> **perguntar de qual semana é** — os números entre semanas vizinhas são
+> parecidos demais para distinguir de cabeça (aqui a diferença no repasse foi
+> de R$ 2 mil, 0,5%).
 
-> **E O EMPRÉSTIMO VEIO EM DATA QUE NÃO BATE COM O CALENDÁRIO.** São
-> **R$ 13.419,37**, exatamente a parcela da **BIG FOME 0001-09** — mas pelo
-> calendário que ela mandou em 28/10 a competência 11/2026 dessa conta cairia
-> em **02/12** (dia base 28, que em novembro é sábado). Ela caiu em **18/11**.
-> **Não encaixar isso numa teoria sozinho**: pode ser antecipação por caixa
-> disponível (*"conforme caixa disponível vai descontando"*), pode ser outra
-> competência. **Perguntar a ela** — é o mesmo erro do empréstimo de 80 mil,
-> de tentar encaixar um número solto num calendário que talvez não seja dele.
+> **O `BLOQUEIO JUDICIAL` existe, mas é de outra semana.** Apareceu naquele
+> primeiro quadro: *"das mesmas dívidas antigas que fazem o iFood reter nas
+> contas, mas sobre dinheiro que já caiu — por isso fora da soma acima"*. Fica
+> registrado porque é uma linha nova no portal, mas **não é desta semana** e
+> ainda não se sabe de qual.
+
+> **`REPASSE` e `APURADO NA SEMANA` são números diferentes.** Aqui, R$ 393.348,83
+> e R$ 392.959,38 — a diferença de **R$ 389,45** é o *repasse diferido do
+> China – Zona Leste*, que apura numa semana e credita 21 dias depois. O
+> **repasse** é o que forma a base bruta (`repasse − retido` fecha na unha), e o
+> **apurado** é o que casa com o export da API, então é ele que entra na régua.
+
+> **A antecipação vem LÍQUIDA do desconto por exclusividade** neste quadro
+> (R$ 2.409,11, 0,613% do repasse), enquanto nas semanas anteriores vinha
+> aberta em `automática` + `lançamentos` com a exclusividade como crédito à
+> parte. **Os dois números não são comparáveis**, então a régua de 0,77% fica
+> como está. **Pedir o quadro aberto na próxima quarta** para decidir qual das
+> duas leituras vale.
 
 #### O empréstimo do iFood
 
@@ -1432,14 +1439,14 @@ número real do portal:**
 | 19–25/10 | 531.103,94 | 396.367,98 | 0,7463 | 0,7081 |
 | 26/10–01/11 | 501.982,15 | 371.891,64 | 0,7408 | 0,7044 |
 | 02–08/11 | 613.872,26 | 458.878,75 | 0,7475 | 0,7197 |
-| 09–15/11 | 527.361,33 | 395.484,58 | 0,7499 | 0,7142 |
-| **média de cinco** | | | **0,7499** | **0,7141** |
-| amplitude | | | 0,0242 | 0,0198 |
+| 09–15/11 | 527.361,33 | 392.959,38 | 0,7451 | 0,7085 |
+| **média de cinco** | | | **0,7489** | **0,7129** |
+| amplitude | | | 0,0242 | 0,0196 |
 
 Aplicada à semana 09–15/11 (Cloudfy R$ 527.361,33) deu líquido
-**R$ 376.553,59**, contra os R$ 377.521,65 que o relatório fechado entregou no
-dia seguinte — **0,26% de erro**, melhor que a própria prévia feita pelo
-relatório truncado.
+**R$ 376.553,59**, contra os R$ 373.619,10 que o portal fechou — **0,78% de
+erro**. A prévia feita pelo relatório truncado, no mesmo dia, errou 0,15%:
+nesta semana a régua do Cloudfy foi a segunda melhor, não a melhor.
 
 **Para que serve:** quando o relatório de pedidos não vier, vier truncado, ou
 como **segunda opinião** sobre uma prévia que dependeu de estimativa. Dois

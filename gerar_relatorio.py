@@ -951,12 +951,21 @@ def entrada_do_titulo(vencimento, forma='BOLETO'):
     fim de semana. TED cai no mesmo dia, mas so em dia util. Ela passou o
     calendario de outubro em 06/10 com as tres formas misturadas, e tratar
     tudo como boleto jogava 42% do valor um dia para a frente.
+
+    FERIADO SEGURA O PIX. O trilho do Pix nao para, mas quem manda o Pix e o
+    financeiro da empresa que paga -- e em feriado nacional ele esta fechado.
+    Ela apontou isso em 19/11, com os titulos das empresas do grupo vencendo
+    na sexta 20/11 (Consciencia Negra): "se vence dia 20 ela vai pagar na
+    segunda". Entao Pix vencendo em feriado anda para o proximo dia util.
+    Fim de semana continua caindo no proprio dia, que e a decisao dela de
+    06/10 e nao foi mexida aqui.
     """
     forma = (forma or 'BOLETO').strip().upper()
+    venc = datetime.datetime.strptime(vencimento, '%d/%m/%Y').date()
     if forma == 'PIX':
-        return datetime.datetime.strptime(vencimento, '%d/%m/%Y').date()
+        return proximo_util(venc) if venc in FERIADOS else venc
     if forma == 'TED':
-        return proximo_util(datetime.datetime.strptime(vencimento, '%d/%m/%Y').date())
+        return proximo_util(venc)
     return entrada_do_boleto(vencimento)
 
 

@@ -1646,11 +1646,28 @@ em padrão BR e vencimento `dd/mm/aaaa`.
 > | FORMA | Quando o dinheiro entra |
 > |---|---|
 > | `BOLETO` (padrão) | próximo dia útil do vencimento **+ D+1**, pulando fim de semana |
-> | `PIX` | **no próprio dia**, inclusive sábado e domingo |
+> | `PIX` | **no próprio dia**, inclusive sábado e domingo — **menos em feriado** |
 > | `TED` | no próprio dia, mas só em **dia útil** |
 >
 > Tratar tudo como boleto jogava 42% do valor de outubro um dia para a frente.
 > Coluna ausente ou vazia = `BOLETO`, então as tabelas antigas continuam valendo.
+
+> **FERIADO SEGURA O PIX — correção dela em 19/11.** Eu tinha lançado os
+> R$ 37.984,15 das empresas do grupo para sexta **20/11**, que é Consciência
+> Negra, defendendo que *"Pix entra no próprio dia, inclusive feriado"*. Ela
+> cortou: *"mas dia 20 a empresa não vai pagar né, se vence dia 20 ela vai
+> pagar na segunda"*.
+>
+> **Eu estava confundindo o trilho com quem aperta o botão.** O Pix liquida
+> 24/7 — mas quem manda o Pix é o financeiro da empresa que paga, e em feriado
+> nacional ele está fechado. O que não para é a *liquidação*; o que para é o
+> *pagador*. Por isso `entrada_do_titulo()` passou a rodar `proximo_util()`
+> quando o vencimento do Pix cai em feriado, e os quatro títulos de 20/11
+> (as três empresas do grupo + TAON) entram em **segunda 23/11**.
+>
+> **O fim de semana ficou como estava**, que é a decisão dela de 06/10 — mas
+> repare que o argumento dela vale igual para um sábado. Se aparecer um Pix
+> vencendo no fim de semana, **perguntar** antes de assumir que cai no dia.
 
 > **A COLUNA `OBS` É A TAG QUE SAI NO TEXTO** (criada em 17/11, a pedido dela:
 > *"Coloca na previsao e uma tag de 'reagendado de terça'"*). É uma nota curta

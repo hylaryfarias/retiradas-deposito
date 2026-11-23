@@ -2521,12 +2521,96 @@ vendido no próprio 19/11 erra **−7,23%** com a BIGG'S 07 dentro
 fora feche melhor — pode ser que o Pix do PDV novo ainda não caia na mesma
 conta, mas **é um dia só**.
 
-> **O ACUMULADO DO VOUCHER NÃO PODE SER SOMADO AGORA: faltam cinco
-> fechamentos.** 12, 13, 16, 17 e 18/11 não vieram, então somar 19/11 aos sete
-> dias de 03 a 11/11 compara um bloco com um buraco de cinco dias no meio — e o
-> acumulado só vale porque dinheiro no dia errado se compensa **dentro da
-> janela**. **Pedir esses cinco**; sem eles o melhor teste que existe fica
-> parado.
+### Os cinco fechamentos que faltavam chegaram (23/11): 13 dias contíguos
+
+Ela mandou 12, 13, 16, 17 e 18/11 de uma vez, e com isso a janela **03 a 19/11
+ficou inteira em dia útil**. É a primeira vez que o acumulado do voucher pode
+ser somado de verdade.
+
+| Dia | | Cartão somado | Voucher pelo corte | Voucher real | |
+|---|---|---:|---:|---:|---:|
+| 03/11 | ter | −1,74% | 49.267,01 | 48.393,07 | −1,77% |
+| 04/11 | qua | +2,38% | 16.200,22 | 15.920,64 | −1,73% |
+| 05/11 | qui | −1,68% | 11.853,13 | 11.729,65 | −1,04% |
+| 06/11 | sex | −0,25% | 13.008,53 | 24.369,70 | **+87,34%** |
+| 09/11 | seg | −1,02% | 41.987,40 | 29.162,41 | **−30,54%** |
+| 10/11 | ter | +0,75% | 9.264,15 | 11.260,09 | +21,54% |
+| 11/11 | qua | +0,30% | 11.137,35 | 13.373,88 | +20,08% |
+| 12/11 | qui | −2,90% | 10.364,44 | 9.878,00 | −4,69% |
+| 13/11 | sex | +0,95% | 13.343,68 | 26.388,84 | **+97,76%** |
+| 16/11 | seg | −1,24% | 55.648,91 | 43.072,24 | **−22,60%** |
+| 17/11 | ter | +1,45% | 13.300,11 | 19.460,85 | +46,32% |
+| 18/11 | qua | +0,12% | 11.756,62 | 14.055,50 | +19,55% |
+| 19/11 | qui | **+8,98%** | 7.223,52 | 20.582,22 | **+184,93%** |
+| **SOMA** | | | **264.355,06** | **287.647,09** | **+8,81%** |
+
+**O CARTÃO SOMADO É A LINHA QUE PRESTA, e agora com 13 dias:** erro médio
+absoluto de **1,83%**, ou **1,23%** sem o 19/11. Doze dos treze dias ficam
+dentro de 2,9%, e o único fora é a véspera de feriado. Isso fecha a questão —
+a soma crédito + débito é confiável e não precisa de ajuste.
+
+**O iFood de 18/11, com o número real do quadro, errou −0,40%** — terceira vez
+abaixo de 1% quando o retido vem do portal.
+
+> **A SEXTA É O DIA QUE VAZA, e a segunda é onde ele deveria estar.** Com dois
+> pontos de cada, o padrão é consistente e quase se anula em reais:
+>
+> | | Corte | Realizado | Diferença |
+> |---|---:|---:|---:|
+> | as 2 sextas | 26.352,21 | 50.758,54 | **+24.406,33** |
+> | as 2 segundas | 97.636,31 | 72.234,65 | **−25.401,66** |
+>
+> Sobra **R$ 995,33** entre as duas pontas. O dinheiro que o `proximo_util()`
+> joga para a segunda chega, em boa parte, já na **sexta**. Isso desfaz o que
+> eu escrevi em 11/11 (*"não há um padrão de dia da semana"*): com um ponto de
+> cada não havia; com dois de cada, há.
+
+> **DUAS MECÂNICAS TESTADAS, AS DUAS FALHAM — e por isso o modelo NÃO mudou.**
+>
+> | Regra | Erro médio/dia | Sexta 06 e 13/11 | Segunda 09 e 16/11 | Acumulado |
+> |---|---:|---|---|---:|
+> | `proximo_util` (hoje) | 41,53% | +87% · +98% | −31% · −23% | +8,81% |
+> | antecipa tudo (`util_anterior`) | 99,18% | −44% · −51% | +160% · +180% | +13,85% |
+> | só o sábado antecipa | 31,79% | −16% · −24% | +12% · +25% | +14,93% |
+>
+> A antecipação total é **muito pior**. A do sábado só conserta sexta e
+> segunda, mas **quebra o 03/11** (de −1,77% para +37,54%) e piora o acumulado.
+> Nenhuma das duas é ganho limpo, e escolher entre elas por ajuste é o mesmo
+> erro circular de sempre. **Fica o `proximo_util`.**
+
+> **A TAXA: a janela de 13 dias INVERTE o que a de 7 dias dizia.** Eu respondi a
+> ela em 23/11 que os 6,90% estavam fechando melhor — era verdade no recorte de
+> 7 dias (03 a 11/11), e **deixou de ser** com a janela inteira:
+>
+> | Taxa | 7 dias (03–11/11) | **13 dias (03–19/11)** |
+> |---|---:|---:|
+> | 6,90% (hoje) | **+0,98%** | modelo curto em **8,81%** |
+> | 3,60% | −2,48% | modelo curto em **5,09%** |
+> | 0% | −5,99% | modelo curto em **1,30%** |
+>
+> Na janela cheia a **dedução implícita é −1,30%**: o realizado passou do bruto
+> vendido nas pernas apontadas. Ou seja, **a dedução efetiva nesta janela está
+> muito mais perto de zero do que de 6,90%**, o que casa com o teto de 3,6% do
+> Decreto 12.712/2025 e com o que já tinha aparecido em 09/11.
+>
+> **Mas taxa e janela continuam entrelaçadas:** se a janela está perdendo dia
+> (e a sexta mostra que está), o bruto sai subestimado e a dedução implícita sai
+> baixa demais. **Continua valendo não mexer na taxa sozinha** — e continua
+> valendo que o que resolve é **o extrato de uma operadora com a data da venda
+> ao lado da data do crédito**.
+
+> **O PIX: 10 × 3 PARA O D+0, em 13 dias.** Erro médio absoluto de **6,19%**
+> (D+0) contra **18,47%** (modelo de hoje), tirando o 03/11 — que é bloco de
+> feriado e o teste simples do D+0 não sabe tratar. O modelo de hoje só ganha em
+> 03/11, 12/11 e 18/11, e sempre por pouco; o D+0 ganha nos dias de salto, que é
+> onde o erro dói.
+
+> **O A PRAZO DE 17/11 CONFIRMOU O REAGENDAMENTO, e sobra um pedaço que é
+> dela.** Previsto R$ 35.048,08, realizado R$ 6.640,70 — faltaram R$ 28.407,38.
+> Desses, **R$ 20.593,55 são exatamente o reagendamento das lojas** que eu
+> registrei em 17/11; os outros **R$ 7.813,83** são dos 9 títulos de
+> `empresas parceiras`, que não foram mexidos. Pela regra dela de 19/10, isso é
+> cobrança, não é assunto meu — fica só anotado.
 
 > **NÃO PERSEGUIR A DIFERENÇA DO `Líquido disponível`.** Em 04/11 ela informou
 > R$ 329.342,10 e pelos próprios números do fechamento

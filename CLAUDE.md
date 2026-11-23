@@ -139,12 +139,25 @@ python3 gerar_relatorio.py cupons.xlsx \
 > errado — prova só que o dia inteiro foi diferente. Antes de acusar o export,
 > **pedir o dia isolado**, que custa dois cliques.
 >
-> **O que sobra como pergunta de verdade** é operacional: a BIGG'S 07 fez
-> R$ 31,1 mil na quinta e R$ 13.658,17/dia na sexta (feriado), sábado e
-> domingo, enquanto a rede **não caiu** no mesmo período (sexta R$ 264 mil,
-> sábado R$ 276 mil). A composição dela não mudou (iFood 37,56% na quinta,
-> 41,97% nos três dias), só o volume caiu pela metade. Ou a loja operou
-> reduzida logo depois da virada, ou **o PDV novo está registrando a menos**.
+> **E O DIA A DIA MOSTROU O FURO DE VERDADE: o fim de semana quase não
+> registrou.** Com os prints de 19 e 20/11 isolados, a conta fecha nos dois
+> exports:
+>
+> | Dia | BIGG'S 07 | A rede (15 lojas) |
+> |---|---:|---:|
+> | qui 19/11 | R$ 31.115,93 | R$ 248.537,08 |
+> | sex 20/11 (feriado) | R$ 36.172,86 | R$ 264.180,14 |
+> | **sáb 21 + dom 22** | **R$ 4.801,64** | R$ 458.305,02 |
+>
+> Os dois exports concordam: `19 a 22 − 19 − 20` e `20 a 22 − 20` dão o **mesmo**
+> R$ 4.801,64. Ou seja, a loja fez R$ 33.644/dia na quinta e na sexta e
+> **R$ 2.400/dia** no sábado e no domingo — justamente quando a rede teve o
+> melhor dia do bloco (sábado, 1,045× a sexta).
+>
+> Se a loja tivesse acompanhado a rede, sábado + domingo valeriam ~R$ 62,7 mil.
+> Como 46,3% do dia dela é cartão + Pix, **faltariam ~R$ 27 mil na entrada
+> prevista de 23/11** — 4,2% do total do dia. Ou a loja fechou no fim de
+> semana, ou **o PDV novo parou de registrar**.
 >
 > **O teste que separa os dois é de graça:** o `relatorio-pedidos` do iFood da
 > semana 16–22/11 traz a BIGG'S 07 dia a dia e **não depende do PDV dela**. Se

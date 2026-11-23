@@ -124,6 +124,39 @@ python3 gerar_relatorio.py cupons.xlsx \
 >    da meia-noite continua na previsão de amanhã em vez de ir para depois de
 >    amanhã. É pouco em reais, mas é um furo que o Cloudfy não tem.
 
+> **O 19/11 SOZINHO FOI R$ 31.115,93 — CONFIRMADO, e eu tinha levantado falso
+> alarme.** Os dois primeiros exports foram **20 a 22/11** (R$ 40.974,50) e
+> **19 a 22/11** (R$ 72.090,43). Pela subtração, o 19/11 dava R$ 31.115,93 —
+> 2,3× a média diária dos outros três, e o descompasso era **igual em todas as
+> formas, inclusive no dinheiro**. Concluí daí que um dos exports não tinha
+> devolvido o período que dizia, como o portal do iFood fez em 09–15/11.
+>
+> **Era falso.** Ela puxou o 19/11 isolado e o print bate **linha por linha**
+> com a subtração, até o `FUNCIONARIO NOTURNO` de R$ 0,01. Os dois exports
+> estão corretos e a subtração entre períodos encaixados é confiável.
+>
+> **A lição:** "o mesmo descompasso em todas as formas" não prova período
+> errado — prova só que o dia inteiro foi diferente. Antes de acusar o export,
+> **pedir o dia isolado**, que custa dois cliques.
+>
+> **O que sobra como pergunta de verdade** é operacional: a BIGG'S 07 fez
+> R$ 31,1 mil na quinta e R$ 13.658,17/dia na sexta (feriado), sábado e
+> domingo, enquanto a rede **não caiu** no mesmo período (sexta R$ 264 mil,
+> sábado R$ 276 mil). A composição dela não mudou (iFood 37,56% na quinta,
+> 41,97% nos três dias), só o volume caiu pela metade. Ou a loja operou
+> reduzida logo depois da virada, ou **o PDV novo está registrando a menos**.
+>
+> **O teste que separa os dois é de graça:** o `relatorio-pedidos` do iFood da
+> semana 16–22/11 traz a BIGG'S 07 dia a dia e **não depende do PDV dela**. Se
+> o iFood mostrar sexta e sábado normais enquanto o PDV mostra metade, o furo
+> é do PDV. Conferir junto com a prévia de terça.
+
+> **O PRINT DA TELA TEM O PERÍODO; O XLSX NÃO.** O relatório na tela abre com
+> `Período: dd/mm/aaaa até dd/mm/aaaa` e `Tipo de Relatório: Analítico`, mas o
+> export perde isso. Então, quando vier só o xlsx, **perguntar o período** ou
+> pedir o print junto — e a rotina boa é **um export por dia**, que resolve o
+> período e o caderno de uma vez.
+
 > **O TESTE DE COMPLETUDE CLOUDFY × IFOOD PRECISA DA BIGG'S 07 AGORA.** O
 > `PAGAMENTO ONLINE` do Cloudfy deixou de incluir essa loja, então o lado Cloudfy
 > do teste passa a vir sistematicamente curto — no primeiro arquivo, o `IFOOD` da

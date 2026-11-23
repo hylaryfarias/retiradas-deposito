@@ -2465,6 +2465,69 @@ linha da quarta fecha abaixo de 1% quando o retido vem do portal.
 
 
 
+### O oitavo dia (19/11): a véspera de feriado quebra TRÊS linhas de uma vez
+
+Previsto R$ 112.678,14 × realizado R$ 140.959,79 — **+25,10%**, a maior sobra da
+série. E não é a BIGG'S 07: a previsão de 19/11 sai da venda de **18/11**, que
+ainda tinha 17 filiais, e o voucher sai do caderno de outubro/novembro, quando
+a loja também estava no Cloudfy.
+
+| Forma | Previsto | Realizado | | Peso na sobra |
+|---|---:|---:|---:|---:|
+| Crédito | 35.033,74 | 38.789,05 | +10,72% | +3.755,31 |
+| Débito | 33.584,96 | 35.989,07 | +7,16% | +2.404,11 |
+| **soma do cartão** | **68.618,70** | **74.778,12** | **+8,98%** | +6.159,42 |
+| Pix | 16.242,37 | 25.834,60 | +59,06% | +9.592,23 |
+| **Voucher** | 7.223,52 | 20.582,22 | **+184,93%** | **+13.358,70** |
+| A prazo | 20.593,55 | 19.689,85 | −4,39% | −903,70 |
+| Não operacional | — | 75,00 | | +75,00 |
+
+**O CARTÃO SOMADO SAIU DA FAIXA PELA PRIMEIRA VEZ EM OITO DIAS.** A série é
+−1,74% · +2,38% · −1,68% · −0,25% · +1,03% · −0,74% · −0,30% · **+8,98%**. E
+parte disso tem nome: a **madrugada de 18/11** (crédito R$ 2.420,02 + débito
+R$ 1.547,98 líquidos) foi datada para 20/11, que é feriado, e de lá para 23/11
+pelo `proximo_util()`. **Se ela caiu em 19/11 mesmo**, o erro do cartão cai de
++8,98% para **+3,02%** — ainda fora da faixa, mas perto.
+
+**O VOUCHER: 19/11 É O PRIMEIRO DIA DO REGIME DE UMA PERNA SÓ, e ele errou
++185%.** Pelo corte de 19/10, a última venda de 30 dias (19/10) caiu em 18/11, e
+de 19/11 em diante só existiria o D+15. O modelo apontou só o **04/11**
+(R$ 7.223,52 líquidos) e entraram R$ 20.582,22.
+
+> **A HIPÓTESE QUE EXPLICA AS TRÊS LINHAS DE UMA VEZ: véspera de feriado
+> antecipa.** O que cairia no feriado 20/11 pode ter sido creditado em 19/11, em
+> vez de empurrado para 23/11 como o `proximo_util()` assume. Isso explicaria o
+> voucher, o Pix e o pedaço de madrugada do cartão ao mesmo tempo, com **um
+> mecanismo só**, e não com um parâmetro ajustado.
+>
+> **MAS NÃO ESCOLHER A COMBINAÇÃO.** As candidatas do voucher span de −22% a
+> +185%:
+>
+> | Pernas | Líquido | Erro |
+> |---|---:|---:|
+> | só 04/11 (o que mandei) | 7.223,52 | +184,93% |
+> | 04/11 + 05/11 (o D+15 do feriado) | 15.560,00 | +32,28% |
+> | 20/10 + 04/11 (as duas pernas) | 14.018,63 | +46,82% |
+> | 20/10 + 21/10 + 04/11 + 05/11 | 26.488,11 | −22,30% |
+>
+> É o mesmo ajuste circular de sempre. **O teste limpo é o fechamento de 23/11**:
+> se a antecipação é real, o voucher de hoje tem de vir BAIXO, porque o
+> R$ 35.355,95 que o modelo mandou para hoje (05 a 08/11) já teria vindo em
+> parte na véspera do feriado.
+
+**O PIX: OITAVO DIA SEGUIDO PARA O D+0.** O modelo de hoje errou +59,06%; o Pix
+vendido no próprio 19/11 erra **−7,23%** com a BIGG'S 07 dentro
+(R$ 27.848,91) e **+2,79%** só com o Cloudfy (R$ 25.133,41). Curioso que o de
+fora feche melhor — pode ser que o Pix do PDV novo ainda não caia na mesma
+conta, mas **é um dia só**.
+
+> **O ACUMULADO DO VOUCHER NÃO PODE SER SOMADO AGORA: faltam cinco
+> fechamentos.** 12, 13, 16, 17 e 18/11 não vieram, então somar 19/11 aos sete
+> dias de 03 a 11/11 compara um bloco com um buraco de cinco dias no meio — e o
+> acumulado só vale porque dinheiro no dia errado se compensa **dentro da
+> janela**. **Pedir esses cinco**; sem eles o melhor teste que existe fica
+> parado.
+
 > **NÃO PERSEGUIR A DIFERENÇA DO `Líquido disponível`.** Em 04/11 ela informou
 > R$ 329.342,10 e pelos próprios números do fechamento
 > (357.062,33 − 27.339,36 empréstimo − 3.574,98 antecipação + 811,40 desconto)

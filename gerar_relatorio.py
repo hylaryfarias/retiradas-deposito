@@ -1506,11 +1506,16 @@ def gravar_previsao(caminho, dia_previsto, entrada):
     return len(novas), vistos
 
 
-def montar_texto(dias_usados, total, entrada, dia_previsto):
+def montar_texto(dias_usados, total, entrada, dia_previsto, notas=()):
     """Texto pronto para colar no WhatsApp.
 
     So entram no texto as parcelas que tem numero. O que falta sai no console,
     para nao mandar "[PREENCHER]" para a diretoria.
+
+    `notas` sai como rodape, em italico, depois de tudo: e para o dia que foge
+    do normal e precisa de uma linha de explicacao junto do numero. Pedido dela
+    em 23/11, quando a BIGG'S 07 apareceu com o fim de semana quase zerado no
+    PDV novo e ela mandou compilar assim mesmo.
     """
     primeiro, ultimo = dias_usados[0], dias_usados[-1]
 
@@ -1606,6 +1611,13 @@ def montar_texto(dias_usados, total, entrada, dia_previsto):
         else:
             partes.append(f'· Entra na quarta, {entrada["data_repasse"]:%d/%m}.')
 
+    notas = [n.strip() for n in notas if n and n.strip()]
+    if notas:
+        partes.append('')
+        partes.append('—')
+        for nota in notas:
+            partes.append(f'_{nota}_')
+
     return '\n'.join(partes) + '\n'
 
 
@@ -1681,6 +1693,12 @@ def main():
                         help='venda feita depois do corte (entra na previsao do dia '
                              'seguinte, nao na de amanha). Aceita credito=, debito=, '
                              'pix= ou so o total, que e rateado. Pode repetir.')
+    parser.add_argument('--nota', dest='notas', action='append', default=[],
+                        metavar='TEXTO',
+                        help='nota de rodape no texto do WhatsApp, em italico, '
+                             'depois de tudo. Pode repetir. Use para o dia que '
+                             'foge do normal e precisa de uma linha de '
+                             'explicacao junto do numero.')
     parser.add_argument('--outro-sistema', dest='outro_sistema', action='append',
                         default=[], metavar='[DATA=]XLSX',
                         help='Vendas-por-Tipo-de-Recebimento_*.xlsx do PDV novo '
@@ -2026,7 +2044,8 @@ def main():
 
     txt = os.path.join(args.saida, 'texto_whatsapp.txt')
     with open(txt, 'w') as arquivo:
-        arquivo.write(montar_texto(dias_usados, total, entrada, dia_previsto))
+        arquivo.write(montar_texto(dias_usados, total, entrada, dia_previsto,
+                                   args.notas))
 
     csv = os.path.join(args.saida, 'formas_agrupadas.csv')
     with open(csv, 'w') as arquivo:

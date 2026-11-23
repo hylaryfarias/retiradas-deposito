@@ -171,6 +171,23 @@ python3 gerar_relatorio.py cupons.xlsx \
 > o iFood mostrar sexta e sábado normais enquanto o PDV mostra metade, o furo
 > é do PDV. Conferir junto com a prévia de terça.
 
+> **DECISÃO DELA, 23/11: compilar com o que está lançado, e pôr nota de
+> rodapé.** Eu recomendei segurar o texto até o repuxe, porque a previsão podia
+> estar ~R$ 26 mil baixa. Ela cortou: *"eu questionei pq é o que está lançado no
+> sistema. Compila assim mesmo e me da a previsao de hoje e depois eu trago a
+> resposta. Coloca uma nota de rodape para o biggs 07"*.
+>
+> **A regra que fica: o número sai com o que o sistema tem, e a ressalva vai no
+> texto, não no lugar do texto.** Quem apura é ela; segurar o envio tira dela a
+> previsão do dia inteiro por causa de uma loja. Para isso existe agora o
+> **`--nota "texto"`** (repetível), que sai em itálico depois de tudo, separado
+> por um travessão. Foi criado neste dia e vale para qualquer dia atípico.
+>
+> O dia a prazo e o caderno saíram com o dia a dia certo da BIGG'S 07
+> (R$ 31.115,93 · R$ 36.172,86 · R$ 4.801,64 · R$ 0,00), derivado por
+> **aritmética** dos dois exports mais o print do 21/11 — a conferência
+> `19 + 20 + 21 == 19 a 22` fecha forma a forma.
+
 > **O PRINT DA TELA TEM O PERÍODO; O XLSX NÃO.** O relatório na tela abre com
 > `Período: dd/mm/aaaa até dd/mm/aaaa` e `Tipo de Relatório: Analítico`, mas o
 > export perde isso. Então, quando vier só o xlsx, **perguntar o período** ou

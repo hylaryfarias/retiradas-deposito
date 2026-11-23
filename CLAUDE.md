@@ -147,12 +147,19 @@ python3 gerar_relatorio.py cupons.xlsx \
 > |---|---:|---:|
 > | qui 19/11 | R$ 31.115,93 | R$ 248.537,08 |
 > | sex 20/11 (feriado) | R$ 36.172,86 | R$ 264.180,14 |
-> | **sáb 21 + dom 22** | **R$ 4.801,64** | R$ 458.305,02 |
+> | sáb 21/11 | R$ 4.801,64 | R$ 276.178,65 |
+> | **dom 22/11** | **R$ 0,00** | R$ 182.126,37 |
 >
 > Os dois exports concordam: `19 a 22 − 19 − 20` e `20 a 22 − 20` dão o **mesmo**
-> R$ 4.801,64. Ou seja, a loja fez R$ 33.644/dia na quinta e na sexta e
-> **R$ 2.400/dia** no sábado e no domingo — justamente quando a rede teve o
-> melhor dia do bloco (sábado, 1,045× a sexta).
+> R$ 4.801,64, e o print do 21/11 isolado mostra que **esse valor é todo do
+> sábado** — linha por linha igual à subtração. Então **o domingo 22/11 é
+> ZERO**, e o sábado foi 13% da sexta, justamente no melhor dia do bloco para a
+> rede (1,045× a sexta).
+>
+> O sábado também tem a **cara de meio dia**: Pix em 15,37% do dia contra 9,16%
+> na sexta, ELO crédito em 2,42% contra 0,41%, e `HIPERCARD`, `PLUXEE`,
+> `DELIVERY DIRETO` e `FUNCIONARIO NOTURNO` **sem nenhum lançamento**. Parece o
+> rabicho de um dia que parou de registrar no meio.
 >
 > Se a loja tivesse acompanhado a rede, sábado + domingo valeriam ~R$ 62,7 mil.
 > Como 46,3% do dia dela é cartão + Pix, **faltariam ~R$ 27 mil na entrada

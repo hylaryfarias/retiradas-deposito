@@ -52,6 +52,86 @@ anterior** (ex.: 04-07/09 + 04-07/08). O segundo serve só para o voucher D+30.
 > Por isso o script conta as filiais do xlsx e, abaixo de `FILIAIS_MINIMAS`
 > (10), **avisa e não grava**. O dia normal tem 16 ou 17.
 
+> **A BIGG'S 07 SAIU DO CLOUDFY — migração de sistema, 19 ou 20/11/2026.** Ela
+> avisou em 23/11: *"nós mudamos de sistema no biggs 07, dai tenho que exportar
+> outro relatorio a parte"*. O relatório de cupons simplesmente **não traz mais
+> essa loja**, e foi assim que apareceu: o bloco de 20 a 22/11 veio com **15
+> filiais** nos três dias, contra 17 em todos os dias úteis anteriores, e o
+> sábado 21/11 (R$ 276.178,65) ficou **abaixo do menor dos 10 sábados do
+> caderno** (R$ 294.620,74 a R$ 346.093,34).
+>
+> **O caderno está limpo até 18/11** — 18/11 tem 17 filiais e 20/11 tem 15, então
+> o corte caiu entre os dois. Nada retroativo para consertar.
+>
+> **O `FILIAIS_MINIMAS` de 10 não pega mais nada.** Ele foi feito para o caso
+> extremo (o 27/09 com uma filial só); uma queda de 17 para 15 passa tranquila
+> por ele. Quem pegou foi o olho na contagem e a comparação do sábado contra o
+> caderno — **conferir as duas coisas em toda rodada**, porque a próxima loja a
+> migrar vai aparecer exatamente assim.
+>
+> **Falta explicar UMA loja.** 17 − BIGG'S 07 = 16, e vieram 15. A contagem
+> oscila ±1 em dia normal (14 e 15/11 vieram com 16), mas três dias seguidos em
+> 15 não parece oscilação. **Perguntar qual é a outra.**
+
+### O export do PDV novo (`Vendas-por-Tipo-de-Recebimento_*.xlsx`)
+
+A venda da BIGG'S 07 chega num arquivo à parte, com layout próprio:
+
+| | |
+|---|---|
+| Aba | `sheet1` |
+| Cabeçalho | linha 1: `Unidade · Tipo de Recebimento · Entrada · Saída · Valor Total · Perc.(%)` |
+| Linhas | uma por forma (17 no primeiro arquivo), `Perc.(%)` fechando 100% |
+| Identidade | `Valor Total = Entrada − Saída`; a `Saída` só aparece no `DINHEIRO` (é o troco) |
+
+**O que ele nomeia POR BANDEIRA, o Cloudfy agrupa.** Por isso existe o
+`FORMAS_OUTRO_SISTEMA`, que traduz um no outro antes de qualquer conta — assim
+a BIGG'S 07 passa pelo mesmo `GRUPOS`, pelas mesmas taxas e pela mesma entrada
+prevista do resto da rede:
+
+| No PDV novo | Vira |
+|---|---|
+| `VISA/MASTER/ELO DEBITO (POS)` | `TEF - DEBITO` |
+| `VISA/MASTER/ELO CREDITO (POS)`, `HIPERCARD (POS)` | `TEF - CREDITO` |
+| `PIX (POS)` | `PIX MAQUININHA` |
+| `ALELO REFEICAO (POS)`, `VR REFEICAO (POS)`, `PLUXEE (POS)` | `TEF - VOUCHER` |
+| `TICKET REFEICAO (POS)` | `TEF - TICKET` |
+| `IFOOD` | `PAGAMENTO ONLINE` |
+| `A PRAZO` | `VENDA A PRAZO` |
+| `DINHEIRO` | `DINHEIRO` |
+
+Forma fora do mapa **grita no console** e fica de fora da venda e da previsão,
+igual ao aviso de forma nova do Cloudfy. No primeiro arquivo sobraram duas:
+**`DELIVERY DIRETO` (R$ 380,64)** e **`FUNCIONARIO NOTURNO` (R$ 0,23)** —
+**perguntar como cada uma liquida** antes de mapear.
+
+Como usar:
+
+```bash
+python3 gerar_relatorio.py cupons.xlsx \
+    --outro-sistema "22/11/2026=Vendas-por-Tipo-de-Recebimento_1.xlsx" --saida saida
+```
+
+> **O ARQUIVO NÃO TEM DATA NEM HORA, e isso custa duas coisas.**
+>
+> 1. **Sem data**, não dá para saber a que dia ele pertence. Com `DATA=` a venda
+>    entra naquele dia e segue para o caderno junto com o resto; **sem** `DATA=`
+>    ela entra toda no último dia do bloco — a previsão do dia fecha certo, mas o
+>    dia a dia do caderno fica sem ela, e é o caderno que alimenta o voucher 15 e
+>    30 dias depois. O script avisa quando isso acontece. **Pedir um export por
+>    dia.**
+> 2. **Sem hora**, a madrugada dessa loja não se separa. O que ela vendeu depois
+>    da meia-noite continua na previsão de amanhã em vez de ir para depois de
+>    amanhã. É pouco em reais, mas é um furo que o Cloudfy não tem.
+
+> **O TESTE DE COMPLETUDE CLOUDFY × IFOOD PRECISA DA BIGG'S 07 AGORA.** O
+> `PAGAMENTO ONLINE` do Cloudfy deixou de incluir essa loja, então o lado Cloudfy
+> do teste passa a vir sistematicamente curto — no primeiro arquivo, o `IFOOD` da
+> BIGG'S 07 foi **R$ 17.195,03 em três dias, 41,97% da venda dela**. Sem somar
+> isso, o teste que pegou a semana truncada de 09–15/11 vira alarme falso toda
+> semana. O relatório de pedidos do iFood **não** muda: ele é do iFood e sempre
+> cobriu todas as lojas.
+
 Isso entrega os três arquivos em `saida/`:
 
 | Arquivo | O que é |

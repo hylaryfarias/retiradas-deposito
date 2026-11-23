@@ -672,6 +672,138 @@ def gravar_historico_vendas(caminho, dias, filiais=None):
     return novos
 
 
+# ---------------------------------------------------------------------------
+# O PDV NOVO DA BIGG'S 07 (migracao de sistema, 19 ou 20/11/2026)
+#
+# A BIGG'S 07 saiu do Cloudfy e o relatorio de cupons deixou de trazer ela --
+# por isso o bloco de 20 a 22/11 veio com 15 filiais em vez de 17. O sistema
+# novo exporta o "Vendas-por-Tipo-de-Recebimento", com um layout proprio:
+#
+#   Unidade | Tipo de Recebimento | Entrada | Saida | Valor Total | Perc.(%)
+#
+# Uma linha por forma, `Valor Total` = `Entrada` - `Saida` (a saida e o troco,
+# que so aparece no DINHEIRO) e `Perc.(%)` fechando 100%.
+#
+# A diferenca que importa: ele nomeia a forma POR BANDEIRA, enquanto o Cloudfy
+# agrupa tudo em TEF - CREDITO / TEF - DEBITO. Este mapa traduz um no outro,
+# para a venda da BIGG'S 07 passar pelo mesmo GRUPOS, pelas mesmas taxas e
+# pela mesma entrada prevista do resto da rede.
+FORMAS_OUTRO_SISTEMA = {
+    'VISA DEBITO (POS)':      'TEF - DEBITO',
+    'MASTER DEBITO (POS)':    'TEF - DEBITO',
+    'ELO DEBITO (POS)':       'TEF - DEBITO',
+    'VISA CREDITO (POS)':     'TEF - CREDITO',
+    'MASTER CREDITO (POS)':   'TEF - CREDITO',
+    'ELO CREDITO (POS)':      'TEF - CREDITO',
+    'HIPERCARD (POS)':        'TEF - CREDITO',
+    'PIX (POS)':              'PIX MAQUININHA',
+    'ALELO REFEICAO (POS)':   'TEF - VOUCHER',
+    'VR REFEICAO (POS)':      'TEF - VOUCHER',
+    'PLUXEE (POS)':           'TEF - VOUCHER',
+    'TICKET REFEICAO (POS)':  'TEF - TICKET',
+    'IFOOD':                  'PAGAMENTO ONLINE',
+    'A PRAZO':                'VENDA A PRAZO',
+    'DINHEIRO':               'DINHEIRO',
+}
+
+
+def ler_outro_sistema(caminho):
+    """Le o Vendas-por-Tipo-de-Recebimento_*.xlsx do PDV novo.
+
+    Devolve ({forma JA no padrao do Cloudfy: valor}, total, [desconhecidas]).
+    O arquivo NAO TEM DATA nem hora: quem diz a que dia ele pertence e o
+    rotulo do --outro-sistema, e sem hora nao da para separar a madrugada
+    dessa loja.
+    """
+    try:
+        import openpyxl
+    except ImportError:
+        raise SystemExit('ERRO: ler o PDV novo precisa do openpyxl '
+                         '(pip install openpyxl).')
+
+    livro = openpyxl.load_workbook(caminho, read_only=True, data_only=True)
+    aba = livro[livro.sheetnames[0]]
+    try:
+        aba.reset_dimensions()
+    except AttributeError:
+        pass
+    linhas = aba.iter_rows(values_only=True)
+    cab = [str(c or '').strip().lower() for c in next(linhas)]
+
+    def coluna(*nomes):
+        for i, titulo in enumerate(cab):
+            if any(titulo.startswith(n) for n in nomes):
+                return i
+        raise SystemExit(f'ERRO: coluna {nomes[0]!r} nao achada em {caminho}. '
+                         f'Cabecalho: {", ".join(cab)}')
+
+    i_forma = coluna('tipo de recebimento', 'tipo')
+    i_valor = coluna('valor total', 'valor')
+
+    formas = OrderedDict()
+    total = 0.0
+    desconhecidas = []
+    for linha in linhas:
+        if linha is None or linha[i_forma] in (None, ''):
+            continue
+        nome = str(linha[i_forma]).strip().upper()
+        try:
+            valor = float(linha[i_valor] or 0)
+        except (TypeError, ValueError):
+            continue
+        if not valor:
+            continue
+        total += valor
+        destino = FORMAS_OUTRO_SISTEMA.get(nome)
+        if destino is None:
+            desconhecidas.append((nome, valor))
+            continue
+        formas[destino] = formas.get(destino, 0.0) + valor
+    return formas, total, desconhecidas
+
+
+def juntar_outro_sistema(dias, pedidos):
+    """Soma a venda do PDV novo nos dias do bloco.
+
+    `pedidos` e a lista crua do --outro-sistema, cada item `[DATA=]arquivo`.
+    Com DATA, a venda entra NAQUELE dia e segue para o caderno junto com o
+    resto. Sem DATA (o export cobre o bloco inteiro e nao diz os dias), ela
+    entra so no ULTIMO dia para o quadrinho e a previsao fecharem, e o dia a
+    dia do caderno fica sem ela -- o que o console avisa, porque e isso que
+    faz falta no voucher de 15 e 30 dias depois.
+    """
+    sem_data = []
+    for pedido in pedidos:
+        data, _, caminho = pedido.rpartition('=')
+        data = data.strip()
+        caminho = caminho.strip()
+        formas, total, desconhecidas = ler_outro_sistema(caminho)
+        rotulo = os.path.basename(caminho)
+        for nome, valor in desconhecidas:
+            print(f'ATENCAO: FORMA NOVA no PDV novo, fora do mapa: {nome} '
+                  f'(R$ {brl(valor)}) -- ela some da venda e da previsao.',
+                  file=sys.stderr)
+        if data:
+            if data not in dias:
+                raise SystemExit(
+                    f'ERRO: --outro-sistema aponta {data}, que nao esta no '
+                    f'relatorio. Dias disponiveis: {", ".join(dias)}')
+            alvo = data
+        else:
+            alvo = list(dias)[-1]
+            sem_data.append(rotulo)
+        for forma, valor in formas.items():
+            dias[alvo][forma] = dias[alvo].get(forma, 0.0) + valor
+        print(f'PDV novo ({rotulo}): R$ {brl(total)} somados em {alvo}')
+    if sem_data:
+        print('ATENCAO: o export do PDV novo nao tem data, entao a venda dele '
+              'entrou toda no ultimo dia do bloco.', file=sys.stderr)
+        print('   A previsao do dia fecha certo; o dia a dia do caderno, nao. '
+              'Peca um export POR DIA e passe --outro-sistema "dd/mm/aaaa=arquivo".',
+              file=sys.stderr)
+    return dias
+
+
 def contar_filiais(caminho):
     """{'dd/mm/aaaa': quantas filiais} do xlsx de cupons. PDF nao tem filial."""
     if not caminho.lower().endswith(('.xlsx', '.xls')):
@@ -1532,6 +1664,14 @@ def main():
                         help='venda feita depois do corte (entra na previsao do dia '
                              'seguinte, nao na de amanha). Aceita credito=, debito=, '
                              'pix= ou so o total, que e rateado. Pode repetir.')
+    parser.add_argument('--outro-sistema', dest='outro_sistema', action='append',
+                        default=[], metavar='[DATA=]XLSX',
+                        help='Vendas-por-Tipo-de-Recebimento_*.xlsx do PDV novo '
+                             '(BIGGS 07 desde 20/11/2026), que nao sai mais no '
+                             'relatorio de cupons. Pode repetir. Com DATA '
+                             '(dd/mm/aaaa=arquivo.xlsx) a venda entra naquele dia '
+                             'e vai para o caderno; sem DATA ela entra no ultimo '
+                             'dia do bloco e o caderno fica sem ela.')
     parser.add_argument('--cupons', metavar='XLSX',
                         help='Relatriodecuponsdevendas_*.xlsx do Cloudfy: o corte '
                              'da meia-noite sai dele, sem informar valor na mao')
@@ -1561,6 +1701,11 @@ def main():
     avisar_pix_tef(args.lojas_pix_tef, ptef)
     if not dias:
         raise SystemExit(f'ERRO: nenhum dia encontrado em {args.pdf}. O layout mudou?')
+
+    # A BIGG'S 07 saiu do Cloudfy na migracao de sistema: a venda dela chega
+    # num export proprio e precisa ser somada antes de qualquer conta.
+    if args.outro_sistema:
+        dias = juntar_outro_sistema(dias, args.outro_sistema)
 
     # o historico guarda TODO dia do arquivo, mesmo os que --dia deixa de fora:
     # ela mandou aquele dia, entao ele nao precisa ser pedido de novo

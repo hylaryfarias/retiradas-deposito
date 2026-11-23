@@ -688,23 +688,40 @@ def gravar_historico_vendas(caminho, dias, filiais=None):
 # agrupa tudo em TEF - CREDITO / TEF - DEBITO. Este mapa traduz um no outro,
 # para a venda da BIGG'S 07 passar pelo mesmo GRUPOS, pelas mesmas taxas e
 # pela mesma entrada prevista do resto da rede.
+#
+# O NOME VEM COM O CANAL ENTRE PARENTESES -- `(POS)` ou `(TEF)` -- e o mapa
+# ignora esse sufixo. O arquivo de 19 a 22/11 trouxe `MASTER CREDITO (TEF)` e
+# `TICKET ALIMENTACAO (TEF)`, que o de 20 a 22 nao tinha: so o 19/11, o dia da
+# virada, ainda teve TEF. Enumerar bandeira x canal cresceria sem fim, entao a
+# chave e o nome SEM o canal. Nome realmente novo continua gritando.
 FORMAS_OUTRO_SISTEMA = {
-    'VISA DEBITO (POS)':      'TEF - DEBITO',
-    'MASTER DEBITO (POS)':    'TEF - DEBITO',
-    'ELO DEBITO (POS)':       'TEF - DEBITO',
-    'VISA CREDITO (POS)':     'TEF - CREDITO',
-    'MASTER CREDITO (POS)':   'TEF - CREDITO',
-    'ELO CREDITO (POS)':      'TEF - CREDITO',
-    'HIPERCARD (POS)':        'TEF - CREDITO',
-    'PIX (POS)':              'PIX MAQUININHA',
-    'ALELO REFEICAO (POS)':   'TEF - VOUCHER',
-    'VR REFEICAO (POS)':      'TEF - VOUCHER',
-    'PLUXEE (POS)':           'TEF - VOUCHER',
-    'TICKET REFEICAO (POS)':  'TEF - TICKET',
-    'IFOOD':                  'PAGAMENTO ONLINE',
-    'A PRAZO':                'VENDA A PRAZO',
-    'DINHEIRO':               'DINHEIRO',
+    'VISA DEBITO':         'TEF - DEBITO',
+    'MASTER DEBITO':       'TEF - DEBITO',
+    'ELO DEBITO':          'TEF - DEBITO',
+    'VISA CREDITO':        'TEF - CREDITO',
+    'MASTER CREDITO':      'TEF - CREDITO',
+    'ELO CREDITO':         'TEF - CREDITO',
+    'HIPERCARD':           'TEF - CREDITO',
+    'PIX':                 'PIX MAQUININHA',
+    'ALELO REFEICAO':      'TEF - VOUCHER',
+    'VR REFEICAO':         'TEF - VOUCHER',
+    'PLUXEE':              'TEF - VOUCHER',
+    'TICKET REFEICAO':     'TEF - TICKET',
+    'TICKET ALIMENTACAO':  'TEF - TICKET',
+    'IFOOD':               'PAGAMENTO ONLINE',
+    'A PRAZO':             'VENDA A PRAZO',
+    'DINHEIRO':            'DINHEIRO',
 }
+
+CANAL_OUTRO_SISTEMA = re.compile(r'\s*\((?:POS|TEF)\)\s*$')
+
+
+def grupo_do_outro_sistema(nome):
+    """A forma do PDV novo no nome do Cloudfy, ignorando o canal do sufixo."""
+    nome = (nome or '').strip().upper()
+    if nome in FORMAS_OUTRO_SISTEMA:
+        return FORMAS_OUTRO_SISTEMA[nome]
+    return FORMAS_OUTRO_SISTEMA.get(CANAL_OUTRO_SISTEMA.sub('', nome))
 
 
 def ler_outro_sistema(caminho):
@@ -754,7 +771,7 @@ def ler_outro_sistema(caminho):
         if not valor:
             continue
         total += valor
-        destino = FORMAS_OUTRO_SISTEMA.get(nome)
+        destino = grupo_do_outro_sistema(nome)
         if destino is None:
             desconhecidas.append((nome, valor))
             continue

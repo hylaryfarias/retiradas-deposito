@@ -1694,6 +1694,42 @@ dia** (terça 24/11, véspera do repasse). O relatório veio praticamente fechad
 > na média** e o retido triplicou. Lição: **a régua de emergência serve para o
 > repasse; para o líquido ela só vale enquanto o retido estiver no normal.**
 
+> **DECISÃO DELA, 24/11: O RETIDO SAI PELA MÉDIA DO MÊS ANTERIOR.** *"esse
+> retido ta muito alto, a api nao deve ta certa.. considera a media da mesma
+> semana no mes anterior"*. Eu apontei que o extrato corrobora o quadro loja a
+> loja e que `repasse − retido` fecha na unha com o `a receber`, mas quem apura
+> é ela. Então o texto de 24/11 saiu com **4,05% do repasse, R$ 17.332,85**, e
+> `Previsão de recebimento` de **R$ 410.999,36** em vez de R$ 370.005,28 —
+> **R$ 40.994,08 de diferença**, com nota de rodapé dizendo que o portal mostra
+> R$ 58.326,93 e que o número está em conferência.
+>
+> A régua é a média das semanas de outubro, que é o mês cheio mais recente:
+> 3,8275% · 4,2315% · 4,0210% · 4,1064% → **4,0466%**. A semana espelho sozinha
+> (19–25/10) daria 4,0210%, ou R$ 17.223,09 — **R$ 110 de diferença**, então
+> entre "a média" e "a mesma semana" não muda nada na prática.
+>
+> **A regra que fica: retido muito fora da faixa medida vira estimativa pela
+> média do mês anterior, com nota de rodapé dizendo o que o portal mostra e
+> quanto a linha mexe se ele se confirmar.** O número do portal **não** se perde
+> — ele fica aqui e no chat, e o fechamento de quarta decide quem estava certo.
+
+> **A PERGUNTA CERTA DELA, 24/11: *"o relatório de pedidos 'bate' com o export
+> da api?"*** — e a resposta mostra por que o retido é o único ponto cego.
+>
+> | O que | Confere? |
+> |---|---|
+> | Repasse ÷ líquido do relatório de pedidos | **1,01362**, dentro da série (1,00198 a 1,01573) |
+> | Repasse pela régua do Cloudfy | R$ 430.485,15, **0,50%** |
+> | `INCENTIVO DA LOJA` × `STORE_SUBSIDY` | R$ 102.061,98 × R$ 103.532,96, **+1,44%** |
+> | **Retido** | **nada confere** |
+>
+> O relatório de pedidos e a régua do Cloudfy medem o **repasse**, que acontece
+> *antes* do retido; o retido é aplicado depois e só existe no portal e no
+> extrato — que são a mesma fonte. **Três caminhos independentes confirmam o
+> repasse e nenhum alcança o retido**, então um retido errado só se pega no
+> fechamento, nunca cruzando arquivo. Quando ele sair da faixa, é isso que se
+> diz no chat, em vez de defender o número do portal.
+
 > **O `Apurado no período` ficou R$ 72.350,83 abaixo do repasse** (R$ 355.981,38
 > contra R$ 428.332,21), contra R$ 389,45 de diferença em 09–15/11. Nas lojas
 > com retido o apurado é exatamente `repasse − retido`, mas em várias sem retido

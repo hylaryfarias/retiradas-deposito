@@ -171,6 +171,50 @@ python3 gerar_relatorio.py cupons.xlsx \
 > o iFood mostrar sexta e sábado normais enquanto o PDV mostra metade, o furo
 > é do PDV. Conferir junto com a prévia de terça.
 
+> **RESPONDIDO EM 24/11: O FURO É DO PDV. A LOJA ESTAVA VENDENDO.** O relatório
+> de pedidos de 16–22/11 chegou e o confronto é direto, porque o iFood não passa
+> pelo PDV dela:
+>
+> | Dia | PDV: venda total | PDV: linha `IFOOD` | iFood (itens − incentivo) | PDV/iFood |
+> |---|---:|---:|---:|---:|
+> | qui 19/11 | R$ 31.115,93 | R$ 11.687,53 | R$ 10.913,58 | **107,1%** |
+> | sex 20/11 | R$ 36.172,86 | R$ 15.522,26 | R$ 14.789,76 | **105,0%** |
+> | **sáb 21/11** | R$ 4.801,64 | R$ 1.672,77 | R$ 13.881,93 | **12,0%** |
+> | **dom 22/11** | **R$ 0,00** | **R$ 0,00** | **R$ 10.169,60** | **0,0%** |
+>
+> Nos dois dias bons o PDV bate com o iFood em 105% a 107% — a sobra é a virada
+> das 02h, exatamente como acontece com o Cloudfy. No sábado ele registrou
+> **12%** e no domingo **nada**, enquanto a loja fazia 13,62% e 13,36% do iFood
+> da rede, que é a fatia normal dela (13,4% a 14,4% nos dias bons).
+>
+> **Calibrando pelos dois dias bons** (o iFood é 40,24% da venda da loja, e o
+> PDV conta 1,06× o relatório), a venda que não foi registrada:
+>
+> | Dia | iFood | → venda estimada | PDV registrou | Não registrado |
+> |---|---:|---:|---:|---:|
+> | sáb 21/11 | R$ 13.881,93 | R$ 36.578,73 | R$ 4.801,64 | R$ 31.777,09 |
+> | dom 22/11 | R$ 10.169,60 | R$ 26.796,78 | R$ 0,00 | R$ 26.796,78 |
+> | **Total** | | | | **R$ 58.573,88** |
+>
+> A faixa, usando cada uma das duas calibrações em vez da média, é R$ 59,4 mil a
+> R$ 67,9 mil de venda nos dois dias — ou seja, a ordem de grandeza não depende
+> da escolha.
+>
+> **E isso confirma o ~R$ 27 mil que eu tinha levantado como hipótese em 23/11:**
+> 46,3% da venda dela é cartão + Pix, então R$ 58.573,88 × 46,3% = R$ 27.119,70
+> brutos, ~R$ 26,6 mil líquidos **faltando na entrada prevista de 23/11**. O
+> fechamento daquele dia tem de vir curto nesse valor, e **não é erro de modelo**.
+>
+> **O que fica como regra:** quando o PDV novo mostrar um dia muito fora da
+> curva, **o relatório de pedidos do iFood é a testemunha independente** —
+> confrontar a linha `IFOOD` do PDV contra ele dia a dia. 105% a 107% é o
+> normal; qualquer coisa muito abaixo disso é PDV que parou.
+>
+> **O caderno não tem a loja em 21 e 22/11** (os dois dias foram gravados com 15
+> filiais, sem a BIGG'S 07, porque o export dela não foi somado). Então o
+> voucher D+15 de 06 e 07/12 sai curto na parte dela — é pouco, mas **se a loja
+> repuxar esses dias depois do conserto, reprocessar**.
+
 > **DECISÃO DELA, 23/11: compilar com o que está lançado, e pôr nota de
 > rodapé.** Eu recomendei segurar o texto até o repuxe, porque a previsão podia
 > estar ~R$ 26 mil baixa. Ela cortou: *"eu questionei pq é o que está lançado no
@@ -257,6 +301,31 @@ python3 gerar_relatorio.py cupons.xlsx \
 > isso, o teste que pegou a semana truncada de 09–15/11 vira alarme falso toda
 > semana. O relatório de pedidos do iFood **não** muda: ele é do iFood e sempre
 > cobriu todas as lojas.
+>
+> **MEDIDO EM 16–22/11: a BIGG'S 07 é 13,4% a 14,4% do iFood da rede** nos dias
+> normais (16/11 13,68% · 17/11 14,44% · 20/11 13,46% · 21/11 13,62% · 22/11
+> 13,36%; o 18/11 caiu a 8,15% e o 19/11 a 11,88%, que é a própria migração). O
+> teste da semana saiu assim, e a queda a partir de 18/11 **é a loja saindo do
+> Cloudfy**, não pedido faltando:
+>
+> | Dia | iFood (itens − incentivo) | Cloudfy | Cloudfy/iFood |
+> |---|---:|---:|---:|
+> | seg 16/11 | 68.022,69 | 65.746,45 | 96,65% |
+> | ter 17/11 | 54.027,40 | 51.539,92 | 95,40% |
+> | qua 18/11 | 68.914,45 | 61.974,33 | **89,93%** |
+> | qui 19/11 | 91.881,31 | 95.429,77 | 103,86% |
+> | sex 20/11 | 109.844,64 | 109.247,33 | 99,46% |
+> | sáb 21/11 | 101.927,86 | 92.865,81 | **91,11%** |
+> | dom 22/11 | 76.135,91 | 60.937,10 | **80,04%** |
+> | **soma** | **570.754,26** | **537.740,71** | **94,22%** |
+>
+> **Enquanto a BIGG'S 07 estiver fora do Cloudfy, a referência do teste deixa de
+> ser ~99% e passa a ser ~86%** (100% menos a fatia dela). O 19/11 a 103,86% e o
+> 20/11 a 99,46% são os dias em que o export do PDV novo foi somado ao Cloudfy
+> antes do teste; o 21 e o 22/11 ficaram baixos porque o PDV dela não registrou.
+> Ou seja: **o teste continua servindo, mas só depois de somar a BIGG'S 07 no
+> lado Cloudfy** — e quando não der para somar, comparar a fatia que falta
+> contra os 13,4%–14,4% medidos aqui.
 
 Isso entrega os três arquivos em `saida/`:
 
@@ -268,6 +337,26 @@ Isso entrega os três arquivos em `saida/`:
 
 Depois: mandar o PNG e o texto no chat, com a tabela também em markdown na
 resposta, e o fechamento (soma dos dias) conferido.
+
+> **NÃO MANDAR O PNG E O TEXTO ANTES DE TER TODAS AS PEÇAS DO DIA.** Bronca dela
+> em 24/11: *"não mande a foto e o texto, antes de ter tudo! eu mandei sem o
+> bloco do ifood pq esqueci que tinha"*. Eu entreguei o quadrinho e o texto de
+> terça sem o bloco do iFood, ela repassou, e só depois lembrou que tinha o
+> quadro do portal na mão.
+>
+> **O texto é um envio só, não vai em parcelas.** Antes de montar, conferir o
+> que aquele dia exige e **cobrar o que faltar**:
+>
+> | Dia | O que o texto precisa além dos cupons |
+> |---|---|
+> | **terça** | a prévia do iFood — relatório de pedidos da semana seg–dom |
+> | **quarta** | o repasse real — quadro do portal e/ou extrato financeiro |
+> | **segunda** | iKI e TAON da semana |
+> | **dia 16** | os três `CONSUMO COLABORADORES` do ciclo 16→15 |
+> | qualquer dia | o export do PDV novo da BIGG'S 07 |
+>
+> Se a peça não vier, **perguntar antes de compilar**. Entregar e completar
+> depois não conserta: o que foi para a diretoria já foi.
 
 > **NUNCA AFIRMAR SUPERLATIVO SEM RODAR A CONSULTA.** "Melhor dia", "maior
 > venda", "recorde", "o mais fraco", "acima da média" — **nada disso sai no
@@ -1516,6 +1605,101 @@ não muda — mas repare que **os três últimos pontos ficaram todos abaixo de
 > parte. **Os dois números não são comparáveis**, então a régua de 0,77% fica
 > como está. **Pedir o quadro aberto na próxima quarta** para decidir qual das
 > duas leituras vale.
+
+#### A semana 16–22/11: O RETIDO TRIPLICOU, e a antecipação mudou de lugar
+
+Primeira semana com o **extrato financeiro e o relatório de pedidos no mesmo
+dia** (terça 24/11, véspera do repasse). O relatório veio praticamente fechado:
+**13.073 pedidos válidos, 231 cancelados, 5 sem liquidar** (R$ 282,88 de itens).
+
+| | | |
+|---|---:|---|
+| Líquido do relatório fechado | R$ 422.578,38 | itens R$ 672.816,24, incentivo da loja R$ 102.061,98 |
+| Repasse total | R$ 428.332,21 | **×1,01362** sobre o relatório fechado |
+| − Retido | −R$ 58.326,93 | **13,62%**, e **100% `sem banco informado`** |
+| = Base bruta a receber | R$ 370.005,28 | |
+| Antecipação (débito) | R$ 3.344,53 | **já dentro do repasse** — não descontar de novo |
+| Desconto por exclusividade | R$ 0,00 | depois de **quatro semanas** em R$ 2.024,37 |
+| **= Valor a receber** | **R$ 370.005,28** | R$ 0,00 já caiu; empréstimo só em 02/12 |
+
+> **O RETIDO DE 13,62% É O MAIOR DA SÉRIE, POR LARGA MARGEM.** A série vira
+> 1,88 · 4,46 · 4,32 · 3,83 · 4,23 · 4,02 · 4,11 · 2,58 · 4,41 · **13,62%**. Os
+> 4,1% teriam dado R$ 17.561,62, ou seja **R$ 40.765,31 a menos** — numa linha
+> que vai direto para o total do dia. Se o quadro não tivesse chegado, a
+> previsão de 25/11 sairia R$ 41 mil alta.
+>
+> **E o retido não está espalhado: ele pega 8 CNPJs dos 29**, e nesses leva
+> **43,68% do repasse**:
+>
+> | Conta | Repasse | Retido | % |
+> |---|---:|---:|---:|
+> | BIG FOME 0005-32 | 43.766,37 | 18.373,92 | 42,0% |
+> | BIG FOME 0003-70 | 19.507,27 | 10.558,47 | 54,1% |
+> | SERBASE 0004-90 | 25.816,59 | 9.713,46 | 37,6% |
+> | AMGEZA 0002-00 | 13.676,32 | 6.542,32 | 47,8% |
+> | BIG FOME 0008-85 | 13.941,10 | 6.282,54 | 45,1% |
+> | BIG FOME 0006-13 | 8.321,55 | 3.716,34 | 44,7% |
+> | SERBASE 0002-29 | 5.799,33 | 1.951,85 | 33,7% |
+> | SERBASE 0003-00 | 2.694,63 | 1.188,03 | 44,1% |
+> | **os outros 21 CNPJs** | **294.809,05** | **0,00** | **0%** |
+>
+> As oito ficam todas entre **33,7% e 54,1%**, o que **não tem cara de parcela
+> fixa** — tem cara de acordo que segura uma fatia do repasse daquele CNPJ até
+> quitar. **Perguntar a ela o que mudou nesses oito CNPJs**, e por que o portal
+> deixou de informar o banco: até 19–25/10 o retido vinha como Santander + Safra
+> com uma linha `sem informado` de R$ 2.387,35; em 09–15/11 ainda era Santander
+> R$ 14.439,65 + Safra R$ 2.880,97; **agora as 16 lojas atingidas estão todas
+> sem banco**.
+
+> **A ANTECIPAÇÃO ESTÁ DENTRO DO REPASSE — e desta vez dá para PROVAR.** A aba
+> `Composição` traz `ANTICIPATION_FEE −R$ 3.344,53` marcado **`sim` entra no
+> repasse**, e a soma de tudo o que entra fecha **exatamente** nos
+> R$ 428.332,21. Ou seja, a coluna `Taxa de antecipação (débito)` deste extrato
+> é o mesmo número do lançamento, já descontado: **descontá-la outra vez contaria
+> duas vezes**. É por isso que `Valor a receber = Base bruta`.
+>
+> Esta é a **terceira leitura** da linha da antecipação (12–18/10 aberta em
+> automática + lançamentos; 09–15/11 líquida da exclusividade; agora inteira
+> dentro do repasse). A régua de 0,77% foi medida na **automática**, que é a
+> parte debitada à parte — e nesta semana ela **não existe**. Então a régua fica
+> como está, e a conferência que vale é sempre a mesma: **se
+> `repasse − retido` fecha com `a receber`, a antecipação já está dentro.**
+
+> **A COMPOSIÇÃO DO REPASSE, para referência** (o que entra, R$ 428.332,21):
+> `ORDER_PAYMENT` +583.164,60 · `DELIVERY_FEE_IFOOD` −105.409,47 ·
+> `IFOOD_SUBSIDY` +97.319,27 · `DELIVERY_COMMISSION` −60.594,46 ·
+> `ORDER_COMMISSION` −49.790,51 · `SERVICE_FEE` −17.101,23 ·
+> `PAYMENT_TRANSACTION_FEE` −15.123,56 · `STORE_REFUND` +3.823,35 ·
+> `ANTICIPATION_FEE` −3.344,53 · **`Cobrança Pacote Anúncios` −3.275,49** ·
+> `CONVENIENCE_FEE` −784,79 · `TAKEOUT_COMMISSION` −521,50 · o resto abaixo de
+> R$ 50. Fora do repasse: `STORE_SUBSIDY` −103.532,96 e `ORDER_PAYMENT`
+> +19.612,74.
+>
+> A **`Cobrança Pacote Anúncios`** é linha nova (R$ 3.275,49) e **sai do
+> repasse** — não é taxa de pedido, é mídia. **Perguntar se é recorrente.**
+
+**As réguas, com o ponto novo:**
+
+| Fator | Série | Média |
+|---|---|---:|
+| Relatório fechado → repasse | 1,01347 · 1,01573 · 1,01533 · 1,00452 · 1,01034 · 1,00198 · **1,01362** | **1,0107** (era 1,0102) |
+| Retido / repasse | … 4,41% · **13,62%** | **4,1% só serve quando o retido se comporta** |
+| Repasse / Cloudfy | 0,7650 · 0,7463 · 0,7408 · 0,7475 · 0,7451 · **0,7452** | **0,7483** |
+| Líquido / Cloudfy | 0,7240 · 0,7081 · 0,7044 · 0,7197 · 0,7085 · **0,6437** | — **não usar esta semana** |
+
+> **A RÉGUA DO LÍQUIDO QUEBROU, e a do repasse não.** `repasse / Cloudfy` deu
+> 0,7452, colado na média (0,50% de erro — o Cloudfy desta semana precisou de
+> estimativa para a BIGG'S 07 de 18/11 em diante). Mas `líquido / Cloudfy` deu
+> **0,6437** contra 0,7129 de média, porque a régua do líquido **embute o retido
+> na média** e o retido triplicou. Lição: **a régua de emergência serve para o
+> repasse; para o líquido ela só vale enquanto o retido estiver no normal.**
+
+> **O `Apurado no período` ficou R$ 72.350,83 abaixo do repasse** (R$ 355.981,38
+> contra R$ 428.332,21), contra R$ 389,45 de diferença em 09–15/11. Nas lojas
+> com retido o apurado é exatamente `repasse − retido`, mas em várias sem retido
+> ele também vem bem menor (Biggs Centro: repasse R$ 18.159,12, apurado
+> R$ 8.546,73). **Não usar o apurado nesta semana** — o que fecha com `a receber`
+> é `repasse − retido`.
 
 #### O empréstimo do iFood
 

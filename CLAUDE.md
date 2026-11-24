@@ -1694,6 +1694,29 @@ dia** (terça 24/11, véspera do repasse). O relatório veio praticamente fechad
 > na média** e o retido triplicou. Lição: **a régua de emergência serve para o
 > repasse; para o líquido ela só vale enquanto o retido estiver no normal.**
 
+> **E ELA PROVOU QUE O DADO ESTÁ ERRADO: a repuxada trouxe OUTRO NÚMERO.**
+> *"eu puxei de novo e a api trouxe 72k. impossivel, nao ta certo entendeu. O
+> export q eu te dei é da fonte da api, entao o dado ta errado"*. A mesma
+> semana, já fechada, devolveu **R$ 58.326,93 numa puxada e ~R$ 72 mil na
+> outra** — e o retido de uma semana fechada é um número só. Não é preferência
+> dela, é a fonte se contradizendo.
+>
+> **E isso derruba o argumento que eu usei.** Eu disse que *"o extrato
+> corrobora o quadro, loja a loja"* como se fossem duas confirmações — **são a
+> mesma fonte**, o quadro e o xlsx saem os dois da API. Concordarem não prova
+> nada; a repuxada mostra que nem com ela mesma a fonte concorda.
+>
+> **A LIÇÃO: duas fontes só confirmam quando são INDEPENDENTES.** Antes de
+> defender um número, perguntar de onde vem cada confirmação. Aqui, o
+> **repasse** sobrevive porque o relatório de pedidos e a régua do Cloudfy
+> **não vêm da API**; o **retido** não tem nenhuma checagem de fora.
+>
+> **Quando um número do portal parecer absurdo, PEDIR A REPUXADA** — ela custa
+> dois cliques e separa "número estranho" de "dado errado", que é exatamente o
+> que nenhum cruzamento de arquivo consegue fazer. É o mesmo movimento do
+> 19/11, quando pedir o dia isolado da BIGG'S 07 desmontou um falso alarme meu;
+> aqui ele confirmou um alarme verdadeiro dela.
+
 > **DECISÃO DELA, 24/11: O RETIDO SAI PELA MÉDIA DO MÊS ANTERIOR.** *"esse
 > retido ta muito alto, a api nao deve ta certa.. considera a media da mesma
 > semana no mes anterior"*. Eu apontei que o extrato corrobora o quadro loja a

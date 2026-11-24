@@ -188,6 +188,62 @@ python3 gerar_relatorio.py cupons.xlsx \
 > **aritmética** dos dois exports mais o print do 21/11 — a conferência
 > `19 + 20 + 21 == 19 a 22` fecha forma a forma.
 
+> **CORREÇÃO (24/11): A MIGRAÇÃO COMEÇOU EM 18/11, NÃO EM 19/11 — e a previsão
+> de 19/11 saiu curta por causa disso.** Eu respondi a ela em 23/11 que a
+> previsão de quinta estava certa *"porque 18/11 tinha 17 filiais"*. A loja
+> estava no arquivo, sim, mas **quase vazia**:
+>
+> | Dia | BIGG'S 07 no Cloudfy | Fatia da rede |
+> |---|---:|---:|
+> | qua 11/11 (quarta normal) | R$ 21.605,17 | 11,81% |
+> | ter 17/11 | R$ 20.911,87 | 11,53% |
+> | **qua 18/11** | **R$ 1.887,41** | **1,08%** |
+> | 19/11 em diante | R$ 0,00 | 0% |
+>
+> A virada foi **no meio do dia 18/11**. Comparando com a quarta 11/11, faltaram
+> no Cloudfy de 18/11 cerca de R$ 3.465,02 de crédito, R$ 3.407,36 de débito e
+> R$ 3.498,46 de Pix.
+>
+> **Isso explica o único dia fora da faixa do cartão em 13 medições.** O cartão
+> de 19/11 errou **+R$ 6.159,42**, e o cartão que faltou de 18/11 vale
+> **~R$ 6.763,68 líquidos** — 91% da conta. **Não foi antecipação de véspera de
+> feriado**, como eu levantei em 23/11: foi loja faltando na base. O Pix de
+> 19/11 continua sendo o caso do D+0, mas o buraco dele também encolhe
+> (R$ 3.498,46 dos R$ 9.592,23 são a loja).
+>
+> **A LIÇÃO: contar filiais NÃO pega loja que veio quase vazia.** O
+> `FILIAIS_MINIMAS` e o olho na contagem funcionam quando a loja some; não
+> funcionam quando ela aparece com 1/12 do dia. O que pegaria é **comparar cada
+> loja contra os próprios dias recentes** — fica como melhoria pendente, e por
+> enquanto é conferência na mão quando houver migração em curso.
+
+> **COMO ESTIMAR A BIGG'S 07 QUANDO O EXPORT NÃO CHEGAR** (pedido dela em
+> 24/11: *"consegue estimar pela última segunda feira daquela loja em
+> especifico?"*). Os arquivos de cupons antigos ainda estão no disco da sessão,
+> e deles sai o histórico real da loja — **fatia muito estável, 11,5% a 13,7%
+> da rede** em todos os dias normais:
+>
+> | Dia | BIGG'S 07 | Cartão + Pix |
+> |---|---:|---:|
+> | seg 09/11 | R$ 22.872,17 | R$ 10.661,97 (46,62%) |
+> | seg 16/11 | R$ 21.657,39 | R$ 9.881,24 (45,63%) |
+> | **média das duas segundas** | **R$ 22.264,81** | **R$ 10.271,61** |
+>
+> **O jeito de injetar é acrescentar linhas no próprio xlsx de cupons**, com
+> `Filial = BIGG'S 07 - JAMIL (ESTIMADO)`, `Hora = 12:00:00` (para não cair na
+> madrugada) e os nomes de forma do Cloudfy. Assim a estimativa passa pelo mesmo
+> caminho de sempre — quadrinho, previsão, caderno e histórico do Pix — em vez
+> de entrar por fora.
+>
+> **E o voucher NÃO leva estimativa:** ele sai do caderno 15 dias atrás
+> (09/11 para a previsão de 24/11), quando a loja ainda estava no Cloudfy.
+> Somar voucher estimado contaria duas vezes.
+>
+> **O PREÇO DISSO É O CADERNO.** O dia estimado entra no `historico_vendas.csv`
+> como se fosse real, e dali alimenta o voucher de 15 e 30 dias depois.
+> **Reprocessar o dia assim que o export verdadeiro chegar** — rodar de novo
+> regrava.
+
 > **O PRINT DA TELA TEM O PERÍODO; O XLSX NÃO.** O relatório na tela abre com
 > `Período: dd/mm/aaaa até dd/mm/aaaa` e `Tipo de Relatório: Analítico`, mas o
 > export perde isso. Então, quando vier só o xlsx, **perguntar o período** ou

@@ -1776,11 +1776,71 @@ dia** (terça 24/11, véspera do repasse). O relatório veio praticamente fechad
 > diz no chat, em vez de defender o número do portal.
 
 > **O `Apurado no período` ficou R$ 72.350,83 abaixo do repasse** (R$ 355.981,38
-> contra R$ 428.332,21), contra R$ 389,45 de diferença em 09–15/11. Nas lojas
-> com retido o apurado é exatamente `repasse − retido`, mas em várias sem retido
-> ele também vem bem menor (Biggs Centro: repasse R$ 18.159,12, apurado
-> R$ 8.546,73). **Não usar o apurado nesta semana** — o que fecha com `a receber`
-> é `repasse − retido`.
+> contra R$ 428.332,21), contra R$ 389,45 de diferença em 09–15/11.
+
+#### E O SEGUNDO EXPORT RESOLVEU: era a ZOOP, o iFood Pago
+
+Ela mandou em 25/11 o `financeiro-2026-11-16-a-2026-11-22_1.xlsx`, a mesma
+semana exportada de novo, com uma instrução: *"nao considera a retenção de
+'ifood pago'"*. Desta vez **os bancos vêm nomeados**, e o retido cheio é o
+R$ 72.350,83 da repuxada dela:
+
+| Instituição | Retido | % do repasse | Lojas |
+|---|---:|---:|---:|
+| **ZOOP TECNOLOGIA E MEIOS DE PAGAMENTO S.A.** | **R$ 54.221,48** | **12,66%** | 17 |
+| BANCO SANTANDER (BRASIL) S.A. | R$ 16.111,21 | 3,76% | 19 |
+| BANCO SAFRA S.A. | R$ 2.018,14 | 0,47% | 5 |
+| **Total** | **R$ 72.350,83** | **16,89%** | |
+
+**Tirando a ZOOP, Santander + Safra dão 4,23% — colado na mediana das nove
+semanas.** Ou seja, **o retido de banco nunca saiu da faixa**: o que apareceu
+foi uma linha nova por cima. Desfaz a leitura de *"o retido triplicou"* e o
+desenho dos 8 CNPJs com 43,68%, que era a ZOOP concentrada neles.
+
+A cadeia, com a regra dela:
+
+| | | |
+|---|---:|---|
+| Repasse | R$ 428.332,21 | |
+| − Retido Santander + Safra | −R$ 18.129,35 | **4,23%** |
+| = entra na conta | R$ 410.202,86 | |
+| − Antecipação automática | −R$ 1.476,86 | **0,345%** do repasse |
+| **= Líquido de recebimento** | **R$ 408.726,00** | foi o que entrou no total de 25/11 |
+| *(ZOOP / iFood Pago, fora por decisão dela)* | *R$ 54.221,48* | |
+
+**A antecipação voltou a ter as duas metades**, como em 12–18/10: a coluna
+`Taxa de antecipação (débito)` traz R$ 4.821,39, dos quais R$ 3.344,53 são o
+`ANTICIPATION_FEE` que **entra** no repasse e R$ 1.476,86 a **automática**,
+debitada à parte. O que prova isso é `pago R$ 178.754,29 + a receber
+R$ 175.750,23 = R$ 354.504,52`, exatamente `base bruta − automática`.
+
+> **A CONFERÊNCIA QUE EU DEIXEI PASSAR: `repasse − apurado no período` É O
+> RETIDO, dentro do próprio arquivo.** No primeiro export o apurado já era
+> R$ 355.981,38, e `428.332,21 − 355.981,38 = 72.350,83` — o retido cheio, que
+> a coluna `Retido` daquele arquivo não mostrava (ela trazia R$ 58.326,93, sem
+> banco). Eu registrei o apurado como *"anômalo, não usar nesta semana"* quando
+> ele era **a única coluna consistente**.
+>
+> **Então a régua da leitura é esta, e vale em todo extrato:** conferir
+> `repasse − apurado` contra a soma da aba `Retido por banco`. Divergiu, a
+> coluna `Retido` veio incompleta — **pedir o export de novo**, que foi
+> exatamente o que resolveu aqui. E quando a aba vier com
+> `sem banco informado`, desconfiar antes de medir: o arquivo bom nomeia a
+> instituição.
+
+> **A ORDEM DOS FATOS, para eu não reescrever a história.** O primeiro export e
+> o quadro dizem R$ 58.326,93 sem banco; a repuxada dela diz ~R$ 72 mil; o
+> segundo export confirma os R$ 72.350,83 **e abre em três instituições**. A
+> conclusão dela (*"o dado tá errado"*) estava certa quanto ao primeiro
+> arquivo, e o meu argumento de que *"o extrato corrobora o quadro"* estava
+> errado por olhar duas saídas da mesma fonte. O que faltava não era outra
+> fonte — era **a mesma fonte exportada direito**.
+
+> **A ZOOP É DINHEIRO QUE O IFOOD SEGURA DE FATO**, mesmo fora do total. Fica a
+> pergunta aberta: **é o empréstimo do iFood sendo cobrado por outro caminho?**
+> A parcela de 11/2026 está marcada para **02/12** no calendário que ela mandou,
+> e se ela já está saindo pela ZOOP, aquela data não pode ser lançada de novo.
+> **Não lançar o empréstimo de 02/12 sem confirmar isso com ela.**
 
 #### O empréstimo do iFood
 

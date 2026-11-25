@@ -69,9 +69,15 @@ anterior** (ex.: 04-07/09 + 04-07/08). O segundo serve só para o voucher D+30.
 > caderno — **conferir as duas coisas em toda rodada**, porque a próxima loja a
 > migrar vai aparecer exatamente assim.
 >
-> **Falta explicar UMA loja.** 17 − BIGG'S 07 = 16, e vieram 15. A contagem
-> oscila ±1 em dia normal (14 e 15/11 vieram com 16), mas três dias seguidos em
-> 15 não parece oscilação. **Perguntar qual é a outra.**
+> **RESOLVIDO: a loja que faltava era a MAPOLI, e ela só não vendeu.** O
+> relatório de 24/11 veio com **16 filiais**, que é exatamente 17 − BIGG'S 07, e
+> a MAPOLI está nele. Ou seja, os três dias em 15 (20 a 22/11) foram feriado +
+> fim de semana sem venda nessa loja, não uma segunda migração. **Não perguntar
+> de novo.**
+>
+> A conferência que vale daqui para a frente: **enquanto a BIGG'S 07 estiver no
+> export à parte, o dia normal tem 16 filiais no Cloudfy**, e a venda bruta só
+> fecha depois de somar o PDV novo.
 
 ### O export do PDV novo (`Vendas-por-Tipo-de-Recebimento_*.xlsx`)
 
@@ -101,9 +107,25 @@ prevista do resto da rede:
 | `DINHEIRO` | `DINHEIRO` |
 
 Forma fora do mapa **grita no console** e fica de fora da venda e da previsão,
-igual ao aviso de forma nova do Cloudfy. No primeiro arquivo sobraram duas:
-**`DELIVERY DIRETO` (R$ 380,64)** e **`FUNCIONARIO NOTURNO` (R$ 0,23)** —
-**perguntar como cada uma liquida** antes de mapear.
+igual ao aviso de forma nova do Cloudfy. As que já apareceram e seguem fora:
+
+| Forma | Primeiro visto | Último valor |
+|---|---|---:|
+| `DELIVERY DIRETO` | 1º arquivo | R$ 52,30 (24/11) |
+| `FUNCIONARIO NOTURNO` | 1º arquivo | R$ 0,20 (24/11) |
+| `TAXA EXTRA` | 24/11 | R$ 33,45 |
+| `FUNCIONARIO DIURNO` | 24/11 | R$ 0,17 |
+
+Somadas valem **R$ 86,12 no dia 24/11** — e essa é exatamente a diferença entre
+somar o arquivo cru e a venda bruta do dia, então dá para conferir que nada
+mais ficou de fora. **Perguntar como cada uma liquida** antes de mapear.
+
+> **O SUFIXO DE CANAL É `(POS)` OU `(TEF)`, e os dois caem no mesmo lugar.** Em
+> 24/11 apareceu `MASTER CREDITO (TEF)` (R$ 67,00) ao lado do
+> `MASTER CREDITO (POS)`. Por isso as chaves do `FORMAS_OUTRO_SISTEMA` **não
+> levam sufixo** e o `CANAL_OUTRO_SISTEMA` tira `(POS)`/`(TEF)` antes de
+> procurar — se fosse mapa com sufixo, o `(TEF)` teria caído calado na lista de
+> desconhecidas.
 
 Como usar:
 

@@ -279,9 +279,42 @@ python3 gerar_relatorio.py cupons.xlsx \
 >
 > **A LIÇÃO: contar filiais NÃO pega loja que veio quase vazia.** O
 > `FILIAIS_MINIMAS` e o olho na contagem funcionam quando a loja some; não
-> funcionam quando ela aparece com 1/12 do dia. O que pegaria é **comparar cada
-> loja contra os próprios dias recentes** — fica como melhoria pendente, e por
-> enquanto é conferência na mão quando houver migração em curso.
+> funcionam quando ela aparece com 1/12 do dia. O que pega é **comparar cada
+> loja contra os próprios dias recentes** — e isso agora existe, no
+> `conferir_lojas.py` (ver abaixo).
+
+### `conferir_lojas.py` — a conferência loja a loja
+
+Criado em 26/11, quando ela perguntou *"veja se tem alguma loja faltando no
+cloudfy"* e o arquivo tinha vindo com **13 filiais**: faltavam BIGG'S 05, 06 e
+08 além da BIGG'S 07. A contagem de filiais diz *que* falta alguém; ela não diz
+**quem**, nem **quanto**.
+
+```bash
+python3 conferir_lojas.py cupons_de_hoje.xlsx <pastas com os dias anteriores>
+```
+
+Ele compara cada loja contra os **próprios dias recentes, no mesmo dia da
+semana**, e sai com `FALTA` (não apareceu) ou `CURTA` (veio abaixo de 60% da
+mediana), somando quanto o dia está perdendo. **Rodar sempre que a contagem de
+filiais vier diferente do esperado**, que hoje é 16 no Cloudfy.
+
+**Duas armadilhas que ele trata, as duas aprendidas errando:**
+
+1. **O nome da loja muda entre arquivos** — `BIGGS 05 - PORTUGAL` × `ZONA SUL`,
+   `MARITACAS` × `MARITACAS 88`, com e sem apóstrofo. É o mesmo problema que
+   duplicou a BIGGS 10 no painel, e a solução é a mesma: chave normalizada
+   (`BIGGS 05`), nunca o nome cru. Na primeira rodada eu comparei pelo nome e
+   metade das lojas apareceu como "faltando".
+2. **Os arquivos antigos se sobrepõem** — vários exports trazem o mesmo dia, e
+   somar todos conta a venda duas vezes. Na primeira rodada isso fez o sábado
+   21/11 aparecer com **R$ 93.689,82** numa loja que faz R$ 21 mil. Para cada
+   dia ele fica com **um** arquivo, o que tiver mais cupons.
+
+> **`FALTA` é conclusivo; `CURTA` é só um olhar.** A mediana mistura regimes
+> quando a loja mudou de tamanho — a `BIGGS 08 E 09` virou `BIGGS 08`, então
+> ela sai como "curta" em dias que estão certos. **Conferir os dias recentes
+> daquela loja antes de levar para ela.**
 
 > **COMO ESTIMAR A BIGG'S 07 QUANDO O EXPORT NÃO CHEGAR** (pedido dela em
 > 24/11: *"consegue estimar pela última segunda feira daquela loja em
@@ -309,6 +342,34 @@ python3 gerar_relatorio.py cupons.xlsx \
 > como se fosse real, e dali alimenta o voucher de 15 e 30 dias depois.
 > **Reprocessar o dia assim que o export verdadeiro chegar** — rodar de novo
 > regrava.
+
+> **26/11: AGORA SÃO QUATRO LOJAS EM MIGRAÇÃO, e a estimativa virou 29% do
+> dia.** O relatório de 25/11 veio com 13 filiais; ela confirmou que
+> **BIGG'S 05, 06 e 08 também estão migrando** e pediu para estimar as três,
+> porque estava sem acesso ao sistema (*"essas lojas estao em migração ja
+> tambem. E estou sem acesso ao sistema, entao faz essas tres pela media"*).
+>
+> | | Venda | Como entrou |
+> |---|---:|---|
+> | 13 lojas do Cloudfy | R$ 135.907,90 | relatório |
+> | BIGG'S 07 | R$ 23.275,94 | export do PDV novo |
+> | BIGG'S 05 · 06 · 08 | **R$ 31.449,22** | **~estimado**, média de 11 e 18/11 |
+> | **Total** | **R$ 190.508,60** | |
+>
+> **A estimativa é por FORMA, não por total.** Cada loja entra com a média da
+> própria venda em cada forma do Cloudfy (`TEF - CREDITO`, `PIX MAQUININHA`
+> etc.), em linhas de cupom com `Hora = 12:00:00` e `Filial = <nome>
+> (ESTIMADO)`. Assim crédito, débito, Pix e voucher caem cada um na sua linha
+> da previsão — se fosse um total só, o rateio sairia errado.
+>
+> **O risco mudou de lugar.** Com uma loja estimada era ~12% do dia; com
+> quatro é **~29%**. Enquanto durar a migração, o que pode estragar a previsão
+> não é mais o modelo — é quantas lojas o Cloudfy ainda traz. **Conferir com o
+> `conferir_lojas.py` todo dia.**
+>
+> **Dias no caderno com estimativa, para reprocessar:** 23/11 (BIGG'S 07, pelas
+> duas últimas segundas) e 25/11 (BIGG'S 05, 06 e 08). Eles alimentam o voucher
+> de **08/12** e **10/12**.
 
 > **O PRINT DA TELA TEM O PERÍODO; O XLSX NÃO.** O relatório na tela abre com
 > `Período: dd/mm/aaaa até dd/mm/aaaa` e `Tipo de Relatório: Analítico`, mas o

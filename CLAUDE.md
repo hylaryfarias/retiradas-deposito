@@ -112,13 +112,25 @@ igual ao aviso de forma nova do Cloudfy. As que já apareceram e seguem fora:
 | Forma | Primeiro visto | Último valor |
 |---|---|---:|
 | `DELIVERY DIRETO` | 1º arquivo | R$ 52,30 (24/11) |
-| `FUNCIONARIO NOTURNO` | 1º arquivo | R$ 0,20 (24/11) |
-| `TAXA EXTRA` | 24/11 | R$ 33,45 |
-| `FUNCIONARIO DIURNO` | 24/11 | R$ 0,17 |
+| `FUNCIONARIO NOTURNO` | 1º arquivo | R$ 19,05 (25/11, 4 lojas) |
+| `TAXA EXTRA` | 24/11 | R$ 32,40 (25/11, 4 lojas) |
+| `FUNCIONARIO DIURNO` | 24/11 | R$ 0,67 (25/11, 4 lojas) |
+| `CORTESIA` | 25/11 | R$ 0,08 |
 
-Somadas valem **R$ 86,12 no dia 24/11** — e essa é exatamente a diferença entre
-somar o arquivo cru e a venda bruta do dia, então dá para conferir que nada
-mais ficou de fora. **Perguntar como cada uma liquida** antes de mapear.
+Somadas valem **R$ 86,12 em 24/11** e **R$ 52,60 em 25/11** — e essa é
+exatamente a diferença entre somar o arquivo cru e a venda bruta do dia, então
+dá para conferir que nada mais ficou de fora. **Perguntar como cada uma
+liquida** antes de mapear.
+
+> **MAPEADAS EM 26/11, sem perguntar: `AMEX` → `TEF - CREDITO` e
+> `ALELO ALIMENTACAO` → `TEF - VOUCHER`.** A regra de perguntar vale para forma
+> cuja liquidação eu **não sei** — foi escrita para o `DELIVERY DIRETO` e o
+> `FUNCIONARIO NOTURNO`. Estas duas são da **mesma família do que o mapa já
+> traduz**: AMEX é cartão de crédito no POS, igual ao `HIPERCARD` que já estava,
+> e a ALELO ALIMENTACAO é a mesma operadora da `ALELO REFEICAO`. Deixá-las de
+> fora tiraria um cartão de crédito da linha de crédito, que é erro certo
+> contra um risco nenhum. **Avisei a ela no chat e pedi correção se liquidarem
+> diferente.**
 
 > **O SUFIXO DE CANAL É `(POS)` OU `(TEF)`, e os dois caem no mesmo lugar.** Em
 > 24/11 apareceu `MASTER CREDITO (TEF)` (R$ 67,00) ao lado do
@@ -370,6 +382,41 @@ filiais vier diferente do esperado**, que hoje é 16 no Cloudfy.
 > **Dias no caderno com estimativa, para reprocessar:** 23/11 (BIGG'S 07, pelas
 > duas últimas segundas) e 25/11 (BIGG'S 05, 06 e 08). Eles alimentam o voucher
 > de **08/12** e **10/12**.
+
+> **O EXPORT DO PDV NOVO TRAZ VÁRIAS LOJAS NUM ARQUIVO SÓ.** Ainda em 26/11 ela
+> mandou o `Vendas-por-Tipo-de-Recebimento.xlsx` com a coluna `Unidade`
+> separando **as quatro lojas**: `0006 - BIGGS 05 - PORTUGAL / ZONA SUL`,
+> `0007 - BIGGS 07 - JAMIL`, `0008 - BIGGS 06 - HIGIENOPOLIS` e
+> `0009 - BIGGS 08 - PARA`. O total da BIGG'S 07 bateu **exatamente** com o
+> arquivo dela sozinha (R$ 23.275,94), o que confirma que é o mesmo dia.
+>
+> **Então um `--outro-sistema` só cobre todas** — o `ler_outro_sistema()` soma
+> as linhas sem olhar a `Unidade`. Reparar que **o número da unidade não é o
+> número da loja**: a BIGG'S 05 é a unidade 0006 e a BIGG'S 06 é a 0008.
+> Conferir sempre pelo **nome**, não pelo código.
+
+> **A ESTIMATIVA PELAS DUAS ÚLTIMAS QUARTAS FUNCIONOU — medido contra o real
+> no mesmo dia.** Essa é a primeira vez que dá para conferir a régua de
+> estimativa contra o número verdadeiro:
+>
+> | Loja | Estimei | Real | Erro |
+> |---|---:|---:|---:|
+> | BIGGS 05 | 19.424,80 | 18.786,49 | **−3,3%** |
+> | BIGGS 06 | 8.174,25 | 6.243,94 | −23,6% |
+> | BIGGS 08 | 3.850,17 | 3.145,07 | −18,3% |
+> | **Total** | **31.449,22** | **28.175,50** | **−10,4%** |
+>
+> **A loja grande acerta e as pequenas erram ~20%** — mas como o peso delas é
+> pequeno, o efeito na previsão foi de **R$ 549,88, ou 0,55%** (de
+> R$ 100.082,57 para R$ 99.532,69), e na venda bruta R$ 3.201,20 (1,7%).
+>
+> Ou seja: **a média do mesmo dia da semana é régua boa o bastante para segurar
+> um dia**, e o erro fica onde não dói. Vale manter o método e **não** trocar
+> por nada mais elaborado.
+
+> **25/11 JÁ FOI REPROCESSADO com o número real** — o caderno daquele dia não
+> tem mais estimativa, e o voucher de 10/12 está limpo. **Falta só o 23/11**
+> (BIGG'S 07), que alimenta o de 08/12.
 
 > **O PRINT DA TELA TEM O PERÍODO; O XLSX NÃO.** O relatório na tela abre com
 > `Período: dd/mm/aaaa até dd/mm/aaaa` e `Tipo de Relatório: Analítico`, mas o
